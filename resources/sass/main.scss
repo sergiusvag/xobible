@@ -1,0 +1,43 @@
+a:hover {
+    color: #fff;
+}
+a:link,
+a:visited,
+a:hover,
+a:active {
+    text-decoration: none;
+}
+.main-screen {
+    min-height: 100vh;
+    background: url("/img/main-bg.jpg") no-repeat top center / cover;
+}
+.btn {
+    width: 230px;
+    border: none;
+    color: #fff;
+    background: #d63737;
+    border-radius: 30px;
+    box-shadow: 0px 2px 20px rgba(255, 63, 63, 0.5);
+    transition: background 0.5s ease;
+}
+.btn:hover {
+    border: none;
+    color: #fff;
+    background-color: rgb(170, 27, 34);
+    transition: background 0.5s ease;
+}
+.user-login-buttons .btn {
+    width: auto;
+    border-radius: 20px;
+}
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+}

@@ -1,0 +1,64 @@
+.input-field {
+    color: #fff;
+    background: rgba(118, 4, 82, 0.4);
+    border-radius: 25px;
+    border: none;
+}
+.form-control::-webkit-input-placeholder,
+.form-control::placeholder,
+.form-control::-ms-input-placeholder {
+    color: rgb(150, 150, 150);
+    background: rgba(118, 4, 82, 0.4);
+    border-radius: 25px;
+    border: none;
+}
+.input-field-textarea {
+    border-radius: 0;
+    border: none;
+    resize: none;
+    padding: 10px;
+}
+.input-field-textarea::-webkit-scrollbar {
+    display: none;
+}
+::placeholder,
+:-ms-input-placeholder,
+::-ms-input-placeholder {
+    color: #fff;
+    opacity: 1;
+}
+.form-control:focus,
+textarea:focus,
+input:focus {
+    color: #fff;
+    background: rgba(118, 4, 82, 0.4);
+    border: none;
+    outline-width: 0;
+    box-shadow: none;
+}
+.user-profile-text {
+    color: #fff;
+    background-color: rgba(159, 36, 120, 0.8);
+    border-radius: 0 25px 25px 25px;
+    padding: 10px;
+}
+.extra-link {
+    border: none;
+    color: var(--bs-link-color);
+    width: fit-content;
+    background-color: rgba(109, 240, 249, 0.7);
+    border-radius: 25px;
+    padding: 6px 10px;
+    transition: color 0.5s ease, background 0.5s ease;
+}
+.extra-link:hover {
+    background-color: rgba(38, 198, 210, 0.7);
+    transition: color 0.5s ease, background 0.5s ease;
+    color: #fff;
+}
+a {
+    transition: color 0.5s ease;
+}
+a:hover {
+    transition: color 0.5s ease;
+}
