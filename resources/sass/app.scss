@@ -1,8 +1,12 @@
-// Fonts
-@import url('https://fonts.bunny.net/css?family=Nunito');
-
 // Variables
-@import 'variables';
+@import "variables";
 
+// Fonts
+// @import url("https://fonts.bunny.net/css?family=Nunito");
 // Bootstrap
-@import 'bootstrap/scss/bootstrap';
+$input-placeholder-color: white;
+@import "~bootstrap/scss/bootstrap";
+
+@import "main";
+@import "userRelated.scss";
+@import "errors";

@@ -35,8 +35,10 @@ Route::post('/welcome/{locale}/suggestion', [SuggestionController::class, 'store
 Route::get('/welcome/{locale}/suggestion', [SuggestionController::class, 'create'])
 ->middleware('auth');
 
-Route::get('/welcome/{ru}/online-listen' , [OnlineGameController::class, 'listen']);
-Route::get('/welcome/{ru}/online-event' , [OnlineGameController::class, 'createEvent']);
+Route::get('/welcome/{ru}/online-room' , [OnlineGameController::class, 'create'])
+->middleware('auth');
+Route::post('/welcome/{ru}/online-room' , [OnlineGameController::class, 'listen'])
+->middleware('auth');
 
 Route::get('/dashboard/{locale?}', function () {
     return view('dashboard');

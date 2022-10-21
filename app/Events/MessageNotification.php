@@ -38,6 +38,6 @@ class MessageNotification implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('notification');
+        return new PrivateChannel('notification');
     }
 }
