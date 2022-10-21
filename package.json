@@ -4,7 +4,6 @@
         "dev": "vite",
         "development": "mix",
         "watch": "mix watch",
-        "dewa": "mix watch & vite",
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
         "prod": "npm run production",
