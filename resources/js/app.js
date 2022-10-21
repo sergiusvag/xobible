@@ -15,18 +15,12 @@ import { createApp } from "vue";
 
 const app = createApp({
     data() {
-        window.Echo.channel("notification").listen(
-            "MessageNotification",
-            (e) => {
-                console.log("Hello");
-            }
-        );
         return { message: "hello" };
     },
 });
 
-import ExampleComponent from "./components/ExampleComponent.vue";
-app.component("example-component", ExampleComponent);
+// import ExampleComponent from "./components/ExampleComponent.vue";
+// app.component("example-component", ExampleComponent);
 
 /**
  * The following block of code may be used to automatically register your
@@ -46,13 +40,4 @@ app.component("example-component", ExampleComponent);
  * scaffolding. Otherwise, you will need to add an element yourself.
  */
 
-app.mount("#app");
-
-// const vueApp = new Vue({
-//     el: "#app",
-//     created() {
-//         Echo.channel("notification").listen("MessageNotification", (e) => {
-//             console.log("Hello");
-//         });
-//     },
-// });
+// app.mount("#app");

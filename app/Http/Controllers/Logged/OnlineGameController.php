@@ -12,13 +12,20 @@ use Illuminate\Support\Facades\Auth;
 
 class OnlineGameController extends Controller
 {
-    public function listen()
+    public function create()
     {
+        $name = Auth::user()->name;
+        // event(new MessageNotification('This is our Message'));
+        
+        event(new MessageNotification($name));
+
         return view('logged.online-room');
     }
 
-    public function createEvent()
+    public function listen(Request $request)
     {
-        event(new MessageNotification('This is our Message'));
+        event(new MessageNotification($request['chat-id']));
+
+        return view('logged.online-room');
     }
 }

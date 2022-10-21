@@ -1,0 +1,218 @@
+.input-field {
+    color: #fff;
+    background: rgba(118, 4, 82, 0.4);
+    border-radius: 25px;
+    border: none;
+    max-width: 230px;
+    margin: 0 auto;
+}
+.form-control::-webkit-input-placeholder,
+.form-control::placeholder,
+.form-control::-ms-input-placeholder {
+    color: #fff;
+    background: rgba(118, 4, 82, 0.4);
+    border-radius: 25px;
+    border: none;
+}
+.input-field-textarea {
+    border-radius: 0;
+    border: none;
+    resize: none;
+    padding: 10px;
+}
+.input-field-bg {
+    max-width: 100%;
+}
+.input-field-textarea::-webkit-scrollbar {
+    display: none;
+}
+::placeholder,
+:-ms-input-placeholder,
+::-ms-input-placeholder {
+    color: #fff;
+    opacity: 1;
+}
+.form-control:focus,
+textarea:focus,
+input:focus {
+    color: #fff;
+    background: rgba(118, 4, 82, 0.4);
+    border: none;
+    outline-width: 0;
+    box-shadow: none;
+}
+.user-profile-text {
+    color: #fff;
+    background-color: rgba(159, 36, 120, 0.8);
+    border-radius: 0 25px 25px 25px;
+    padding: 10px;
+}
+.extra-link {
+    border: none;
+    color: var(--bs-link-color);
+    width: fit-content;
+    background-color: rgba(109, 240, 249, 0.7);
+    border-radius: 25px;
+    padding: 6px 10px;
+    transition: color 0.5s ease, background 0.5s ease;
+}
+.extra-link:hover {
+    background-color: rgba(38, 198, 210, 0.7);
+    transition: color 0.5s ease, background 0.5s ease;
+    color: #fff;
+}
+a {
+    transition: color 0.5s ease;
+}
+a:hover {
+    transition: color 0.5s ease;
+}
+.btn-logout {
+    max-width: 150px;
+}
+
+/* Menu animations */
+
+.left-wrap {
+    width: 100px;
+    height: 0;
+    // align-self: center;
+    // display: flex;
+    // justify-content: space-between;
+    // flex-direction: column;
+}
+.x-line {
+    width: 180px;
+    position: relative;
+}
+.x-line_1 {
+    transform: rotate(45deg);
+}
+.x-line_2 {
+    transform: rotate(-45deg);
+}
+.x-line__line {
+    width: 0;
+    height: 15px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #51ab31 0%, #11620f 100%);
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+.x-line__line_1 {
+    animation-name: x-drawing-animation_1;
+}
+@keyframes x-drawing-animation_1 {
+    0% {
+        width: 0;
+    }
+    40%,
+    90% {
+        width: 200px;
+        opacity: 1;
+    }
+    100% {
+        width: 200px;
+        opacity: 0;
+    }
+}
+.x-line__line_2 {
+    animation-name: x-drawing-animation_2;
+}
+@keyframes x-drawing-animation_2 {
+    0%,
+    40% {
+        width: 0;
+    }
+    80%,
+    90% {
+        width: 200px;
+        opacity: 1;
+    }
+    100% {
+        width: 200px;
+        opacity: 0;
+    }
+}
+
+.right-wrap {
+    margin: auto 0;
+}
+.circle {
+    width: 150px;
+    height: 150px;
+    position: relative;
+    margin: 0 auto;
+}
+.circle__half {
+    position: absolute;
+    width: 150px;
+    height: inherit;
+    border-radius: 50%;
+    border-width: 15px;
+    border-style: solid;
+    border-color: rgb(128, 10, 45);
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    /* background: -webkit-linear-gradient(left top, crimson 0%, #f90 100%); */
+}
+.left-half {
+    clip: rect(0px, 75px, 150px, 0px);
+    transform: rotate(180deg);
+    animation-name: left-rotate;
+}
+.half-wrap {
+    position: absolute;
+    width: 75px;
+    height: inherit;
+    overflow: hidden;
+}
+.half-wrap-right {
+    left: 75px;
+}
+.right-half {
+    left: -75px;
+    clip: rect(0px, 150px, 150px, 75px);
+    transform: rotate(180deg);
+    animation-name: right-rotate;
+}
+
+@keyframes left-rotate {
+    0% {
+        transform: rotate(180deg);
+        border-color: rgb(133, 78, 6);
+    }
+    40%,
+    90% {
+        transform: rotate(360deg);
+        opacity: 1;
+    }
+    100% {
+        border-color: rgb(223, 143, 22);
+        transform: rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes right-rotate {
+    0% {
+        border-color: rgb(133, 78, 6);
+    }
+    0%,
+    40% {
+        transform: rotate(180deg);
+    }
+    85%,
+    90% {
+        transform: rotate(360deg);
+        opacity: 1;
+    }
+    100% {
+        border-color: rgb(223, 143, 22);
+        transform: rotate(360deg);
+        opacity: 0;
+    }
+}
