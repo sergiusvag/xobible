@@ -2,7 +2,7 @@
 
 @section('control_content_menu')
     <h3 class="register-header text-center">{{ __('Register') }}</h3>
-    <form method="POST" action="{{ route('register') }}">
+    <form method="POST" action="{{ route('register').'/'.app()->getLocale() }}">
         @csrf
         <div class="register-group mt-4">
             <input type="text" name="name" class="form-control input-field text-center input-group" id="name" placeholder="{{ __('Name') }}">
@@ -33,15 +33,13 @@
             @endif
         
         <div class="register-group mt-3 m-auto text-center">
-            <a class="register-already-registered extra-link" href="{{ route('login') }}">
+            <a class="register-already-registered extra-link" href="{{ route('login').'/'.app()->getLocale() }}">
                 {{ __('Already registered?') }}
             </a>
         </div>
         <div class="register-group mt-4">
             <button type="submit" class="btn">{{ __('Register') }}</button>
         </div>
-        <div class="col-12 col-md-9 col-lg-6 m-auto text-center">
-            <a href="/" class="btn mt-2">{{ __('Back') }}</a>
-        </div>
+        @include('components.back-button')
     </form>
 @endsection

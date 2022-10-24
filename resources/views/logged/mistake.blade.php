@@ -10,7 +10,14 @@
         <div class="user-profile-text text-center mt-1">
             {{ __('We have provided for you a template of the mistake description for your convenience.') }}
         </div>
-        <form id="form-submit-mistake" method="POST" action="{{ url()->current() }}">
+        <form id="form-submit-mistake" method="POST" action="{{ url()->current() }}"
+        @php if(app()->getLocale() === 'he') 
+            { 
+        @endphp
+            class="input-rtl"
+        @php
+            }
+        @endphp>
             @csrf
             <div class="mt-4 w-25 m-auto">
                 <input type="number" name="question_id" class="form-control input-field input-field-bg text-center input-group" id="question_id" placeholder="{{ __('Question №') }}" 
@@ -29,7 +36,7 @@
                 </div>
             @endif
             <div class="text-start mt-3">
-                <textarea name="mistake" rows="5" class="input-field input-field-textarea input-group" id="mistake" required>@if (session('mistake'))
+                <textarea name="mistake" rows="5" class="input-field input-field-bg input-field-textarea input-group" id="mistake" required>@if (session('mistake'))
 {{ session('mistake') }}
                 @else
 {{ __('I found a mistake in: Question / Option № : 1,2,3,4 / Answer / Location') }}
@@ -40,7 +47,7 @@
             <div class="row mt-4">
                 <div class="col-12 col-md-9 col-lg-6 m-auto text-center">
                     <button type="submut" class="btn mt-3">{{ __('Submit mistake') }}</button>
-                    <a href="/" class="btn mt-3">{{ __('Back') }}</a>
+                    <a href="{{ '/welcome/' . app()->getLocale() }}" class="btn mt-3">{{ __('Back') }}</a>
                 </div>
             </div>
         </form>

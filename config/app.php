@@ -99,7 +99,8 @@ return [
 
     'available_locales' => [
         'English' => 'en',
-        'Russian' => 'ru'
+        'Russian' => 'ru',
+        'Hebrew' => 'he'
     ],
     /*
     |--------------------------------------------------------------------------

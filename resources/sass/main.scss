@@ -31,6 +31,20 @@ a:active {
     width: auto;
     border-radius: 20px;
 }
+.btn-locale {
+    max-width: 60px;
+    min-width: 60px;
+}
+.btn-dis {
+    cursor: auto;
+    max-width: 50px;
+    min-width: 50px;
+    background: #474646;
+    box-shadow: none;
+}
+.btn-dis:hover {
+    background: #474646;
+}
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {

@@ -28,17 +28,14 @@ Route::get('/welcome/{locale}', function () {
     return view('welcome');
 });
 
-Route::post('/welcome/{locale}/mistake', [MistakeController::class, 'store']);
-Route::get('/welcome/{locale}/mistake', [MistakeController::class, 'create'])
-->middleware('auth');
-Route::post('/welcome/{locale}/suggestion', [SuggestionController::class, 'store']);
-Route::get('/welcome/{locale}/suggestion', [SuggestionController::class, 'create'])
-->middleware('auth');
-
-Route::get('/welcome/{ru}/online-room' , [OnlineGameController::class, 'create'])
-->middleware('auth');
-Route::post('/welcome/{ru}/online-room' , [OnlineGameController::class, 'listen'])
-->middleware('auth');
+Route::middleware('auth')->group(function () {
+    Route::post('/mistake/{locale}', [MistakeController::class, 'store']);
+    Route::get('/mistake/{locale}', [MistakeController::class, 'create']);
+    Route::post('/suggestion/{locale}', [SuggestionController::class, 'store']);
+    Route::get('/suggestion/{locale}', [SuggestionController::class, 'create']);
+    Route::get('/online-room/{locale}' , [OnlineGameController::class, 'create']);
+    Route::post('/online-room/{locale}' , [OnlineGameController::class, 'listen']);
+});
 
 Route::get('/dashboard/{locale?}', function () {
     return view('dashboard');
