@@ -81,8 +81,8 @@ class MistakeResource extends AuthorableResource
                 }),
         ];
         $sightFields = $this::createAndMergeLangSight($mistake->question, $sightFields, __('English'));
-        $sightFields = $this::createAndMergeLangSight($mistake->question->questionRu, $sightFields, __('Russian'));
-        $sightFields = $this::createAndMergeLangSight($mistake->question->questionHe, $sightFields, __('Hebrew'));
+        $sightFields = $this::createAndMergeLangSight($mistake->question['questionRu'], $sightFields, __('Russian'));
+        $sightFields = $this::createAndMergeLangSight($mistake->question['questionHe'], $sightFields, __('Hebrew'));
 
         return $sightFields;
     }
