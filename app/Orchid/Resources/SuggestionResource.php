@@ -33,6 +33,14 @@ class SuggestionResource extends AuthorableResource
      */
     public function fields(): array
     {
+        $localeArr = config('app.available_locales');
+        $langOptions = [
+            'none' => __('Do not add yet'),
+        ];
+        
+        foreach($localeArr as $localeName => $locale) {
+            $langOptions[$locale] = __($localeName);
+        }
         return [
             Input::make('id')
                 ->type('hidden'),
@@ -54,12 +62,7 @@ class SuggestionResource extends AuthorableResource
                 ->title(__('Answer location in the Bible')),
             Input::make('author_id')->type('hidden'),
             Select::make('addToQuestionsLocale')
-                ->options([
-                    'none'   => __('Do not add yet'),
-                    'EN' => __('English'),
-                    'RU' => __('Russian'),
-                    'HE' => __('Hebrew'),
-                ])
+                ->options($langOptions)
                 ->title('Select tags'),
         ];
     }
@@ -157,41 +160,33 @@ class SuggestionResource extends AuthorableResource
     public function CustomSave(ResourceRequest $request, Model $model, Array $fields, Array $noneModelFields) {
 
         if($noneModelFields["addToQuestionsLocale"] !== 'none') {
-                $questionModel;
-                $fieldsToFill = [
-                    'EN' => ['author_id' => $fields['author_id']],
-                    'RU' => [],
-                    'HE' => [],
-                ];
-                switch ($noneModelFields["addToQuestionsLocale"]) {
-                    case "EN":
-                        $fieldsToFill['EN'] = $fields;
-                        break;
-                    case "RU":
-                        $fieldsToFill['RU'] = $fields;
-                        break;
-                    case "HE":
-                        $fieldsToFill['HE'] = $fields;
-                        break;
-                }
+            $localeArr = config('app.available_locales');
+            $fieldsToFill = [];
+            foreach($localeArr as $locale) {
+                $fieldsToFill[ucfirst($locale)] = $noneModelFields["addToQuestionsLocale"] === $locale ? $fields : [];
+            }
 
-                $question = new Question;
-                $question->forceFill($fieldsToFill['EN'])->save();
-                
-                $fieldsToFill['RU']['question_id'] = $question->id;
-                $fieldsToFill['RU']['author_id'] = $question->author_id;
-                $questionRu = new QuestionRu;
-                $questionRu->forceFill($fieldsToFill['RU'])->save();
-                
-                $fieldsToFill['HE']['question_id'] = $question->id;
-                $fieldsToFill['HE']['author_id'] = $question->author_id;
-                $questionHe = new QuestionHe;
-                $questionHe->forceFill($fieldsToFill['HE'])->save();
+            $localeArrCustom = parent::localeArr();
+            $question = $this::localeQuestionSave(Question::class, $fieldsToFill['En'], null, $fields['author_id']);
+            foreach($localeArrCustom['Other'] as $locale) {
+                $this::localeQuestionSave('App\Models\Question'.$locale, $fieldsToFill[$locale], $question->id, $fields['author_id']);
+            }
 
-                Suggestion::destroy($noneModelFields["id"]);
+            Suggestion::destroy($noneModelFields["id"]);
         } else {
             $model->forceFill($fields)->save();
         }
+    }
+
+    public function localeQuestionSave($localeQuestionClass, $fields, $question_id, $author_id){
+        if($question_id !== null) {
+            $fields['question_id'] = $question_id;
+        }
+        $fields['author_id'] = $author_id;
+        $question = new $localeQuestionClass;
+        $question->forceFill($fields)->save();
+
+        return $question;
     }
 
     public static function label(): string
