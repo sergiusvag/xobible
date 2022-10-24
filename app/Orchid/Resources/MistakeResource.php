@@ -4,6 +4,9 @@ namespace App\Orchid\Resources;
 
 use App\Orchid\Resources\AuthorableResource;
 use App\Models\Mistake;
+use App\Models\Question;
+use App\Models\QuestionRu;
+use App\Models\QuestionHe;
 use Orchid\Crud\Resource;
 use Orchid\Screen\TD;
 use Orchid\Screen\Sight;
@@ -62,40 +65,26 @@ class MistakeResource extends AuthorableResource
      */
     public function legend(): array
     {
-        return [
-            Sight::make('id'),
-            Sight::make('mistake', __('Mistake')),
-            Sight::make('author_id', __('Author'))
-                ->render(function ($mistake) {
-                    return $mistake->author->name;
-                }),
-            Sight::make('question_id', __('Question') . ' №'),
-            Sight::make('question', __('Question'))
-                ->render(function ($mistake) {
-                    return $mistake->question->question;
-                }),
-            Sight::make('options', __('Options'))
-                ->render(function ($mistake) {
-                    return '1: '.$mistake->question->option_1
-                            .'<br>2: '.$mistake->question->option_2
-                            .'<br>3: '.$mistake->question->option_3
-                            .'<br>4: '.$mistake->question->option_4;
-                }),
-            Sight::make('answer', __('Answer'))
-                ->render(function ($mistake) {
-                    return $mistake->question->answer;
-                }),
-            Sight::make('location', __('Location'))
-                ->render(function ($mistake) {
-                    return $mistake->question->location;
-                }),
-            Sight::make('link to question', __('Link to question'))
+        $id = request()->route('id');
+        $mistake = $this::$model::find($id);
+
+        $sightFields = [
+            Sight::make('id', 'id : ' . $mistake->id)->render(function() { return '';}),
+            Sight::make('mistake', __('Mistake') . ' : '. $mistake->mistake)->render(function() { return '';}),
+            Sight::make('author_id', __('Author') . ' : ' . $mistake->author->name)->render(function() { return '';}),
+            Sight::make('question_id', __('Question') . ' № : ' . $mistake->question_id)->render(function() { return '';}),
+            Sight::make('link to question', '')
                 ->render(function ($mistake) {
                     $linkToQuestion = __('Link to question');
 
-                    return '<a href="/admin/crud/edit/question-resources/'.$mistake->question->id.'">'.$linkToQuestion.'</a>';
-                })
+                    return '<a style="color:blue" href="/admin/crud/edit/question-resources/'.$mistake->question->id.'">'.$linkToQuestion.'</a>';
+                }),
         ];
+        $sightFields = $this::createAndMergeLangSight($mistake->question, $sightFields, __('English'));
+        $sightFields = $this::createAndMergeLangSight($mistake->question->questionRu, $sightFields, __('Russian'));
+        $sightFields = $this::createAndMergeLangSight($mistake->question->questionHe, $sightFields, __('Hebrew'));
+
+        return $sightFields;
     }
 
     /**

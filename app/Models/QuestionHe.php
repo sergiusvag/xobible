@@ -7,14 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
-use App\models\Mistake;
-use App\models\QuestionHe;
-use App\models\QuestionRu;
+use App\models\Question;
 
-class Question extends Model
+class QuestionHe extends Model
 {
     use HasFactory, AsSource, Filterable, Attachable;
     
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'questions_he';
+
     protected $fillable = [
         'question',
         'option_1',
@@ -24,22 +29,13 @@ class Question extends Model
         'answer',
         'location',
         'confirmed',
-        'author_id'
+        'author_id',
+        'question_id'
     ];
-    
-    public function questionRu()
-    {
-        return $this->hasOne(QuestionRu::class);
-    }
-    
-    public function questionHe()
-    {
-        return $this->hasOne(QuestionHe::class);
-    }
 
-    public function mistakes()
+    public function questionEn()
     {
-        return $this->hasMany(Mistake::class);
+        return $this->belongsTo(Question::class);
     }
 
     public function author()

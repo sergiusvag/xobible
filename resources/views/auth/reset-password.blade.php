@@ -29,7 +29,5 @@
         
         <button type="submit" class="btn mt-4">{{ __('Reset Password') }}</button>
     </form>
-    <div class="col-12 col-md-9 col-lg-6 m-auto text-center">
-        <a href="/" class="btn mt-2">{{ __('Back') }}</a>
-    </div>
+        @include('components.back-button')
 @endsection

@@ -5,6 +5,8 @@ namespace App\Orchid\Resources;
 use App\Orchid\Resources\AuthorableResource;
 use App\Models\Suggestion;
 use App\Models\Question;
+use App\Models\QuestionRu;
+use App\Models\QuestionHe;
 use Illuminate\Database\Eloquent\Model;
 use Orchid\Crud\Resource;
 use Orchid\Crud\ResourceRequest;
@@ -13,6 +15,7 @@ use Orchid\Screen\Sight;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Group;
 use Orchid\Screen\Fields\CheckBox;
+use Orchid\Screen\Fields\Select;
 
 class SuggestionResource extends AuthorableResource
 {
@@ -34,8 +37,7 @@ class SuggestionResource extends AuthorableResource
             Input::make('id')
                 ->type('hidden'),
             Input::make('question')
-                ->title(__('Question'))
-                ->required(),
+                ->title(__('Question')),
             Group::make([
                 Input::make('option_1')
                 ->title(__('Possible answer'). ' 1'),
@@ -47,17 +49,18 @@ class SuggestionResource extends AuthorableResource
                 ->title(__('Possible answer'). ' 4'),
             ]),
             Input::make('answer')
-                ->title(__('Correct answer'))
-                ->required(),
+                ->title(__('Correct answer')),
             Input::make('location')
-                ->title(__('Answer location in the Bible'))
-                ->required(),
+                ->title(__('Answer location in the Bible')),
             Input::make('author_id')->type('hidden'),
-            CheckBox::make('addToQuestions')
-                        ->value(0)
-                        ->placeholder(__('Add this suggestion to questions'))
-                        ->help('This action will delete the question from suggestions and add it to questions')
-                        ->sendTrueOrFalse()
+            Select::make('addToQuestionsLocale')
+                ->options([
+                    'none'   => __('Do not add yet'),
+                    'EN' => __('English'),
+                    'RU' => __('Russian'),
+                    'HE' => __('Hebrew'),
+                ])
+                ->title('Select tags'),
         ];
     }
 
@@ -97,20 +100,16 @@ class SuggestionResource extends AuthorableResource
      */
     public function legend(): array
     {
-        return [
-            Sight::make('id'),
-            Sight::make('question', __('Question')),
-            Sight::make('option_1', __('Option').' 1'),
-            Sight::make('option_2', __('Option').' 2'),
-            Sight::make('option_3', __('Option').' 3'),
-            Sight::make('option_4', __('Option').' 4'),
-            Sight::make('answer', __('Answer')),
-            Sight::make('location', __('Location')),
-            Sight::make('author_id', __('Author'))
-                ->render(function ($question) {
-                    return $question->author->name;
-                }),
+        $id = request()->route('id');
+        $suggestion = $this::$model::find($id);
+        $sightFields = [
+            Sight::make('id', 'id : ' . $suggestion->id)->render(function() { return '';}),
+            Sight::make('author_id', __('Author') . ' : ' . $suggestion->author->name)->render(function() { return '';}),
         ];
+        
+        $sightFields = $this::createAndMergeLangSight($suggestion, $sightFields, __('Suggestion'));
+        
+        return $sightFields;
     }
 
     /**
@@ -134,22 +133,61 @@ class SuggestionResource extends AuthorableResource
             "location" => $fields["location"],
             "author_id" => $fields["author_id"],
         ];
+        
+        if($fields["addToQuestionsLocale"] !== 'none')
+        {
+            $allFieldsSetEn = true;
+            foreach ($fieldsForModel as $key => $value) {
+                if(empty($value)) {
+                    $allFieldsSetEn = false;
+                }
+            }
+            $fieldsForModel['confirmed'] = $allFieldsSetEn;
+        }
 
         return [
             'fields' => $fieldsForModel,
             'none_model_fields' => [
-                "addToQuestions" => $fields["addToQuestions"],
+                "addToQuestionsLocale" => $fields["addToQuestionsLocale"],
                 "id" => $fields["id"]
             ],
         ];
     }
     
     public function CustomSave(ResourceRequest $request, Model $model, Array $fields, Array $noneModelFields) {
-        if($fields["option_1"] !== null && $fields["option_2"] !== null 
-            && $fields["option_3"] !== null && $fields["option_4"] !== null 
-            && $noneModelFields["addToQuestions"] !== '0') {
+
+        if($noneModelFields["addToQuestionsLocale"] !== 'none') {
+                $questionModel;
+                $fieldsToFill = [
+                    'EN' => ['author_id' => $fields['author_id']],
+                    'RU' => [],
+                    'HE' => [],
+                ];
+                switch ($noneModelFields["addToQuestionsLocale"]) {
+                    case "EN":
+                        $fieldsToFill['EN'] = $fields;
+                        break;
+                    case "RU":
+                        $fieldsToFill['RU'] = $fields;
+                        break;
+                    case "HE":
+                        $fieldsToFill['HE'] = $fields;
+                        break;
+                }
+
                 $question = new Question;
-                $question->forceFill($fields)->save();
+                $question->forceFill($fieldsToFill['EN'])->save();
+                
+                $fieldsToFill['RU']['question_id'] = $question->id;
+                $fieldsToFill['RU']['author_id'] = $question->author_id;
+                $questionRu = new QuestionRu;
+                $questionRu->forceFill($fieldsToFill['RU'])->save();
+                
+                $fieldsToFill['HE']['question_id'] = $question->id;
+                $fieldsToFill['HE']['author_id'] = $question->author_id;
+                $questionHe = new QuestionHe;
+                $questionHe->forceFill($fieldsToFill['HE'])->save();
+
                 Suggestion::destroy($noneModelFields["id"]);
         } else {
             $model->forceFill($fields)->save();

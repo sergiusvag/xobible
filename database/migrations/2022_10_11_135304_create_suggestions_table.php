@@ -15,13 +15,13 @@ return new class extends Migration
     {
         Schema::create('suggestions', function (Blueprint $table) {
             $table->id();
-            $table->string('question');
+            $table->string('question')->nullable();
             $table->string('option_1')->nullable();
             $table->string('option_2')->nullable();
             $table->string('option_3')->nullable();
             $table->string('option_4')->nullable();
-            $table->string('answer');
-            $table->string('location');
+            $table->string('answer')->nullable();
+            $table->string('location')->nullable();
             $table->bigInteger('author_id');
             $table->timestamps();
         });
