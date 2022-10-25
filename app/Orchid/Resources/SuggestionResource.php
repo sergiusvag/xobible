@@ -106,8 +106,8 @@ class SuggestionResource extends AuthorableResource
         $id = request()->route('id');
         $suggestion = $this::$model::find($id);
         $sightFields = [
-            Sight::make('id', 'id : ' . $suggestion->id)->render(function() { return '';}),
-            Sight::make('author_id', __('Author') . ' : ' . $suggestion->author->name)->render(function() { return '';}),
+            Sight::make('id', 'id : '),
+            Sight::make('author_id', __('Author :')),
         ];
         
         $sightFields = $this::createAndMergeLangSight($suggestion, $sightFields, __('Suggestion'));
@@ -232,5 +232,10 @@ class SuggestionResource extends AuthorableResource
     public static function deleteToastMessage(): string
     {
         return __('The suggestion was deleted!');
+    }
+    
+    public static function deleteButtonLabel(): string
+    {
+        return __('Delete Suggestion');
     }
 }

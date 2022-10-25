@@ -182,10 +182,11 @@ class QuestionResource extends AuthorableResource
 
         $id = request()->route('id');
         $question = $this::$model::find($id);
+        $questionRu = $question['questionRu'];
         $mistakes = $question->mistakes;
         $sightFields = [
-            Sight::make('id', 'id : ' . $question->id)->render(function() { return '';}),
-            Sight::make('author_id', __('Author') . ' : ' . $question->author->name)->render(function() { return '';}),
+            Sight::make('id', 'id : '),
+            Sight::make('author_id', __('Author') . ' : ')->render(function($question) { return $question->author->name;}),
         ];
 
         $sightFields = $this::createAndMergeLangSight($question, $sightFields, __('English'));
@@ -249,13 +250,12 @@ class QuestionResource extends AuthorableResource
         }
         
         $localeArr = parent::localeArr();
-        $allFIelds = ['En' => $this::extractFields($fields, 'En')];
+        $allFields = ['En' => $this::extractFields($fields, 'En')];
         foreach($localeArr['Other'] as $langName => $locale) {
-            $allFIelds[$locale] = $this::extractFields($fields, $locale);
+            $allFields[$locale] = $this::extractFields($fields, $locale);
         }
-
         return [
-            'fields' => $allFIelds,
+            'fields' => $allFields,
             'none_model_fields' => [],
         ];
     }
@@ -334,5 +334,10 @@ class QuestionResource extends AuthorableResource
     public static function deleteToastMessage(): string
     {
         return __('The question was deleted!');
+    }
+    
+    public static function deleteButtonLabel(): string
+    {
+        return __('Delete Question');
     }
 }

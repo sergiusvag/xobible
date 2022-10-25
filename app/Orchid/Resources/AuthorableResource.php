@@ -11,6 +11,14 @@ use Orchid\Screen\Sight;
 // Extand this class only if you have an author_id in your model
 abstract class AuthorableResource extends Resource
 {
+    // public static function useLocaleArr($method, $arr) {
+    //     $localeArr = self::localeArr();
+
+    //     foreach($localeArr['Other'] as $langName => $locale) {
+    //         $arr = $method($langName, $locale, $arr);
+    //     }
+    //     return $arr;
+    // }
     public static function localeArr()
     {
         $localeArr =  ['English' => 'En'];
@@ -33,17 +41,20 @@ abstract class AuthorableResource extends Resource
         return $fields;
     }
 
+    public function emptyFunc() { return '';}
+
     public function createAndMergeLangSight($question, $initSights, $title) {
         $sights = [
             Sight::make('divider', ""),
-            Sight::make('divider', $title),
-            Sight::make('question', __('Question') . ' : ' . $question->question)->render(function() { return '';}),
-            Sight::make('option_1', __('Options') . ' 1 : ' . $question->option_1)->render(function() { return '';}),
-            Sight::make('option_2', __('Option') . ' 2 : ' . $question->option_2)->render(function() { return '';}),
-            Sight::make('option_3', __('Option') . ' 3 : ' . $question->option_3)->render(function() { return '';}),
-            Sight::make('option_4', __('Option') . ' 4 : ' . $question->option_4)->render(function() { return '';}),
-            Sight::make('answer', __('Answer')  . ' : ' . $question->answer)->render(function() { return '';}),
-            Sight::make('location', __('Location')  . ' : ' . $question->location)->render(function() { return '';}),
+            Sight::make('divider', "")->render(function() use($title) { return $title;}),
+            Sight::make('divider', ""),
+            Sight::make('question', __('Question :'))->render(function() use($question) { return $question->question;}),
+            Sight::make('option_1', __('Option 1 :'))->render(function() use($question) { return $question->option_1;}),
+            Sight::make('option_2', __('Option 2 :'))->render(function() use($question) { return $question->option_2;}),
+            Sight::make('option_3', __('Option 3 :'))->render(function() use($question) { return $question->option_3;}),
+            Sight::make('option_4', __('Option 4 :'))->render(function() use($question) { return $question->option_4;}),
+            Sight::make('answer', __('Answer :'))->render(function() use($question) { return $question->answer;}),
+            Sight::make('location', __('Location :'))->render(function() use($question) { return $question->location;}),
         ];
             
         return array_merge($initSights,$sights);

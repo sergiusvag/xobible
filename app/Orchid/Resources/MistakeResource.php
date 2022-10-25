@@ -69,10 +69,11 @@ class MistakeResource extends AuthorableResource
         $mistake = $this::$model::find($id);
 
         $sightFields = [
-            Sight::make('id', 'id : ' . $mistake->id)->render(function() { return '';}),
-            Sight::make('mistake', __('Mistake') . ' : '. $mistake->mistake)->render(function() { return '';}),
-            Sight::make('author_id', __('Author') . ' : ' . $mistake->author->name)->render(function() { return '';}),
-            Sight::make('question_id', __('Question') . ' № : ' . $mistake->question_id)->render(function() { return '';}),
+            Sight::make('id', 'id : '),
+            Sight::make('mistake', __('Mistake :')),
+            Sight::make('author_id', __('Author :')),
+            Sight::make('question_id', __('Question № :')),
+            Sight::make('divider', ""),
             Sight::make('link to question', '')
                 ->render(function ($mistake) {
                     $linkToQuestion = __('Link to question');
@@ -140,5 +141,10 @@ class MistakeResource extends AuthorableResource
     public static function deleteToastMessage(): string
     {
         return __('The mistake was deleted!');
+    }
+
+    public static function deleteButtonLabel(): string
+    {
+        return __('Delete Mistake');
     }
 }
