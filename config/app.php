@@ -101,6 +101,7 @@ return [
         'English' => 'en',
         'Russian' => 'ru',
         'Hebrew' => 'he'
+        // 'Arabic' => 'ar' // Example for a new langauge
     ],
     /*
     |--------------------------------------------------------------------------

@@ -8,8 +8,9 @@ use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
 use App\models\Mistake;
-use App\models\QuestionHe;
 use App\models\QuestionRu;
+use App\models\QuestionHe;
+// use App\models\QuestionAr; // Example for new question model in a new langauge
 
 class Question extends Model
 {
@@ -26,16 +27,6 @@ class Question extends Model
         'confirmed',
         'author_id'
     ];
-    
-    public function questionRu()
-    {
-        return $this->hasOne(QuestionRu::class);
-    }
-    
-    public function questionHe()
-    {
-        return $this->hasOne(QuestionHe::class);
-    }
 
     public function mistakes()
     {
@@ -46,4 +37,20 @@ class Question extends Model
     {
         return $this->belongsTo(User::class, 'author_id');
     }
+    
+    public function questionRu()
+    {
+        return $this->hasOne(QuestionRu::class);
+    }
+    
+    public function questionHe()
+    {
+        return $this->hasOne(QuestionHe::class);
+    }
+    
+    // Example for a new relationship with the new question model
+    // public function questionAr()
+    // {
+    //     return $this->hasOne(QuestionAr::class);
+    // }
 }
