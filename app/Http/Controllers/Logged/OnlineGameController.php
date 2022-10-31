@@ -63,12 +63,12 @@ class OnlineGameController extends Controller
 
     public function create(Request $request) {
         $roomKey = $request['roomKey'];
+        $rooms = Room::all()->toArray();
 
         do {
             $roomNum = rand(100000,999999);
-            $room = Room::where('room_number', $roomNum)->first();
         }
-        while($room !== null);
+        while(in_array($roomNum, $rooms));
 
         $room = new Room([
             'room_number' => $roomNum,
