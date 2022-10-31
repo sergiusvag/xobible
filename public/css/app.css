@@ -10779,9 +10779,12 @@ a:active {
   text-decoration: none;
 }
 
+body {
+  background: url("/img/main-bg.jpg") no-repeat top center/cover;
+}
+
 .main-screen {
   min-height: 100vh;
-  background: url("/img/main-bg.jpg") no-repeat top center/cover;
 }
 
 .btn {
@@ -10791,7 +10794,7 @@ a:active {
   color: #fff;
   background: #d63737;
   border-radius: 30px;
-  box-shadow: 0px 2px 20px rgba(255, 63, 63, 0.5);
+  box-shadow: none;
   transition: background 0.5s ease;
 }
 
@@ -10930,6 +10933,7 @@ a:hover {
 .left-wrap {
   width: 100px;
   height: 0;
+  margin: 0 auto;
 }
 
 .x-line {
@@ -11070,6 +11074,58 @@ a:hover {
     opacity: 0;
   }
 }
+.control-dis,
+.control-btn-dis {
+  pointer-events: none;
+  box-shadow: none;
+}
+
+.control-btn-dis {
+  background-color: rgb(188, 188, 188);
+}
+
+.v-hidden {
+  visibility: hidden;
+}
+
+/* Room */
+.input-room-key,
+.input-room-number {
+  text-align: center;
+}
+
+.room-label {
+  padding: 5px 7px;
+  border-radius: 15px 15px 0 0;
+  color: #fff;
+  background-color: rgb(243, 126, 210);
+}
+
+.input-room {
+  min-width: auto;
+  max-width: auto;
+}
+
+.creation-controlls {
+  padding: 2px;
+  border: 5px solid rgb(156, 38, 199);
+  border-radius: 15px;
+}
+
+.room-label-success,
+.room-label-error {
+  padding: 5px;
+  border-radius: 15px;
+  background-color: rgb(255, 255, 255);
+  color: rgb(199, 38, 38);
+  border: 3px solid rgb(199, 38, 38);
+}
+
+.room-label-success {
+  color: rgb(18, 186, 12);
+  border: 3px solid rgb(18, 186, 12);
+}
+
 .page-error {
   background-color: rgba(116, 2, 80, 0.4);
   border-radius: 0 25px 25px 25px;

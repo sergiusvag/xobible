@@ -78,7 +78,7 @@ a:hover {
 .left-wrap {
     width: 100px;
     height: 0;
-    // align-self: center;
+    margin: 0 auto;
     // display: flex;
     // justify-content: space-between;
     // flex-direction: column;
@@ -217,4 +217,49 @@ a:hover {
         transform: rotate(360deg);
         opacity: 0;
     }
+}
+.control-dis,
+.control-btn-dis {
+    pointer-events: none;
+    box-shadow: none;
+}
+.control-btn-dis {
+    background-color: rgb(188, 188, 188);
+}
+.v-hidden {
+    visibility: hidden;
+}
+/* Room */
+.input-room-key,
+.input-room-number {
+    text-align: center;
+}
+.room-label {
+    padding: 5px 7px;
+    border-radius: 15px 15px 0 0;
+    color: #fff;
+    background-color: rgb(243, 126, 210);
+}
+
+.input-room {
+    min-width: auto;
+    max-width: auto;
+}
+.creation-controlls {
+    padding: 2px;
+    border: 5px solid rgb(156, 38, 199);
+    border-radius: 15px;
+}
+
+.room-label-success,
+.room-label-error {
+    padding: 5px;
+    border-radius: 15px;
+    background-color: rgb(255, 255, 255);
+    color: rgb(199, 38, 38);
+    border: 3px solid rgb(199, 38, 38);
+}
+.room-label-success {
+    color: rgb(18, 186, 12);
+    border: 3px solid rgb(18, 186, 12);
 }

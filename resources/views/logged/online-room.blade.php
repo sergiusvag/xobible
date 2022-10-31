@@ -1,46 +1,72 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Document</title>
-</head>
-<body>
-    @vite('resources/js/app.js')
-</body>
-</html> -->
-@extends('layouts-xo.app')
+@extends('layouts-xo.menu')
 
-@section('control_content')
+@section('control_content_menu')
     <div class="row align-items-center justify-content-center pt-3">
-        <div class="col-auto align-items-center w-50 text-center">
+        <div class="col-auto align-items-center text-center">
+            @php
+                $locale = app()->getLocale();
+            @endphp
             @auth
                 @csrf
                 <h3 class="text-center">{{ __('Online Room') }}</h3>
-                <div class="row mt-4">
-                    <div class="col-12 col-md-9 col-lg-6 m-auto text-center chat-group">
-                        <input type="text" class="chat form-control input-field text-center input-group">
-                        <button type="button" class="btn btn-chat mt-2">{{ __('Test Button') }}</button>
-                        <label class="my_name" hidden>{{ Auth::user()->name }}</label>
+
+                <label class="locale" hidden>{{ app()->getLocale() }}</label>
+                
+                <div class="row creation-controlls mt-3">
+                    
+                    <div class="col">
+                        <div class="row">
+                            <div class="col mt-sm-0 mt-1">
+                                <button type="button" class="btn btn-room-create">{{ __('Create') }}</button>
+                                <button type="button" class="btn btn-room-close d-none">{{ __('Close') }}</button>
+                            </div>
+                            <div class="col mt-sm-0 mt-1">
+                                <button type="button" class="btn btn-room-join">{{ __('Enter') }}</button>
+                                <button type="button" class="btn btn-room-exit d-none">{{ __('Exit Room') }}</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                            <label class="room-label mt-2 mb-1">{{ __('Room key') }}</label>
+                            <input type="number" class="input-room input-room-key input-field input-group form-control"></input>
+                            </div>
+                            <div class="col-6">
+                            <label class="room-label mt-2 mb-1">{{ __('Room number') }}</label>
+                            <input type="number" class="input-room input-room-number input-field input-group form-control"></input>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label class="room-label room-label-msg room-label-success mt-2 v-hidden">Success joining room</label>
+                            </div>
+                        </div>
+                        <a href="{{ '/welcome/' . app()->getLocale() }}" class="btn btn-room-back mt-3">{{ __('Back') }}</a>
+                        <div class="in-room-controlls v-hidden">
+                            <div class="row mt-4 usernames">
+                                <div class="col-6">
+                                    <span class="user-profile-text g-label logged-user username username-host v-hidden">Host Name</span>
+                                </div>
+                                <div class="col-6">
+                                    <span class="user-profile-text g-label logged-user username username-join v-hidden">Joinie Name</span>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6 holder-btn-room-start v-hidden">
+                                    <button type="button" class="btn btn-room-start">{{ __('Start') }}</button>
+                                    <!-- <a href="{{ '/game-online/' . $locale }}" class="btn btn-room-start">{{ __('Start') }}</a> -->
+                                </div>
+                                <div class="col-6 holder-btn-room-kick v-hidden">
+                                    <button type="button" class="btn btn-room-kick">{{ __('Kick') }}</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <form method="POST" action="{{ url()->current() }}">
-                    @csrf
-                    <div class="login-group mt-4">
-                        <label class="my_name-form" hidden>{{ Auth::user()->name }}</label>
-                    </div>
-                    <div class="login-group mt-3">
-                        <input type="text" name="chat-id" class="form-control input-field text-center input-group" id="chat-id" placeholder="{{ __('Room number') }}">
-                    </div>
-                    
-                    <div class="login-group mt-4 text-center">
-                        <button type="submit" class="btn btn-room-id">{{ __('Room num button') }}</button>
-                    </div>
-                </form>
             @endauth
         </div>
     </div>
+@endsection
+
+@section('control_js')
+    @vite('resources/js/app.js')
 @endsection

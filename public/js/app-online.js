@@ -22767,62 +22767,10 @@ module.exports = {
 
 /***/ }),
 
-/***/ "./resources/js/app.js":
-/*!*****************************!*\
-  !*** ./resources/js/app.js ***!
-  \*****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _bootstrap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-
-
-/**
- * Next, we will create a fresh Vue application instance. You may then begin
- * registering components with the application instance so they are ready
- * to use in your application's views. An example is included for you.
- */
-
-var app = (0,vue__WEBPACK_IMPORTED_MODULE_1__.createApp)({
-  data: function data() {
-    return {
-      message: "hello"
-    };
-  }
-}); // import ExampleComponent from "./components/ExampleComponent.vue";
-// app.component("example-component", ExampleComponent);
-
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
-// Object.entries(import.meta.glob('./**/*.vue', { eager: true })).forEach(([path, definition]) => {
-//     app.component(path.split('/').pop().replace(/\.\w+$/, ''), definition.default);
-// });
-
-/**
- * Finally, we will attach the application instance to a HTML element with
- * an "id" attribute of "app". This element is included with the "auth"
- * scaffolding. Otherwise, you will need to add an element yourself.
- */
-// app.mount("#app");
-
-/***/ }),
-
-/***/ "./resources/js/bootstrap.js":
-/*!***********************************!*\
-  !*** ./resources/js/bootstrap.js ***!
-  \***********************************/
+/***/ "./resources/js/game-online.js":
+/*!*************************************!*\
+  !*** ./resources/js/game-online.js ***!
+  \*************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -22863,260 +22811,7 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_3__["default"]({
   forceTLS: true,
   encryption: true
 });
-var locale = document.querySelector(".locale");
-var createRoomBtn = document.querySelector(".btn-room-create");
-var closeRoomBtn = document.querySelector(".btn-room-close");
-var joinRoomBtn = document.querySelector(".btn-room-join");
-var exitRoomBtn = document.querySelector(".btn-room-exit");
-var backRoomBtn = document.querySelector(".btn-room-back");
-var roomNumberInput = document.querySelector(".input-room-number");
-var roomKeyInput = document.querySelector(".input-room-key");
-var hostNameLabel = document.querySelector(".username-host");
-var joinNameLabel = document.querySelector(".username-join");
-var msgLabel = document.querySelector(".room-label-msg");
-var startBtnHolder = document.querySelector(".holder-btn-room-start");
-var kickBtnHolder = document.querySelector(".holder-btn-room-kick");
-var inRoomControlls = document.querySelector(".in-room-controlls");
-
-var activateRoomInputs = function activateRoomInputs() {
-  roomKeyInput.readOnly = true;
-  roomNumberInput.readOnly = true;
-};
-
-var deactivateRoomInputs = function deactivateRoomInputs() {
-  roomKeyInput.readOnly = false;
-  roomNumberInput.readOnly = false;
-};
-
-var myRoomCreated = function myRoomCreated(hostName, roomNum, roomKey) {
-  createRoomBtn.classList.add("d-none");
-  closeRoomBtn.classList.remove("d-none");
-  joinRoomBtn.classList.add("control-btn-dis");
-  exitRoomBtn.classList.add("d-none");
-  backRoomBtn.classList.add("control-btn-dis");
-  backRoomBtn.classList.add("v-hidden");
-  activateRoomInputs();
-  inRoomControlls.classList.remove("v-hidden");
-  hostNameLabel.classList.remove("v-hidden");
-  hostNameLabel.textContent = hostName;
-  roomNumberInput.value = roomNum;
-  roomKeyInput.value = roomKey;
-  joinNameLabel.classList.add("v-hidden");
-  startBtnHolder.classList.add("v-hidden");
-  kickBtnHolder.classList.add("v-hidden");
-};
-
-var roomClosed = function roomClosed() {
-  createRoomBtn.classList.remove("d-none");
-  createRoomBtn.classList.remove("control-btn-dis");
-  closeRoomBtn.classList.add("d-none");
-  joinRoomBtn.classList.remove("control-btn-dis");
-  joinRoomBtn.classList.remove("d-none");
-  exitRoomBtn.classList.add("d-none");
-  backRoomBtn.classList.remove("control-btn-dis");
-  backRoomBtn.classList.remove("v-hidden");
-  deactivateRoomInputs();
-  roomNumberInput.value = "";
-  inRoomControlls.classList.add("v-hidden");
-};
-
-var myRoomJoined = function myRoomJoined(joinName) {
-  joinNameLabel.classList.remove("v-hidden");
-  joinNameLabel.textContent = joinName;
-  startBtnHolder.classList.remove("v-hidden");
-  kickBtnHolder.classList.remove("v-hidden");
-};
-
-var myRoomKicked = function myRoomKicked() {
-  joinNameLabel.classList.add("v-hidden");
-  joinNameLabel.textContent = "";
-  startBtnHolder.classList.add("v-hidden");
-  kickBtnHolder.classList.add("v-hidden");
-};
-
-var otherRoomJoin = function otherRoomJoin(hostName, joinName, roomNum, roomKey) {
-  createRoomBtn.classList.add("control-btn-dis");
-  closeRoomBtn.classList.add("d-none");
-  joinRoomBtn.classList.add("d-none");
-  exitRoomBtn.classList.remove("d-none");
-  backRoomBtn.classList.add("control-btn-dis");
-  backRoomBtn.classList.add("v-hidden");
-  activateRoomInputs();
-  inRoomControlls.classList.remove("v-hidden");
-  hostNameLabel.classList.remove("v-hidden");
-  hostNameLabel.textContent = hostName;
-  roomNumberInput.value = roomNum;
-  roomKeyInput.value = roomKey;
-  joinNameLabel.classList.remove("v-hidden");
-  joinNameLabel.textContent = joinName;
-  startBtnHolder.classList.add("v-hidden");
-  kickBtnHolder.classList.add("v-hidden");
-};
-
-var setDisplayAsSuccess = function setDisplayAsSuccess() {
-  msgLabel.classList.add("room-label-success");
-  msgLabel.classList.remove("room-label-error");
-};
-
-var setDisplayAsError = function setDisplayAsError() {
-  msgLabel.classList.add("room-label-error");
-  msgLabel.classList.remove("room-label-success");
-};
-
-var interval;
-
-var displayMsg = function displayMsg(msg) {
-  msgLabel.textContent = msg;
-  msgLabel.classList.remove("v-hidden");
-
-  if (interval) {
-    clearInterval(interval);
-  }
-
-  interval = setInterval(function () {
-    msgLabel.classList.add("v-hidden");
-    clearInterval(interval);
-  }, 5000);
-};
-
-var displaySuccessMsg = function displaySuccessMsg(msg) {
-  setDisplayAsSuccess();
-  displayMsg(msg);
-};
-
-var displayErrorMsg = function displayErrorMsg(msg) {
-  setDisplayAsError();
-  displayMsg(msg);
-};
-
-var privateRoomHost;
-var privateRoomJoin;
-var channelName;
-
-var joinNotified = function joinNotified(data) {
-  myRoomJoined(data.join_name);
-  displaySuccessMsg("".concat(data.join_name, " ").concat(data.message));
-  privateRoomHost.listenForWhisper("ExitNotification", function (e) {
-    myRoomKicked();
-    displayErrorMsg("".concat(e.message, " ").concat(e.join_name));
-  });
-};
-
-var closeNotified = function closeNotified(data) {
-  roomClosed();
-  displaySuccessMsg(data.message);
-  window.Echo.leave(channelName);
-};
-
-var kickNotified = function kickNotified(data) {
-  roomClosed();
-  displayErrorMsg(data.message);
-  window.Echo.leave(channelName);
-};
-
-var startNotified = function startNotified() {
-  window.location.href = "/game-online/".concat(locale.textContent);
-};
-
-var onLoad = function onLoad() {
-  window.axios.get("/check-room/".concat(locale.textContent)).then(function (resp) {
-    if (resp.data.in_room) {
-      channelName = "room.".concat(resp.data.room_number);
-
-      if (resp.data.is_host) {
-        myRoomCreated(resp.data.host_name, resp.data.room_number, resp.data.room_key);
-        displaySuccessMsg(resp.data.message);
-        privateRoomHost = window.Echo["private"](channelName);
-        privateRoomHost.listenForWhisper("JoinNotification", joinNotified);
-
-        if (resp.data.join_name) {
-          joinNotified(resp.data);
-        }
-      } else {
-        privateRoomJoin = window.Echo["private"](channelName);
-        otherRoomJoin(resp.data.host_name, resp.data.join_name, resp.data.room_number, resp.data.room_key);
-        privateRoomJoin.listenForWhisper("CloseNotification", closeNotified);
-        privateRoomJoin.listenForWhisper("KickNotification", kickNotified);
-        privateRoomJoin.listenForWhisper("StartNotification", startNotified);
-        displaySuccessMsg(resp.data.message);
-      }
-    }
-  });
-};
-
-onLoad();
-createRoomBtn.addEventListener("click", function (e) {
-  window.axios.post("/create-room/".concat(locale.textContent), {
-    roomKey: roomKeyInput.value
-  }).then(function (resp) {
-    myRoomCreated(resp.data.host_name, resp.data.room_number, resp.data.room_key);
-    displaySuccessMsg(resp.data.message);
-    privateRoomHost = window.Echo["private"]("room.".concat(resp.data.room_number));
-    privateRoomHost.listenForWhisper("JoinNotification", joinNotified);
-  });
-});
-joinRoomBtn.addEventListener("click", function (e) {
-  channelName = "room.".concat(roomNumberInput.value);
-  privateRoomJoin = window.Echo["private"]("room.".concat(roomNumberInput.value));
-  window.axios.post("/join-room/".concat(locale.textContent), {
-    roomNum: roomNumberInput.value,
-    roomKey: roomKeyInput.value
-  }).then(function (resp) {
-    if (resp.data.joinSuccess) {
-      otherRoomJoin(resp.data.host_name, resp.data.join_name, resp.data.room_number, resp.data.room_key);
-      privateRoomJoin.whisper("JoinNotification", {
-        join_name: resp.data.join_name,
-        message: resp.data.message_for_host
-      });
-      privateRoomJoin.listenForWhisper("CloseNotification", closeNotified);
-      privateRoomJoin.listenForWhisper("KickNotification", kickNotified);
-      privateRoomJoin.listenForWhisper("StartNotification", startNotified);
-      displaySuccessMsg(resp.data.message);
-    } else {
-      displayErrorMsg(resp.data.message);
-      window.Echo.leave(channelName);
-    }
-  });
-});
-closeRoomBtn.addEventListener("click", function (e) {
-  window.axios.post("/close-room/".concat(locale.textContent), {
-    roomNum: roomNumberInput.value
-  }).then(function (resp) {
-    privateRoomHost.whisper("CloseNotification", {
-      message: resp.data.message
-    });
-    roomClosed();
-    displaySuccessMsg(resp.data.message);
-  });
-});
-kickBtnHolder.addEventListener("click", function (e) {
-  window.axios.post("/kick-room/".concat(locale.textContent), {
-    roomNum: roomNumberInput.value
-  }).then(function (resp) {
-    myRoomKicked();
-    displaySuccessMsg("".concat(resp.data.message, " ").concat(resp.data.join_name));
-    privateRoomHost.whisper("KickNotification", {
-      message: resp.data.message_for_join
-    });
-  });
-});
-exitRoomBtn.addEventListener("click", function (e) {
-  window.axios.post("/exit-room/".concat(locale.textContent), {
-    roomNum: roomNumberInput.value
-  }).then(function (resp) {
-    console.log(resp.data);
-    privateRoomJoin.whisper("ExitNotification", {
-      join_name: resp.data.join_name,
-      message: resp.data.message_for_host
-    });
-    roomClosed();
-    displaySuccessMsg(resp.data.message);
-  });
-});
-startBtnHolder.addEventListener("click", function (e) {
-  privateRoomHost.whisper("StartNotification", {});
-  window.location.href = "/game-online/".concat(locale.textContent);
-});
+console.log("Hello");
 
 /***/ }),
 
@@ -47214,19 +46909,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 /***/ }),
 
-/***/ "./resources/sass/app.scss":
-/*!*********************************!*\
-  !*** ./resources/sass/app.scss ***!
-  \*********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-// extracted by mini-css-extract-plugin
-
-
-/***/ }),
-
 /***/ "./node_modules/process/browser.js":
 /*!*****************************************!*\
   !*** ./node_modules/process/browser.js ***!
@@ -52609,42 +52291,7 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		return module.exports;
 /******/ 	}
 /******/ 	
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = __webpack_modules__;
-/******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/chunk loaded */
-/******/ 	(() => {
-/******/ 		var deferred = [];
-/******/ 		__webpack_require__.O = (result, chunkIds, fn, priority) => {
-/******/ 			if(chunkIds) {
-/******/ 				priority = priority || 0;
-/******/ 				for(var i = deferred.length; i > 0 && deferred[i - 1][2] > priority; i--) deferred[i] = deferred[i - 1];
-/******/ 				deferred[i] = [chunkIds, fn, priority];
-/******/ 				return;
-/******/ 			}
-/******/ 			var notFulfilled = Infinity;
-/******/ 			for (var i = 0; i < deferred.length; i++) {
-/******/ 				var [chunkIds, fn, priority] = deferred[i];
-/******/ 				var fulfilled = true;
-/******/ 				for (var j = 0; j < chunkIds.length; j++) {
-/******/ 					if ((priority & 1 === 0 || notFulfilled >= priority) && Object.keys(__webpack_require__.O).every((key) => (__webpack_require__.O[key](chunkIds[j])))) {
-/******/ 						chunkIds.splice(j--, 1);
-/******/ 					} else {
-/******/ 						fulfilled = false;
-/******/ 						if(priority < notFulfilled) notFulfilled = priority;
-/******/ 					}
-/******/ 				}
-/******/ 				if(fulfilled) {
-/******/ 					deferred.splice(i--, 1)
-/******/ 					var r = fn();
-/******/ 					if (r !== undefined) result = r;
-/******/ 				}
-/******/ 			}
-/******/ 			return result;
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/compat get default export */
 /******/ 	(() => {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
@@ -52706,68 +52353,57 @@ module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"P
 /******/ 		};
 /******/ 	})();
 /******/ 	
-/******/ 	/* webpack/runtime/jsonp chunk loading */
-/******/ 	(() => {
-/******/ 		// no baseURI
-/******/ 		
-/******/ 		// object to store loaded and loading chunks
-/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
-/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
-/******/ 		var installedChunks = {
-/******/ 			"/js/app": 0,
-/******/ 			"css/app": 0
-/******/ 		};
-/******/ 		
-/******/ 		// no chunk on demand loading
-/******/ 		
-/******/ 		// no prefetching
-/******/ 		
-/******/ 		// no preloaded
-/******/ 		
-/******/ 		// no HMR
-/******/ 		
-/******/ 		// no HMR manifest
-/******/ 		
-/******/ 		__webpack_require__.O.j = (chunkId) => (installedChunks[chunkId] === 0);
-/******/ 		
-/******/ 		// install a JSONP callback for chunk loading
-/******/ 		var webpackJsonpCallback = (parentChunkLoadingFunction, data) => {
-/******/ 			var [chunkIds, moreModules, runtime] = data;
-/******/ 			// add "moreModules" to the modules object,
-/******/ 			// then flag all "chunkIds" as loaded and fire callback
-/******/ 			var moduleId, chunkId, i = 0;
-/******/ 			if(chunkIds.some((id) => (installedChunks[id] !== 0))) {
-/******/ 				for(moduleId in moreModules) {
-/******/ 					if(__webpack_require__.o(moreModules, moduleId)) {
-/******/ 						__webpack_require__.m[moduleId] = moreModules[moduleId];
-/******/ 					}
-/******/ 				}
-/******/ 				if(runtime) var result = runtime(__webpack_require__);
-/******/ 			}
-/******/ 			if(parentChunkLoadingFunction) parentChunkLoadingFunction(data);
-/******/ 			for(;i < chunkIds.length; i++) {
-/******/ 				chunkId = chunkIds[i];
-/******/ 				if(__webpack_require__.o(installedChunks, chunkId) && installedChunks[chunkId]) {
-/******/ 					installedChunks[chunkId][0]();
-/******/ 				}
-/******/ 				installedChunks[chunkId] = 0;
-/******/ 			}
-/******/ 			return __webpack_require__.O(result);
-/******/ 		}
-/******/ 		
-/******/ 		var chunkLoadingGlobal = self["webpackChunkxobible"] = self["webpackChunkxobible"] || [];
-/******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
-/******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
-/******/ 	})();
-/******/ 	
 /************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/sass/app.scss")))
-/******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
-/******/ 	
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
+/*!************************************!*\
+  !*** ./resources/js/app-online.js ***!
+  \************************************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _game_online__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./game-online */ "./resources/js/game-online.js");
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
+/**
+ * First we will load all of this project's JavaScript dependencies which
+ * includes Vue and other libraries. It is a great starting point when
+ * building robust, powerful web applications using Vue and Laravel.
+ */
+
+
+/**
+ * Next, we will create a fresh Vue application instance. You may then begin
+ * registering components with the application instance so they are ready
+ * to use in your application's views. An example is included for you.
+ */
+
+var app = (0,vue__WEBPACK_IMPORTED_MODULE_1__.createApp)({
+  data: function data() {
+    return {
+      message: "hello"
+    };
+  }
+}); // import ExampleComponent from "./components/ExampleComponent.vue";
+// app.component("example-component", ExampleComponent);
+
+/**
+ * The following block of code may be used to automatically register your
+ * Vue components. It will recursively scan this directory for the Vue
+ * components and automatically register them with their "basename".
+ *
+ * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
+ */
+// Object.entries(import.meta.glob('./**/*.vue', { eager: true })).forEach(([path, definition]) => {
+//     app.component(path.split('/').pop().replace(/\.\w+$/, ''), definition.default);
+// });
+
+/**
+ * Finally, we will attach the application instance to a HTML element with
+ * an "id" attribute of "app". This element is included with the "auth"
+ * scaffolding. Otherwise, you will need to add an element yourself.
+ */
+// app.mount("#app");
+})();
+
 /******/ })()
 ;

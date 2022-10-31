@@ -10,27 +10,26 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageNotification implements ShouldBroadcast
+class JoinNotification implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * The order instance.
      *
-     * @var \App\User
+     * @var \App\Room
      */
-    public $user;
+    public $room;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($user)
+    public function __construct($room)
     {
-        $this->user = $user;
+        $this->room = $room;
     }
-
     /**
      * Get the channels the event should broadcast on.
      *
@@ -38,6 +37,6 @@ class MessageNotification implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('notification');
+        return new PrivateChannel('room.'.$this->room->room_number);
     }
 }

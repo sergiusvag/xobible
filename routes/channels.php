@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
+use App\Broadcasting\RoomChannel;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,3 +22,7 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('notification', function () {
     return true;
 });
+Broadcast::channel('room.{roomNum}', function () {
+    return true;
+});
+
