@@ -79,8 +79,6 @@ class OnlineGameController extends Controller
 
         $room->save();
 
-        // event(new JoinNotification($room));
-
         return ['room_number' => $roomNum, 'host_name' => Auth::user()->name, 'message' => __('Room created')];
     }
     
@@ -119,8 +117,6 @@ class OnlineGameController extends Controller
                 $data['message'] = __('You successfully joined room');
                 $data['message_for_host'] = __('Joined Room');
                 $data['host_name'] = $room->host_name;
-                
-                event(new JoinNotification($room));
             }
         }
 

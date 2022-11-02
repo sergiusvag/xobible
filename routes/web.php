@@ -28,8 +28,8 @@ Route::get('/welcome/{locale}', function () {
     return view('welcome');
 });
 
-Route::get('/game-online/{locale}', function () {
-    return view('game-online');
+Route::get('/online-game/{locale}', function () {
+    return view('online-game');
 });
 
 Route::middleware('auth')->group(function () {

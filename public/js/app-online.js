@@ -22767,9 +22767,9 @@ module.exports = {
 
 /***/ }),
 
-/***/ "./resources/js/game-online.js":
+/***/ "./resources/js/online-game.js":
 /*!*************************************!*\
-  !*** ./resources/js/game-online.js ***!
+  !*** ./resources/js/online-game.js ***!
   \*************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -52362,7 +52362,7 @@ var __webpack_exports__ = {};
   !*** ./resources/js/app-online.js ***!
   \************************************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _game_online__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./game-online */ "./resources/js/game-online.js");
+/* harmony import */ var _online_game__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./online-game */ "./resources/js/online-game.js");
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 /**
  * First we will load all of this project's JavaScript dependencies which

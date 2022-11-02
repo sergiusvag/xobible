@@ -53,7 +53,6 @@
                             <div class="row mt-2">
                                 <div class="col-6 holder-btn-room-start v-hidden">
                                     <button type="button" class="btn btn-room-start">{{ __('Start') }}</button>
-                                    <!-- <a href="{{ '/game-online/' . $locale }}" class="btn btn-room-start">{{ __('Start') }}</a> -->
                                 </div>
                                 <div class="col-6 holder-btn-room-kick v-hidden">
                                     <button type="button" class="btn btn-room-kick">{{ __('Kick') }}</button>

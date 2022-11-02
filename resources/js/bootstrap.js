@@ -69,7 +69,7 @@ const kickNotified = (data) => {
 };
 
 const startNotified = () => {
-    window.location.href = `/game-online/${RoomManager.locale()}`;
+    window.location.href = `/online-game/${RoomManager.locale()}`;
 };
 
 const onLoad = () => {
@@ -235,5 +235,5 @@ exitRoomBtn.addEventListener("click", (e) => {
 
 startBtnHolder.addEventListener("click", (e) => {
     privateRoomHost.whisper("StartNotification", {});
-    window.location.href = `/game-online/${RoomManager.locale()}`;
+    window.location.href = `/online-game/${RoomManager.locale()}`;
 });

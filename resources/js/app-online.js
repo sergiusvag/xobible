@@ -4,7 +4,7 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-import "./game-online";
+import "./online-game";
 import { createApp } from "vue";
 
 /**

@@ -22897,7 +22897,7 @@ var kickNotified = function kickNotified(data) {
 };
 
 var startNotified = function startNotified() {
-  window.location.href = "/game-online/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale());
+  window.location.href = "/online-game/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale());
 };
 
 var onLoad = function onLoad() {
@@ -22996,7 +22996,7 @@ exitRoomBtn.addEventListener("click", function (e) {
 });
 startBtnHolder.addEventListener("click", function (e) {
   privateRoomHost.whisper("StartNotification", {});
-  window.location.href = "/game-online/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale());
+  window.location.href = "/online-game/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale());
 });
 
 /***/ }),
