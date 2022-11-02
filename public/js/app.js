@@ -22835,6 +22835,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var laravel_echo__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! laravel-echo */ "./node_modules/laravel-echo/dist/echo.js");
 /* harmony import */ var pusher_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 /* harmony import */ var pusher_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(pusher_js__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _roomManager__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./roomManager */ "./resources/js/roomManager.js");
 
 window._ = (lodash__WEBPACK_IMPORTED_MODULE_0___default());
 
@@ -22863,169 +22864,50 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_3__["default"]({
   forceTLS: true,
   encryption: true
 });
-var locale = document.querySelector(".locale");
 var createRoomBtn = document.querySelector(".btn-room-create");
 var closeRoomBtn = document.querySelector(".btn-room-close");
 var joinRoomBtn = document.querySelector(".btn-room-join");
 var exitRoomBtn = document.querySelector(".btn-room-exit");
-var backRoomBtn = document.querySelector(".btn-room-back");
-var roomNumberInput = document.querySelector(".input-room-number");
-var roomKeyInput = document.querySelector(".input-room-key");
-var hostNameLabel = document.querySelector(".username-host");
-var joinNameLabel = document.querySelector(".username-join");
-var msgLabel = document.querySelector(".room-label-msg");
 var startBtnHolder = document.querySelector(".holder-btn-room-start");
 var kickBtnHolder = document.querySelector(".holder-btn-room-kick");
-var inRoomControlls = document.querySelector(".in-room-controlls");
-
-var activateRoomInputs = function activateRoomInputs() {
-  roomKeyInput.readOnly = true;
-  roomNumberInput.readOnly = true;
-};
-
-var deactivateRoomInputs = function deactivateRoomInputs() {
-  roomKeyInput.readOnly = false;
-  roomNumberInput.readOnly = false;
-};
-
-var myRoomCreated = function myRoomCreated(hostName, roomNum, roomKey) {
-  createRoomBtn.classList.add("d-none");
-  closeRoomBtn.classList.remove("d-none");
-  joinRoomBtn.classList.add("control-btn-dis");
-  exitRoomBtn.classList.add("d-none");
-  backRoomBtn.classList.add("control-btn-dis");
-  backRoomBtn.classList.add("v-hidden");
-  activateRoomInputs();
-  inRoomControlls.classList.remove("v-hidden");
-  hostNameLabel.classList.remove("v-hidden");
-  hostNameLabel.textContent = hostName;
-  roomNumberInput.value = roomNum;
-  roomKeyInput.value = roomKey;
-  joinNameLabel.classList.add("v-hidden");
-  startBtnHolder.classList.add("v-hidden");
-  kickBtnHolder.classList.add("v-hidden");
-};
-
-var roomClosed = function roomClosed() {
-  createRoomBtn.classList.remove("d-none");
-  createRoomBtn.classList.remove("control-btn-dis");
-  closeRoomBtn.classList.add("d-none");
-  joinRoomBtn.classList.remove("control-btn-dis");
-  joinRoomBtn.classList.remove("d-none");
-  exitRoomBtn.classList.add("d-none");
-  backRoomBtn.classList.remove("control-btn-dis");
-  backRoomBtn.classList.remove("v-hidden");
-  deactivateRoomInputs();
-  roomNumberInput.value = "";
-  inRoomControlls.classList.add("v-hidden");
-};
-
-var myRoomJoined = function myRoomJoined(joinName) {
-  joinNameLabel.classList.remove("v-hidden");
-  joinNameLabel.textContent = joinName;
-  startBtnHolder.classList.remove("v-hidden");
-  kickBtnHolder.classList.remove("v-hidden");
-};
-
-var myRoomKicked = function myRoomKicked() {
-  joinNameLabel.classList.add("v-hidden");
-  joinNameLabel.textContent = "";
-  startBtnHolder.classList.add("v-hidden");
-  kickBtnHolder.classList.add("v-hidden");
-};
-
-var otherRoomJoin = function otherRoomJoin(hostName, joinName, roomNum, roomKey) {
-  createRoomBtn.classList.add("control-btn-dis");
-  closeRoomBtn.classList.add("d-none");
-  joinRoomBtn.classList.add("d-none");
-  exitRoomBtn.classList.remove("d-none");
-  backRoomBtn.classList.add("control-btn-dis");
-  backRoomBtn.classList.add("v-hidden");
-  activateRoomInputs();
-  inRoomControlls.classList.remove("v-hidden");
-  hostNameLabel.classList.remove("v-hidden");
-  hostNameLabel.textContent = hostName;
-  roomNumberInput.value = roomNum;
-  roomKeyInput.value = roomKey;
-  joinNameLabel.classList.remove("v-hidden");
-  joinNameLabel.textContent = joinName;
-  startBtnHolder.classList.add("v-hidden");
-  kickBtnHolder.classList.add("v-hidden");
-};
-
-var setDisplayAsSuccess = function setDisplayAsSuccess() {
-  msgLabel.classList.add("room-label-success");
-  msgLabel.classList.remove("room-label-error");
-};
-
-var setDisplayAsError = function setDisplayAsError() {
-  msgLabel.classList.add("room-label-error");
-  msgLabel.classList.remove("room-label-success");
-};
-
-var interval;
-
-var displayMsg = function displayMsg(msg) {
-  msgLabel.textContent = msg;
-  msgLabel.classList.remove("v-hidden");
-
-  if (interval) {
-    clearInterval(interval);
-  }
-
-  interval = setInterval(function () {
-    msgLabel.classList.add("v-hidden");
-    clearInterval(interval);
-  }, 5000);
-};
-
-var displaySuccessMsg = function displaySuccessMsg(msg) {
-  setDisplayAsSuccess();
-  displayMsg(msg);
-};
-
-var displayErrorMsg = function displayErrorMsg(msg) {
-  setDisplayAsError();
-  displayMsg(msg);
-};
 
 var privateRoomHost;
 var privateRoomJoin;
 var channelName;
 
 var joinNotified = function joinNotified(data) {
-  myRoomJoined(data.join_name);
-  displaySuccessMsg("".concat(data.join_name, " ").concat(data.message));
+  _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].joined(data.join_name);
+  _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displaySuccessMsg("".concat(data.join_name, " ").concat(data.message));
   privateRoomHost.listenForWhisper("ExitNotification", function (e) {
-    myRoomKicked();
-    displayErrorMsg("".concat(e.message, " ").concat(e.join_name));
+    _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].kicked();
+    _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displayErrorMsg("".concat(e.message, " ").concat(e.join_name));
   });
 };
 
 var closeNotified = function closeNotified(data) {
-  roomClosed();
-  displaySuccessMsg(data.message);
+  _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].close();
+  _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displaySuccessMsg(data.message);
   window.Echo.leave(channelName);
 };
 
 var kickNotified = function kickNotified(data) {
-  roomClosed();
-  displayErrorMsg(data.message);
+  _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].close();
+  _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displayErrorMsg(data.message);
   window.Echo.leave(channelName);
 };
 
 var startNotified = function startNotified() {
-  window.location.href = "/game-online/".concat(locale.textContent);
+  window.location.href = "/game-online/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale());
 };
 
 var onLoad = function onLoad() {
-  window.axios.get("/check-room/".concat(locale.textContent)).then(function (resp) {
+  window.axios.get("/check-room/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale())).then(function (resp) {
     if (resp.data.in_room) {
       channelName = "room.".concat(resp.data.room_number);
 
       if (resp.data.is_host) {
-        myRoomCreated(resp.data.host_name, resp.data.room_number, resp.data.room_key);
-        displaySuccessMsg(resp.data.message);
+        _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].create(resp.data.host_name, resp.data.room_number, resp.data.room_key);
+        _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displaySuccessMsg(resp.data.message);
         privateRoomHost = window.Echo["private"](channelName);
         privateRoomHost.listenForWhisper("JoinNotification", joinNotified);
 
@@ -23034,11 +22916,11 @@ var onLoad = function onLoad() {
         }
       } else {
         privateRoomJoin = window.Echo["private"](channelName);
-        otherRoomJoin(resp.data.host_name, resp.data.join_name, resp.data.room_number, resp.data.room_key);
+        _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].meJoining(resp.data.host_name, resp.data.join_name, resp.data.room_number, resp.data.room_key);
         privateRoomJoin.listenForWhisper("CloseNotification", closeNotified);
         privateRoomJoin.listenForWhisper("KickNotification", kickNotified);
         privateRoomJoin.listenForWhisper("StartNotification", startNotified);
-        displaySuccessMsg(resp.data.message);
+        _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displaySuccessMsg(resp.data.message);
       }
     }
   });
@@ -23046,24 +22928,24 @@ var onLoad = function onLoad() {
 
 onLoad();
 createRoomBtn.addEventListener("click", function (e) {
-  window.axios.post("/create-room/".concat(locale.textContent), {
-    roomKey: roomKeyInput.value
+  window.axios.post("/create-room/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale()), {
+    roomKey: _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].roomKey()
   }).then(function (resp) {
-    myRoomCreated(resp.data.host_name, resp.data.room_number, resp.data.room_key);
-    displaySuccessMsg(resp.data.message);
+    _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].create(resp.data.host_name, resp.data.room_number, resp.data.room_key);
+    _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displaySuccessMsg(resp.data.message);
     privateRoomHost = window.Echo["private"]("room.".concat(resp.data.room_number));
     privateRoomHost.listenForWhisper("JoinNotification", joinNotified);
   });
 });
 joinRoomBtn.addEventListener("click", function (e) {
-  channelName = "room.".concat(roomNumberInput.value);
-  privateRoomJoin = window.Echo["private"]("room.".concat(roomNumberInput.value));
-  window.axios.post("/join-room/".concat(locale.textContent), {
-    roomNum: roomNumberInput.value,
-    roomKey: roomKeyInput.value
+  channelName = "room.".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].roomNumber());
+  privateRoomJoin = window.Echo["private"]("room.".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].roomNumber()));
+  window.axios.post("/join-room/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale()), {
+    roomNum: _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].roomNumber(),
+    roomKey: _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].roomKey()
   }).then(function (resp) {
     if (resp.data.joinSuccess) {
-      otherRoomJoin(resp.data.host_name, resp.data.join_name, resp.data.room_number, resp.data.room_key);
+      _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].meJoining(resp.data.host_name, resp.data.join_name, resp.data.room_number, resp.data.room_key);
       privateRoomJoin.whisper("JoinNotification", {
         join_name: resp.data.join_name,
         message: resp.data.message_for_host
@@ -23071,52 +22953,301 @@ joinRoomBtn.addEventListener("click", function (e) {
       privateRoomJoin.listenForWhisper("CloseNotification", closeNotified);
       privateRoomJoin.listenForWhisper("KickNotification", kickNotified);
       privateRoomJoin.listenForWhisper("StartNotification", startNotified);
-      displaySuccessMsg(resp.data.message);
+      _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displaySuccessMsg(resp.data.message);
     } else {
-      displayErrorMsg(resp.data.message);
+      _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displayErrorMsg(resp.data.message);
       window.Echo.leave(channelName);
     }
   });
 });
 closeRoomBtn.addEventListener("click", function (e) {
-  window.axios.post("/close-room/".concat(locale.textContent), {
-    roomNum: roomNumberInput.value
+  window.axios.post("/close-room/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale()), {
+    roomNum: _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].roomNumber()
   }).then(function (resp) {
     privateRoomHost.whisper("CloseNotification", {
       message: resp.data.message
     });
-    roomClosed();
-    displaySuccessMsg(resp.data.message);
+    _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].close();
+    _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displaySuccessMsg(resp.data.message);
   });
 });
 kickBtnHolder.addEventListener("click", function (e) {
-  window.axios.post("/kick-room/".concat(locale.textContent), {
-    roomNum: roomNumberInput.value
+  window.axios.post("/kick-room/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale()), {
+    roomNum: _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].roomNumber()
   }).then(function (resp) {
-    myRoomKicked();
-    displaySuccessMsg("".concat(resp.data.message, " ").concat(resp.data.join_name));
+    _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].kicked();
+    _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displaySuccessMsg("".concat(resp.data.message, " ").concat(resp.data.join_name));
     privateRoomHost.whisper("KickNotification", {
       message: resp.data.message_for_join
     });
   });
 });
 exitRoomBtn.addEventListener("click", function (e) {
-  window.axios.post("/exit-room/".concat(locale.textContent), {
-    roomNum: roomNumberInput.value
+  window.axios.post("/exit-room/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale()), {
+    roomNum: _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].roomNumber()
   }).then(function (resp) {
-    console.log(resp.data);
     privateRoomJoin.whisper("ExitNotification", {
       join_name: resp.data.join_name,
       message: resp.data.message_for_host
     });
-    roomClosed();
-    displaySuccessMsg(resp.data.message);
+    _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].close();
+    _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displaySuccessMsg(resp.data.message);
   });
 });
 startBtnHolder.addEventListener("click", function (e) {
   privateRoomHost.whisper("StartNotification", {});
-  window.location.href = "/game-online/".concat(locale.textContent);
+  window.location.href = "/game-online/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale());
 });
+
+/***/ }),
+
+/***/ "./resources/js/roomManager.js":
+/*!*************************************!*\
+  !*** ./resources/js/roomManager.js ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var RoomManager = /*#__PURE__*/function () {
+  function RoomManager() {
+    _classCallCheck(this, RoomManager);
+
+    _defineProperty(this, "_localeLabel", document.querySelector(".locale"));
+
+    _defineProperty(this, "_createRoomBtn", document.querySelector(".btn-room-create"));
+
+    _defineProperty(this, "_closeRoomBtn", document.querySelector(".btn-room-close"));
+
+    _defineProperty(this, "_joinRoomBtn", document.querySelector(".btn-room-join"));
+
+    _defineProperty(this, "_exitRoomBtn", document.querySelector(".btn-room-exit"));
+
+    _defineProperty(this, "_backRoomBtn", document.querySelector(".btn-room-back"));
+
+    _defineProperty(this, "_roomNumberInput", document.querySelector(".input-room-number"));
+
+    _defineProperty(this, "_roomKeyInput", document.querySelector(".input-room-key"));
+
+    _defineProperty(this, "_hostNameLabel", document.querySelector(".username-host"));
+
+    _defineProperty(this, "_joinNameLabel", document.querySelector(".username-join"));
+
+    _defineProperty(this, "_msgLabel", document.querySelector(".room-label-msg"));
+
+    _defineProperty(this, "_startBtnHolder", document.querySelector(".holder-btn-room-start"));
+
+    _defineProperty(this, "_kickBtnHolder", document.querySelector(".holder-btn-room-kick"));
+
+    _defineProperty(this, "_inRoomControlls", document.querySelector(".in-room-controlls"));
+
+    _defineProperty(this, "_interval", undefined);
+  }
+
+  _createClass(RoomManager, [{
+    key: "locale",
+    value: function locale() {
+      return this._localeLabel.textContent;
+    }
+  }, {
+    key: "roomNumber",
+    value: function roomNumber() {
+      return this._roomNumberInput.value;
+    }
+  }, {
+    key: "roomKey",
+    value: function roomKey() {
+      return this._roomKeyInput.value;
+    }
+  }, {
+    key: "activateInputs",
+    value: function activateInputs() {
+      this._roomKeyInput.readOnly = true;
+      this._roomNumberInput.readOnly = true;
+    }
+  }, {
+    key: "deactivateInputs",
+    value: function deactivateInputs() {
+      this._roomKeyInput.readOnly = false;
+      this._roomNumberInput.readOnly = false;
+    }
+  }, {
+    key: "create",
+    value: function create(hostName, roomNum, roomKey) {
+      this._createRoomBtn.classList.add("d-none");
+
+      this._closeRoomBtn.classList.remove("d-none");
+
+      this._joinRoomBtn.classList.add("control-btn-dis");
+
+      this._exitRoomBtn.classList.add("d-none");
+
+      this._backRoomBtn.classList.add("control-btn-dis");
+
+      this._backRoomBtn.classList.add("v-hidden");
+
+      this.activateInputs();
+
+      this._inRoomControlls.classList.remove("v-hidden");
+
+      this._hostNameLabel.classList.remove("v-hidden");
+
+      this._hostNameLabel.textContent = hostName;
+      this._roomNumberInput.value = roomNum;
+      this._roomKeyInput.value = roomKey;
+
+      this._joinNameLabel.classList.add("v-hidden");
+
+      this._startBtnHolder.classList.add("v-hidden");
+
+      this._kickBtnHolder.classList.add("v-hidden");
+    }
+  }, {
+    key: "close",
+    value: function close() {
+      this._createRoomBtn.classList.remove("d-none");
+
+      this._createRoomBtn.classList.remove("control-btn-dis");
+
+      this._closeRoomBtn.classList.add("d-none");
+
+      this._joinRoomBtn.classList.remove("control-btn-dis");
+
+      this._joinRoomBtn.classList.remove("d-none");
+
+      this._exitRoomBtn.classList.add("d-none");
+
+      this._backRoomBtn.classList.remove("control-btn-dis");
+
+      this._backRoomBtn.classList.remove("v-hidden");
+
+      this.deactivateInputs();
+      this._roomNumberInput.value = "";
+
+      this._inRoomControlls.classList.add("v-hidden");
+    }
+  }, {
+    key: "joined",
+    value: function joined(joinName) {
+      this._joinNameLabel.classList.remove("v-hidden");
+
+      this._joinNameLabel.textContent = joinName;
+
+      this._startBtnHolder.classList.remove("v-hidden");
+
+      this._kickBtnHolder.classList.remove("v-hidden");
+    }
+  }, {
+    key: "kicked",
+    value: function kicked() {
+      this._joinNameLabel.classList.add("v-hidden");
+
+      this._joinNameLabel.textContent = "";
+
+      this._startBtnHolder.classList.add("v-hidden");
+
+      this._kickBtnHolder.classList.add("v-hidden");
+    }
+  }, {
+    key: "meJoining",
+    value: function meJoining(hostName, joinName, roomNum, roomKey) {
+      this._createRoomBtn.classList.add("control-btn-dis");
+
+      this._closeRoomBtn.classList.add("d-none");
+
+      this._joinRoomBtn.classList.add("d-none");
+
+      this._exitRoomBtn.classList.remove("d-none");
+
+      this._backRoomBtn.classList.add("control-btn-dis");
+
+      this._backRoomBtn.classList.add("v-hidden");
+
+      this.activateInputs();
+
+      this._inRoomControlls.classList.remove("v-hidden");
+
+      this._hostNameLabel.classList.remove("v-hidden");
+
+      this._hostNameLabel.textContent = hostName;
+      this._roomNumberInput.value = roomNum;
+      this._roomKeyInput.value = roomKey;
+
+      this._joinNameLabel.classList.remove("v-hidden");
+
+      this._joinNameLabel.textContent = joinName;
+
+      this._startBtnHolder.classList.add("v-hidden");
+
+      this._kickBtnHolder.classList.add("v-hidden");
+    }
+  }, {
+    key: "setDisplayAsSuccess",
+    value: function setDisplayAsSuccess() {
+      this._msgLabel.classList.add("room-label-success");
+
+      this._msgLabel.classList.remove("room-label-error");
+    }
+  }, {
+    key: "setDisplayAsError",
+    value: function setDisplayAsError() {
+      this._msgLabel.classList.add("room-label-error");
+
+      this._msgLabel.classList.remove("room-label-success");
+    }
+  }, {
+    key: "hideMsg",
+    value: function hideMsg() {
+      this._msgLabel.classList.add("v-hidden");
+
+      clearInterval(this._interval);
+    }
+  }, {
+    key: "displayMsg",
+    value: function displayMsg(msg) {
+      var _this = this;
+
+      this._msgLabel.textContent = msg;
+
+      this._msgLabel.classList.remove("v-hidden");
+
+      if (this._interval) {
+        clearInterval(this._interval);
+      }
+
+      this._interval = setInterval(function () {
+        return _this.hideMsg;
+      }, 5000);
+    }
+  }, {
+    key: "displaySuccessMsg",
+    value: function displaySuccessMsg(msg) {
+      this.setDisplayAsSuccess();
+      this.displayMsg(msg);
+    }
+  }, {
+    key: "displayErrorMsg",
+    value: function displayErrorMsg(msg) {
+      this.setDisplayAsError();
+      this.displayMsg(msg);
+    }
+  }]);
+
+  return RoomManager;
+}();
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new RoomManager());
 
 /***/ }),
 

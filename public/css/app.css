@@ -10779,6 +10779,13 @@ a:active {
   text-decoration: none;
 }
 
+h3, .h3 {
+  padding: 10px;
+  color: rgb(156, 38, 199);
+  border: 5px solid rgb(156, 38, 199);
+  border-radius: 15px;
+}
+
 body {
   background: url("/img/main-bg.jpg") no-repeat top center/cover;
 }

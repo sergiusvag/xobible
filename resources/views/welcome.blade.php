@@ -1,7 +1,7 @@
 @extends('layouts-xo.menu')
 
 @php
-    $isInRoom = true;
+    $isInRoom = false;
 @endphp
 
 @auth
