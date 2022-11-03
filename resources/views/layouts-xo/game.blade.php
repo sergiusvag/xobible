@@ -2,6 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 @include('components.head')
+@include('components.loader')
 
 <body>
     <section id="main-screen" class="main-screen d-flex align-items-center">

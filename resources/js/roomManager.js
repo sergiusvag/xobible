@@ -135,7 +135,9 @@ class RoomManager {
             clearInterval(this._interval);
         }
 
-        this._interval = setInterval(() => this.hideMsg, 5000);
+        this._interval = setInterval(() => {
+            this.hideMsg();
+        }, 5000);
     }
     displaySuccessMsg(msg) {
         this.setDisplayAsSuccess();

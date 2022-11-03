@@ -29,7 +29,7 @@ Route::get('/welcome/{locale}', function () {
 });
 
 Route::get('/online-game/{locale}', function () {
-    return view('online-game');
+    return view('logged.online-game');
 });
 
 Route::middleware('auth')->group(function () {

@@ -22870,6 +22870,7 @@ var joinRoomBtn = document.querySelector(".btn-room-join");
 var exitRoomBtn = document.querySelector(".btn-room-exit");
 var startBtnHolder = document.querySelector(".holder-btn-room-start");
 var kickBtnHolder = document.querySelector(".holder-btn-room-kick");
+var loaderWrapper = document.querySelector(".wrapper-modal_loader");
 
 var privateRoomHost;
 var privateRoomJoin;
@@ -22897,10 +22898,20 @@ var kickNotified = function kickNotified(data) {
 };
 
 var startNotified = function startNotified() {
+  // window.Echo.leave(channelName);
   window.location.href = "/online-game/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale());
 };
 
+var loaderOn = function loaderOn() {
+  loaderWrapper.classList.add("active");
+};
+
+var loaderOff = function loaderOff() {
+  loaderWrapper.classList.remove("active");
+};
+
 var onLoad = function onLoad() {
+  loaderOn();
   window.axios.get("/check-room/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale())).then(function (resp) {
     if (resp.data.in_room) {
       channelName = "room.".concat(resp.data.room_number);
@@ -22923,11 +22934,14 @@ var onLoad = function onLoad() {
         _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displaySuccessMsg(resp.data.message);
       }
     }
+
+    loaderOff();
   });
 };
 
 onLoad();
 createRoomBtn.addEventListener("click", function (e) {
+  loaderOn();
   window.axios.post("/create-room/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale()), {
     roomKey: _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].roomKey()
   }).then(function (resp) {
@@ -22935,9 +22949,11 @@ createRoomBtn.addEventListener("click", function (e) {
     _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displaySuccessMsg(resp.data.message);
     privateRoomHost = window.Echo["private"]("room.".concat(resp.data.room_number));
     privateRoomHost.listenForWhisper("JoinNotification", joinNotified);
+    loaderOff();
   });
 });
 joinRoomBtn.addEventListener("click", function (e) {
+  loaderOn();
   channelName = "room.".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].roomNumber());
   privateRoomJoin = window.Echo["private"]("room.".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].roomNumber()));
   window.axios.post("/join-room/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale()), {
@@ -22958,9 +22974,12 @@ joinRoomBtn.addEventListener("click", function (e) {
       _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displayErrorMsg(resp.data.message);
       window.Echo.leave(channelName);
     }
+
+    loaderOff();
   });
 });
 closeRoomBtn.addEventListener("click", function (e) {
+  loaderOn();
   window.axios.post("/close-room/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale()), {
     roomNum: _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].roomNumber()
   }).then(function (resp) {
@@ -22969,9 +22988,12 @@ closeRoomBtn.addEventListener("click", function (e) {
     });
     _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].close();
     _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displaySuccessMsg(resp.data.message);
+    window.Echo.leave(channelName);
+    loaderOff();
   });
 });
 kickBtnHolder.addEventListener("click", function (e) {
+  loaderOn();
   window.axios.post("/kick-room/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale()), {
     roomNum: _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].roomNumber()
   }).then(function (resp) {
@@ -22980,9 +23002,11 @@ kickBtnHolder.addEventListener("click", function (e) {
     privateRoomHost.whisper("KickNotification", {
       message: resp.data.message_for_join
     });
+    loaderOff();
   });
 });
 exitRoomBtn.addEventListener("click", function (e) {
+  loaderOn();
   window.axios.post("/exit-room/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale()), {
     roomNum: _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].roomNumber()
   }).then(function (resp) {
@@ -22992,10 +23016,13 @@ exitRoomBtn.addEventListener("click", function (e) {
     });
     _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].close();
     _roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].displaySuccessMsg(resp.data.message);
+    window.Echo.leave(channelName);
+    loaderOff();
   });
 });
 startBtnHolder.addEventListener("click", function (e) {
-  privateRoomHost.whisper("StartNotification", {});
+  privateRoomHost.whisper("StartNotification", {}); // window.Echo.leave(channelName);
+
   window.location.href = "/online-game/".concat(_roomManager__WEBPACK_IMPORTED_MODULE_5__["default"].locale());
 });
 
@@ -23227,7 +23254,7 @@ var RoomManager = /*#__PURE__*/function () {
       }
 
       this._interval = setInterval(function () {
-        return _this.hideMsg;
+        _this.hideMsg();
       }, 5000);
     }
   }, {

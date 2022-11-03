@@ -40,6 +40,8 @@ const exitRoomBtn = document.querySelector(".btn-room-exit");
 const startBtnHolder = document.querySelector(".holder-btn-room-start");
 const kickBtnHolder = document.querySelector(".holder-btn-room-kick");
 
+const loaderWrapper = document.querySelector(".wrapper-modal_loader");
+
 import RoomManager from "./roomManager";
 
 let privateRoomHost;
@@ -69,10 +71,20 @@ const kickNotified = (data) => {
 };
 
 const startNotified = () => {
+    // window.Echo.leave(channelName);
     window.location.href = `/online-game/${RoomManager.locale()}`;
 };
 
+const loaderOn = () => {
+    loaderWrapper.classList.add("active");
+};
+
+const loaderOff = () => {
+    loaderWrapper.classList.remove("active");
+};
+
 const onLoad = () => {
+    loaderOn();
     window.axios.get(`/check-room/${RoomManager.locale()}`).then((resp) => {
         if (resp.data.in_room) {
             channelName = `room.${resp.data.room_number}`;
@@ -118,12 +130,14 @@ const onLoad = () => {
                 RoomManager.displaySuccessMsg(resp.data.message);
             }
         }
+        loaderOff();
     });
 };
 
 onLoad();
 
 createRoomBtn.addEventListener("click", (e) => {
+    loaderOn();
     window.axios
         .post(`/create-room/${RoomManager.locale()}`, {
             roomKey: RoomManager.roomKey(),
@@ -140,10 +154,12 @@ createRoomBtn.addEventListener("click", (e) => {
                 `room.${resp.data.room_number}`
             );
             privateRoomHost.listenForWhisper("JoinNotification", joinNotified);
+            loaderOff();
         });
 });
 
 joinRoomBtn.addEventListener("click", (e) => {
+    loaderOn();
     channelName = `room.${RoomManager.roomNumber()}`;
     privateRoomJoin = window.Echo.private(`room.${RoomManager.roomNumber()}`);
 
@@ -183,10 +199,12 @@ joinRoomBtn.addEventListener("click", (e) => {
                 RoomManager.displayErrorMsg(resp.data.message);
                 window.Echo.leave(channelName);
             }
+            loaderOff();
         });
 });
 
 closeRoomBtn.addEventListener("click", (e) => {
+    loaderOn();
     window.axios
         .post(`/close-room/${RoomManager.locale()}`, {
             roomNum: RoomManager.roomNumber(),
@@ -198,10 +216,13 @@ closeRoomBtn.addEventListener("click", (e) => {
 
             RoomManager.close();
             RoomManager.displaySuccessMsg(resp.data.message);
+            window.Echo.leave(channelName);
+            loaderOff();
         });
 });
 
 kickBtnHolder.addEventListener("click", (e) => {
+    loaderOn();
     window.axios
         .post(`/kick-room/${RoomManager.locale()}`, {
             roomNum: RoomManager.roomNumber(),
@@ -214,10 +235,12 @@ kickBtnHolder.addEventListener("click", (e) => {
             privateRoomHost.whisper("KickNotification", {
                 message: resp.data.message_for_join,
             });
+            loaderOff();
         });
 });
 
 exitRoomBtn.addEventListener("click", (e) => {
+    loaderOn();
     window.axios
         .post(`/exit-room/${RoomManager.locale()}`, {
             roomNum: RoomManager.roomNumber(),
@@ -230,10 +253,13 @@ exitRoomBtn.addEventListener("click", (e) => {
 
             RoomManager.close();
             RoomManager.displaySuccessMsg(resp.data.message);
+            window.Echo.leave(channelName);
+            loaderOff();
         });
 });
 
 startBtnHolder.addEventListener("click", (e) => {
     privateRoomHost.whisper("StartNotification", {});
+    // window.Echo.leave(channelName);
     window.location.href = `/online-game/${RoomManager.locale()}`;
 });
