@@ -134,7 +134,7 @@
     "Room key": "מפתח חדר",
     "Room number": "מספר חדר",
     "Enter": "כניסה",
-    "Failed to join room": "נכשל להכנס",
+    "Error while joining room": "שגיאה בכניסה לחדר",
     "Joined Room": "התחבר לחדר",
     "Start": "התחל",
     "Kick": "לזרוק",
@@ -149,6 +149,8 @@
     "Player left the room": "השחקן יצא מהחדר",
     "You successfully left the room": "אתה יצאת מהחדר",
     "Back to game": "חזרה למשחק",
+    "Player One": "שחקן ראשון",
+    "Player Two": "שחקן שני",
     "": "",
     "": "",
     "": ""

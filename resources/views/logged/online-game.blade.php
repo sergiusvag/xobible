@@ -8,8 +8,8 @@
         $locale = app()->getLocale();
     @endphp
     @auth
-
         @csrf
+        @include('components.color-picker')
     @endauth
     
 @endsection

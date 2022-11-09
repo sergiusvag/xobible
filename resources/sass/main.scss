@@ -110,7 +110,7 @@ input[type="number"] {
     z-index: 2;
 }
 
-/* Loader */
+/* Loader Start*/
 .block-wrap_animation_5 {
     position: relative;
     width: 150px;
@@ -169,3 +169,113 @@ input[type="number"] {
         transform: rotate(720deg);
     }
 }
+
+/* Loader End */
+/* Color Picker Start */
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+}
+.padding-0 {
+    padding-right: 0;
+    padding-left: 0;
+}
+.picker {
+    // width: 710px;
+    margin: 0 auto;
+    padding: 30px;
+    border-radius: 30px;
+    background: linear-gradient(
+            145.99deg,
+            rgba(47, 166, 182, 0.6) 6.25%,
+            rgba(105, 95, 216, 0.6) 93.15%
+        ),
+        url("/img/color-picker-bg.jpg") repeat top center;
+}
+.wrap-in {
+    padding: 15px;
+    border-radius: 30px;
+    background-color: #fff;
+}
+.color-wrap {
+    border: 2px solid #fff;
+    cursor: pointer;
+    background: #fff;
+    filter: drop-shadow(0px 4px 10px rgba(109, 109, 109, 0.3));
+    border-radius: 20px;
+}
+.color-img {
+    border: 2px solid #fff;
+    border-radius: 30px;
+}
+.color-img_red:hover {
+    border: 2px solid #e76c6c;
+}
+.color-img_green:hover {
+    border: 2px solid #54c052;
+}
+.color-img_blue:hover {
+    border: 2px solid #5f64e1;
+}
+.color-img_pink:hover {
+    border: 2px solid #df6ff1;
+}
+.color-img_orange:hover {
+    border: 2px solid #e77f05;
+}
+.color-wrap-clicked-red,
+.color-wrap-clicked-green,
+.color-wrap-clicked-blue,
+.color-wrap-clicked-pink,
+.color-wrap-clicked-orange {
+    filter: none;
+}
+.color-wrap-clicked-red {
+    border: 2px solid #e76c6c;
+}
+.color-wrap-clicked-green {
+    border: 2px solid #54c052;
+}
+.color-wrap-clicked-blue {
+    border: 2px solid #5f64e1;
+}
+.color-wrap-clicked-pink {
+    border: 2px solid #df6ff1;
+}
+.color-wrap-clicked-orange {
+    border: 2px solid #e77f05;
+}
+.color-red,
+.color-green,
+.color-blue,
+.color-pink,
+.color-orange {
+    border-width: 3px;
+    border-style: solid;
+    background-color: #fff !important;
+}
+.color-red {
+    border-color: #e76c6c !important;
+    color: #e76c6c !important;
+}
+.color-green {
+    border-color: #54c052 !important;
+    color: #54c052 !important;
+}
+.color-blue {
+    border-color: #5f64e1 !important;
+    color: #5f64e1 !important;
+}
+.color-pink {
+    border-color: #df6ff1 !important;
+    color: #df6ff1 !important;
+}
+.color-orange {
+    border-color: #e77f05 !important;
+    color: #e77f05 !important;
+}
+.color-white {
+    border-color: #fff !important;
+    color: #fff !important;
+}
+/* Color Picker End */

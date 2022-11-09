@@ -1,3 +1,5 @@
+import Loader from "./Loader";
+
 class RoomManager {
     _localeLabel = document.querySelector(".locale");
     _createRoomBtn = document.querySelector(".btn-room-create");
@@ -17,6 +19,14 @@ class RoomManager {
 
     constructor() {}
 
+    hostName() {
+        return this._hostNameLabel.textContent;
+    }
+
+    joinName() {
+        return this._joinNameLabel.textContent;
+    }
+
     locale() {
         return this._localeLabel.textContent;
     }
@@ -29,34 +39,32 @@ class RoomManager {
         return this._roomKeyInput.value;
     }
 
-    activateInputs() {
+    _activateInputs() {
         this._roomKeyInput.readOnly = true;
         this._roomNumberInput.readOnly = true;
     }
 
-    deactivateInputs() {
+    _deactivateInputs() {
         this._roomKeyInput.readOnly = false;
         this._roomNumberInput.readOnly = false;
     }
 
-    create(hostName, roomNum, roomKey) {
+    create(data) {
         this._createRoomBtn.classList.add("d-none");
         this._closeRoomBtn.classList.remove("d-none");
         this._joinRoomBtn.classList.add("control-btn-dis");
         this._exitRoomBtn.classList.add("d-none");
         this._backRoomBtn.classList.add("control-btn-dis");
         this._backRoomBtn.classList.add("v-hidden");
-
-        this.activateInputs();
-
         this._inRoomControlls.classList.remove("v-hidden");
         this._hostNameLabel.classList.remove("v-hidden");
-        this._hostNameLabel.textContent = hostName;
-        this._roomNumberInput.value = roomNum;
-        this._roomKeyInput.value = roomKey;
+        this._hostNameLabel.textContent = data.host_name;
+        this._roomNumberInput.value = data.room_number;
+        this._roomKeyInput.value = data.room_key ? data.room_key : "";
         this._joinNameLabel.classList.add("v-hidden");
         this._startBtnHolder.classList.add("v-hidden");
         this._kickBtnHolder.classList.add("v-hidden");
+        this._activateInputs();
     }
 
     close() {
@@ -68,15 +76,12 @@ class RoomManager {
         this._exitRoomBtn.classList.add("d-none");
         this._backRoomBtn.classList.remove("control-btn-dis");
         this._backRoomBtn.classList.remove("v-hidden");
-
-        this.deactivateInputs();
-
         this._roomNumberInput.value = "";
-
         this._inRoomControlls.classList.add("v-hidden");
+        this._deactivateInputs();
     }
 
-    joined(joinName) {
+    memberJoined(joinName) {
         this._joinNameLabel.classList.remove("v-hidden");
         this._joinNameLabel.textContent = joinName;
         this._startBtnHolder.classList.remove("v-hidden");
@@ -90,44 +95,41 @@ class RoomManager {
         this._kickBtnHolder.classList.add("v-hidden");
     }
 
-    meJoining(hostName, joinName, roomNum, roomKey) {
+    memberJoining(data) {
         this._createRoomBtn.classList.add("control-btn-dis");
         this._closeRoomBtn.classList.add("d-none");
         this._joinRoomBtn.classList.add("d-none");
         this._exitRoomBtn.classList.remove("d-none");
         this._backRoomBtn.classList.add("control-btn-dis");
         this._backRoomBtn.classList.add("v-hidden");
-
-        this.activateInputs();
-
         this._inRoomControlls.classList.remove("v-hidden");
         this._hostNameLabel.classList.remove("v-hidden");
-        this._hostNameLabel.textContent = hostName;
-        this._roomNumberInput.value = roomNum;
-        this._roomKeyInput.value = roomKey;
+        this._hostNameLabel.textContent = data.host_name;
+        this._roomNumberInput.value = data.room_number;
+        this._roomKeyInput.value = data.room_key;
         this._joinNameLabel.classList.remove("v-hidden");
-        this._joinNameLabel.textContent = joinName;
-
+        this._joinNameLabel.textContent = data.join_name;
         this._startBtnHolder.classList.add("v-hidden");
         this._kickBtnHolder.classList.add("v-hidden");
+        this._activateInputs();
     }
 
-    setDisplayAsSuccess() {
+    _setDisplayAsSuccess() {
         this._msgLabel.classList.add("room-label-success");
         this._msgLabel.classList.remove("room-label-error");
     }
 
-    setDisplayAsError() {
+    _setDisplayAsError() {
         this._msgLabel.classList.add("room-label-error");
         this._msgLabel.classList.remove("room-label-success");
     }
 
-    hideMsg() {
+    _hideMsg() {
         this._msgLabel.classList.add("v-hidden");
         clearInterval(this._interval);
     }
 
-    displayMsg(msg) {
+    _displayMsg(msg) {
         this._msgLabel.textContent = msg;
         this._msgLabel.classList.remove("v-hidden");
 
@@ -136,17 +138,86 @@ class RoomManager {
         }
 
         this._interval = setInterval(() => {
-            this.hideMsg();
+            this._hideMsg();
         }, 5000);
     }
     displaySuccessMsg(msg) {
-        this.setDisplayAsSuccess();
-        this.displayMsg(msg);
+        this._setDisplayAsSuccess();
+        this._displayMsg(msg);
     }
     displayErrorMsg(msg) {
-        this.setDisplayAsError();
-        this.displayMsg(msg);
+        this._setDisplayAsError();
+        this._displayMsg(msg);
     }
+
+    _getRoomEntry = () => {
+        return {
+            roomNum: this.roomNumber(),
+            roomKey: this.roomKey(),
+        };
+    };
+
+    _btnAddEvent = (btn, prePostFunc, link, thenFunc) => {
+        this[btn].addEventListener("click", (e) => {
+            Loader.On();
+            prePostFunc();
+            window.axios.post(link, this._getRoomEntry()).then(thenFunc);
+        });
+    };
+
+    _btnAddEventBasic = (btn, prePostFunc, link) => {
+        this._btnAddEvent(btn, prePostFunc, link, () => {});
+    };
+
+    createEvent = (prePostFunc, thenFunc) => {
+        this._btnAddEvent(
+            "_createRoomBtn",
+            prePostFunc,
+            `/create-room/${this.locale()}`,
+            thenFunc
+        );
+    };
+
+    joinEvent = (prePostFunc, thenFunc) => {
+        this._btnAddEvent(
+            "_joinRoomBtn",
+            prePostFunc,
+            `/join-room/${this.locale()}`,
+            thenFunc
+        );
+    };
+
+    kickEvent = (prePostFunc) => {
+        this._btnAddEventBasic(
+            "_kickBtnHolder",
+            prePostFunc,
+            `/kick-room/${this.locale()}`
+        );
+    };
+
+    closeEvent = (prePostFunc) => {
+        this._btnAddEventBasic(
+            "_closeRoomBtn",
+            prePostFunc,
+            `/close-room/${this.locale()}`
+        );
+    };
+
+    exitEvent = (prePostFunc) => {
+        this._btnAddEventBasic(
+            "_exitRoomBtn",
+            prePostFunc,
+            `/exit-room/${this.locale()}`
+        );
+    };
+
+    startEvent = (prePostFunc) => {
+        this._btnAddEventBasic(
+            "_startBtnHolder",
+            prePostFunc,
+            `/start-room/${this.locale()}`
+        );
+    };
 }
 
 export default new RoomManager();

@@ -18,6 +18,7 @@ class Room extends Model
         'join_name',
         'room_number',
         'room_key',
+        'status',
     ];
     
     public function host()

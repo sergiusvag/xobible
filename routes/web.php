@@ -28,9 +28,6 @@ Route::get('/welcome/{locale}', function () {
     return view('welcome');
 });
 
-Route::get('/online-game/{locale}', function () {
-    return view('logged.online-game');
-});
 
 Route::middleware('auth')->group(function () {
     Route::post('/mistake/{locale}', [MistakeController::class, 'store']);
@@ -39,12 +36,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/suggestion/{locale}', [SuggestionController::class, 'create']);
     Route::get('/check-room/{locale}' , [OnlineGameController::class, 'checkOnLoad']);
     Route::get('/online-room/{locale}' , [OnlineGameController::class, 'online']);
-    Route::post('/online-room/{locale}' , [OnlineGameController::class, 'listen']);
     Route::post('/create-room/{locale}' , [OnlineGameController::class, 'create']);
     Route::post('/close-room/{locale}' , [OnlineGameController::class, 'close']);
     Route::post('/join-room/{locale}' , [OnlineGameController::class, 'join']);
     Route::post('/kick-room/{locale}' , [OnlineGameController::class, 'kick']);
     Route::post('/exit-room/{locale}' , [OnlineGameController::class, 'exit']);
+    Route::post('/start-room/{locale}' , [OnlineGameController::class, 'start']);
+    Route::get('/online-game/{locale}', function () {
+        return view('logged.online-game');
+    });
 });
 
 Route::get('/dashboard/{locale?}', function () {

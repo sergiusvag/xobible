@@ -22,7 +22,7 @@
     @auth
         <form method="POST" class="text-center mt-4" action="{{ route('logout').'/'.$locale }}">
             @csrf
-            <span class="user-profile-text g-label logged-user username">{{ Auth::user()->name }}</span>
+            <span class="user-profile-text">{{ Auth::user()->name }}</span>
             <button type="submut"  class="btn btn-logout">{{ __('Logout') }}</button>
         </form>
     @else
@@ -36,7 +36,19 @@
         </div>
     @auth
         <div class="text-center mt-3">
-            <a href="{{ '/online-room/' . $locale }}" class="btn btn-welcome-online-game">{{ $isInRoom ? __('Back to game') : __('Online game') }}</a>
+            @php
+                if($isInRoom) {
+                    $roomOrGame = $room['status'] === 'in_game' ? 'game' : 'room';
+                    $url = '/online-' . $roomOrGame. '/' . $locale;
+                    $btnText = __('Back to game');
+                } else {
+                    $url = '/online-room/' . $locale;
+                    $btnText = __('Online game');
+                }
+                @endphp
+                    <a href="{{ $url }}" class="btn btn-welcome-online-game">{{ $btnText }}</a>
+                @php
+            @endphp
         </div>
         <div class="text-center mt-3">
             <a href="{{ '/suggestion/' . $locale }}" class="btn btn-welcome-suggest @php echo $isInRoom ? 'control-btn-dis' : '' @endphp">{{ __('Suggest a question') }}</a>

@@ -19,9 +19,6 @@ use App\Broadcasting\RoomChannel;
 //     return (int) $user->id === (int) $id;
 // });
 
-Broadcast::channel('notification', function () {
-    return true;
-});
 Broadcast::channel('room.{roomNum}', function () {
     return true;
 });

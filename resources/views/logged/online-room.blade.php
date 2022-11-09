@@ -50,7 +50,7 @@
                                     <span class="user-profile-text g-label logged-user username username-join v-hidden">Joinie Name</span>
                                 </div>
                             </div>
-                            <div class="row mt-2">
+                            <div class="row mt-3">
                                 <div class="col-6 holder-btn-room-start v-hidden">
                                     <button type="button" class="btn btn-room-start">{{ __('Start') }}</button>
                                 </div>

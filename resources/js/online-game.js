@@ -33,4 +33,4 @@ window.Echo = new Echo({
     encryption: true,
 });
 
-console.log("Hello");
+import ColorPickerManager from "./colorPickerManager";
