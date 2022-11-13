@@ -26,14 +26,15 @@ body {
     color: #fff;
     background: #d63737;
     border-radius: 30px;
+    border: 3px solid #6a6565;
     box-shadow: none;
-    transition: background 0.5s ease;
+    transition: background 0.5s ease, border 0.5s ease;
 }
 .btn:hover {
-    border: none;
+    border: 3px solid rgb(115, 4, 9);
     color: #fff;
     background-color: rgb(170, 27, 34);
-    transition: background 0.5s ease;
+    transition: background 0.5s ease, border 0.5s ease;
 }
 .user-login-buttons .btn {
     width: auto;
@@ -42,6 +43,13 @@ body {
 .btn-locale {
     max-width: 60px;
     min-width: 60px;
+}
+.btn-pos-action {
+    background-color: #2abb10;
+}
+.btn-pos-action:hover {
+    background-color: #1d840b;
+    border: 3px solid #0f5303;
 }
 .btn-dis {
     cursor: auto;
@@ -279,3 +287,38 @@ input[type="number"] {
     color: #fff !important;
 }
 /* Color Picker End */
+
+.room-smily {
+    padding: 10px;
+    font-size: 23px;
+    cursor: pointer;
+}
+.room-smily-holder {
+    position: relative;
+}
+.room-smily-options {
+    position: absolute;
+    width: 90px;
+    z-index: 1;
+    background-color: #12c9c6;
+    bottom: 100%;
+    left: 70%;
+    border-radius: 20px 20px 20px 0;
+    opacity: 0;
+    transition: opacity ease 1s;
+    border: 3px solid #474646;
+}
+.room-smily-options_join {
+    left: auto;
+    right: 70%;
+    border-radius: 20px 20px 0 20px;
+}
+.room-smily-option {
+    cursor: pointer;
+    font-size: 23px;
+    padding: 4px;
+}
+.fade-in {
+    opacity: 1 !important;
+    transition: opacity ease 1s;
+}

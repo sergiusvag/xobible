@@ -36,30 +36,28 @@ window.Echo = new Echo({
 const createRoomBtn = document.querySelector(".btn-room-create");
 const joinRoomBtn = document.querySelector(".btn-room-join");
 
-import Loader from "./Loader";
+import Loader from "./helper/loader";
+import { initLang, __ } from "./helper/translator";
 import RoomManager from "./roomManager";
 
 let roomChannel;
-
 const joinNotified = (data) => {
-    RoomManager.memberJoined(data.join_name);
-    RoomManager.displaySuccessMsg(data.message);
-
+    RoomManager.memberJoined(data.join_name, __(data.message));
     roomChannel.listen("HostRoomEventExit", (e) => {
-        RoomManager.kicked();
-        RoomManager.displayErrorMsg(e.message);
+        RoomManager.hostMemberLeft(`${__(e.message)} ${e.join_name}`);
+    });
+    roomChannel.listenForWhisper("smily", (e) => {
+        RoomManager.displaySuccessMsg(`${e.name} : ${__(e.message)}`);
     });
 };
 
 const closeNotified = (data) => {
-    RoomManager.close();
-    RoomManager.displaySuccessMsg(data.message);
+    RoomManager.memberExit(__(data.message));
     window.Echo.leave(data.channel);
 };
 
 const kickNotified = (data) => {
-    RoomManager.close();
-    RoomManager.displayErrorMsg(data.message);
+    RoomManager.memberKicked(__(data.message));
     window.Echo.leave(data.channel);
 };
 
@@ -68,90 +66,87 @@ const startNotified = (data) => {
     window.location.href = `/online-game/${RoomManager.locale()}`;
 };
 
-const memberDisplayOnJoin = (data) => {
-    RoomManager.memberJoining(data);
-    RoomManager.displaySuccessMsg(data.message);
-};
-
 const memberListenChannels = () => {
     roomChannel.listen("RoomEventClose", closeNotified);
     roomChannel.listen("MemberRoomEventKicked", kickNotified);
     roomChannel.listen("RoomEventStart", startNotified);
+    roomChannel.listenForWhisper("smily", (e) => {
+        RoomManager.displaySuccessMsg(`${e.name} : ${__(e.message)}`);
+    });
 };
 
 const memberJoinAndDisplay = (data) => {
-    memberDisplayOnJoin(data);
+    RoomManager.memberJoining(data, __(data.message));
     memberListenChannels();
 };
 
-const hostDisplayOnCreate = (data) => {
-    RoomManager.create(data);
-    RoomManager.displaySuccessMsg(data.message);
-};
-
-const hostJoinChannels = (channel) => {
-    roomChannel = window.Echo.private(channel);
-    roomChannel.listen("HostRoomEventJoin", joinNotified);
+const hostJoinChannels = async (channel) => {
+    roomChannel = await window.Echo.private(channel);
+    roomChannel.listen("HostRoomEventJoin", (e) => {
+        e.message = `${e.join_name} ${__(e.message)}`;
+        joinNotified(e);
+    });
 };
 
 const hostCreateAndDisplay = (data) => {
-    hostDisplayOnCreate(data);
+    RoomManager.hostCreate(data, __(data.message));
     hostJoinChannels(data.channel);
 };
 
-const memberJoinRoomChannel = (channel) => {
-    roomChannel = window.Echo.private(channel);
+const memberJoinRoomChannel = async (channel) => {
+    roomChannel = await window.Echo.private(channel);
     roomChannel.listen("MemberRoomEventJoin", (e) => {
         memberJoinAndDisplay(e);
         Loader.Off();
     });
-};
-
-const channelListen = (eventName, eventFunc) => {
-    roomChannel.listen(eventName, eventFunc);
+    roomChannel.listenForWhisper("smily", (e) => {
+        RoomManager.displaySuccessMsg(`${e.name} : ${__(e.message)}`);
+    });
 };
 
 const channelListenClose = () => {
-    channelListen("RoomEventClose", (e) => {
+    roomChannel.listen("RoomEventClose", (e) => {
         closeNotified(e);
         Loader.Off();
     });
 };
 
 const channelListenKick = () => {
-    channelListen("HostRoomEventKicked", (e) => {
-        RoomManager.kicked();
-        RoomManager.displaySuccessMsg(e.message);
+    roomChannel.listen("HostRoomEventKicked", (e) => {
+        RoomManager.hostKicked(`${__(e.message)} ${e.join_name}`);
         Loader.Off();
     });
 };
 
 const channelListenExit = () => {
-    channelListen("MemberRoomEventExit", (e) => {
+    roomChannel.listen("MemberRoomEventExit", (e) => {
         closeNotified(e);
         Loader.Off();
     });
 };
 
 const channelListenStart = () => {
-    channelListen("RoomEventStart", startNotified);
+    roomChannel.listen("RoomEventStart", startNotified);
 };
 
+const channelListenChat = (data) => {
+    roomChannel.whisper("smily", {
+        message: data.message,
+        name: data.name,
+    });
+};
 const initEvents = () => {
-    RoomManager.createEvent(
-        () => {},
-        (resp) => {
-            hostCreateAndDisplay(resp.data);
-            Loader.Off();
-        }
-    );
+    RoomManager.createEvent((resp) => {
+        hostCreateAndDisplay(resp.data);
+        Loader.Off();
+    });
     RoomManager.joinEvent(
         () => {
             memberJoinRoomChannel(`room.${RoomManager.roomNumber()}`);
         },
         (resp) => {
             if (!resp.data.joinSuccess) {
-                RoomManager.displayErrorMsg(resp.data.message);
+                RoomManager.displayErrorMsg(__(resp.data.message));
                 window.Echo.leave(resp.data.channel);
                 Loader.Off();
             }
@@ -161,29 +156,36 @@ const initEvents = () => {
     RoomManager.closeEvent(channelListenClose);
     RoomManager.exitEvent(channelListenExit);
     RoomManager.startEvent(channelListenStart);
+    RoomManager.hostChatEvent(channelListenChat);
+    RoomManager.joinChatEvent(channelListenChat);
 };
-const onLoad = () => {
-    Loader.On();
-    window.axios.get(`/check-room/${RoomManager.locale()}`).then((resp) => {
-        if (resp.data.status === "in_game") {
-            window.location.href = `/online-game/${RoomManager.locale()}`;
-        }
-        if (resp.data.status === "in_room") {
-            if (resp.data.is_host) {
-                hostCreateAndDisplay(resp.data);
+const checkIfInRoom = () => {
+    window.axios
+        .get(`/check-room/${RoomManager.locale()}`)
+        .then(async (resp) => {
+            roomChannel = await window.Echo.private(resp.data.channel);
+            if (resp.data.status === "in_game") {
+                window.location.href = `/online-game/${RoomManager.locale()}`;
+            } else if (resp.data.status === "in_room") {
+                if (resp.data.is_host) {
+                    hostCreateAndDisplay(resp.data);
 
-                if (resp.data.join_name) {
-                    joinNotified(resp.data);
+                    if (resp.data.join_name) {
+                        joinNotified(resp.data);
+                    }
+                } else {
+                    memberJoinAndDisplay(resp.data);
                 }
-            } else {
-                roomChannel = window.Echo.private(resp.data.channel);
-                memberJoinAndDisplay(resp.data);
             }
-        }
-        Loader.Off();
-    });
+            Loader.Off();
+        });
+};
+const onLoad = async () => {
+    Loader.On();
 
     initEvents();
+    await initLang(RoomManager.locale());
+    checkIfInRoom();
 };
 
 onLoad();

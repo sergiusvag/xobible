@@ -13,4 +13,8 @@ use Illuminate\Queue\SerializesModels;
 
 class RoomEventClose extends RoomEvent
 {
+    public function __construct($room, $message)
+    {
+        parent::__construct($room, $message);
+    }
 }

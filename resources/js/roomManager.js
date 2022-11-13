@@ -1,4 +1,4 @@
-import Loader from "./Loader";
+import Loader from "./helper/loader";
 
 class RoomManager {
     _localeLabel = document.querySelector(".locale");
@@ -17,39 +17,73 @@ class RoomManager {
     _inRoomControlls = document.querySelector(".in-room-controlls");
     _interval = undefined;
 
-    constructor() {}
+    _hostSmily = document.querySelector(".room-smily-host");
+    _hostSmilyOptions = document.querySelector(".room-smily-options_host");
+    _joinSmily = document.querySelector(".room-smily-join");
+    _joinSmilyOptions = document.querySelector(".room-smily-options_join");
 
-    hostName() {
+    constructor() {}
+    _toggleSmileOptions(smilyOptions) {
+        this[smilyOptions].classList.toggle("v-hidden");
+        this[smilyOptions].classList.toggle("fade-in");
+    }
+    _initSmilies(smily, smilyOptions, name, clickFunc) {
+        const optionsArr = [...this[smilyOptions].children];
+        this[smily].addEventListener("click", (e) => {
+            this._toggleSmileOptions(smilyOptions);
+        });
+        for (let i = 0; i < optionsArr.length; i++) {
+            optionsArr[i].addEventListener("click", (e) => {
+                this._toggleSmileOptions(smilyOptions);
+                clickFunc({
+                    name: this[name](),
+                    message: e.target.dataset.roomMessage,
+                });
+            });
+        }
+    }
+
+    hostChatEvent(clickFunc) {
+        this._initSmilies(
+            "_hostSmily",
+            "_hostSmilyOptions",
+            "_hostName",
+            clickFunc
+        );
+    }
+    joinChatEvent(clickFunc) {
+        this._initSmilies(
+            "_joinSmily",
+            "_joinSmilyOptions",
+            "_joinName",
+            clickFunc
+        );
+    }
+    _hostName() {
         return this._hostNameLabel.textContent;
     }
 
-    joinName() {
+    _joinName() {
         return this._joinNameLabel.textContent;
     }
-
     locale() {
         return this._localeLabel.textContent;
     }
-
     roomNumber() {
         return this._roomNumberInput.value;
     }
-
-    roomKey() {
+    _roomKey() {
         return this._roomKeyInput.value;
     }
-
     _activateInputs() {
         this._roomKeyInput.readOnly = true;
         this._roomNumberInput.readOnly = true;
     }
-
     _deactivateInputs() {
         this._roomKeyInput.readOnly = false;
         this._roomNumberInput.readOnly = false;
     }
-
-    create(data) {
+    _create(data) {
         this._createRoomBtn.classList.add("d-none");
         this._closeRoomBtn.classList.remove("d-none");
         this._joinRoomBtn.classList.add("control-btn-dis");
@@ -66,8 +100,7 @@ class RoomManager {
         this._kickBtnHolder.classList.add("v-hidden");
         this._activateInputs();
     }
-
-    close() {
+    _close() {
         this._createRoomBtn.classList.remove("d-none");
         this._createRoomBtn.classList.remove("control-btn-dis");
         this._closeRoomBtn.classList.add("d-none");
@@ -78,24 +111,29 @@ class RoomManager {
         this._backRoomBtn.classList.remove("v-hidden");
         this._roomNumberInput.value = "";
         this._inRoomControlls.classList.add("v-hidden");
+        this._joinSmily.classList.add("v-hidden");
+        this._hostSmily.classList.add("v-hidden");
+        this._hostSmilyOptions.classList.add("v-hidden");
+        this._joinSmilyOptions.classList.add("v-hidden");
+        this._hostSmilyOptions.classList.remove("fade-in");
+        this._joinSmilyOptions.classList.remove("fade-in");
         this._deactivateInputs();
     }
-
-    memberJoined(joinName) {
+    _memberJoinedDisplay(joinName) {
         this._joinNameLabel.classList.remove("v-hidden");
         this._joinNameLabel.textContent = joinName;
         this._startBtnHolder.classList.remove("v-hidden");
         this._kickBtnHolder.classList.remove("v-hidden");
+        this._hostSmily.classList.remove("v-hidden");
     }
-
-    kicked() {
+    _kicked() {
         this._joinNameLabel.classList.add("v-hidden");
         this._joinNameLabel.textContent = "";
         this._startBtnHolder.classList.add("v-hidden");
         this._kickBtnHolder.classList.add("v-hidden");
+        this._hostSmily.classList.add("v-hidden");
     }
-
-    memberJoining(data) {
+    _memberJoiningDisplay(data) {
         this._createRoomBtn.classList.add("control-btn-dis");
         this._closeRoomBtn.classList.add("d-none");
         this._joinRoomBtn.classList.add("d-none");
@@ -111,24 +149,23 @@ class RoomManager {
         this._joinNameLabel.textContent = data.join_name;
         this._startBtnHolder.classList.add("v-hidden");
         this._kickBtnHolder.classList.add("v-hidden");
+        this._joinSmily.classList.remove("v-hidden");
         this._activateInputs();
     }
-
     _setDisplayAsSuccess() {
         this._msgLabel.classList.add("room-label-success");
+        this._msgLabel.classList.add("fade-in");
         this._msgLabel.classList.remove("room-label-error");
     }
-
     _setDisplayAsError() {
         this._msgLabel.classList.add("room-label-error");
         this._msgLabel.classList.remove("room-label-success");
     }
-
     _hideMsg() {
         this._msgLabel.classList.add("v-hidden");
+        this._msgLabel.classList.remove("fade-in");
         clearInterval(this._interval);
     }
-
     _displayMsg(msg) {
         this._msgLabel.textContent = msg;
         this._msgLabel.classList.remove("v-hidden");
@@ -150,73 +187,95 @@ class RoomManager {
         this._displayMsg(msg);
     }
 
-    _getRoomEntry = () => {
-        return {
-            roomNum: this.roomNumber(),
-            roomKey: this.roomKey(),
-        };
-    };
+    _displayProcess(displayFunc, data, displayMsg, message) {
+        this[displayFunc](data);
+        this[displayMsg](message);
+    }
+    hostCreate(data, message) {
+        this._displayProcess("_create", data, "displaySuccessMsg", message);
+    }
+    memberJoined(joinName, message) {
+        this._displayProcess(
+            "_memberJoinedDisplay",
+            joinName,
+            "displaySuccessMsg",
+            message
+        );
+    }
+    memberJoining(data, message) {
+        this._displayProcess(
+            "_memberJoiningDisplay",
+            data,
+            "displaySuccessMsg",
+            message
+        );
+    }
+    memberExit(message) {
+        this._displayProcess("_close", null, "displaySuccessMsg", message);
+    }
+    memberKicked(message) {
+        this._displayProcess("_close", null, "displayErrorMsg", message);
+    }
+    hostKicked(message) {
+        this._displayProcess("_kicked", null, "displaySuccessMsg", message);
+    }
+    hostMemberLeft(message) {
+        this._displayProcess("_kicked", null, "displayErrorMsg", message);
+    }
 
-    _btnAddEvent = (btn, prePostFunc, link, thenFunc) => {
+    _btnAddEvent = (btn, link, funcs) => {
+        const functions = {
+            prePostFunc: function () {},
+            thenFunc: function () {},
+            ...funcs,
+        };
         this[btn].addEventListener("click", (e) => {
             Loader.On();
-            prePostFunc();
-            window.axios.post(link, this._getRoomEntry()).then(thenFunc);
+            functions.prePostFunc();
+            window.axios
+                .post(link, {
+                    roomNum: this.roomNumber(),
+                    roomKey: this._roomKey(),
+                })
+                .then(functions.thenFunc);
         });
     };
 
-    _btnAddEventBasic = (btn, prePostFunc, link) => {
-        this._btnAddEvent(btn, prePostFunc, link, () => {});
-    };
-
-    createEvent = (prePostFunc, thenFunc) => {
-        this._btnAddEvent(
-            "_createRoomBtn",
-            prePostFunc,
-            `/create-room/${this.locale()}`,
-            thenFunc
-        );
+    createEvent = (thenFunc) => {
+        this._btnAddEvent("_createRoomBtn", `/create-room/${this.locale()}`, {
+            thenFunc: thenFunc,
+        });
     };
 
     joinEvent = (prePostFunc, thenFunc) => {
-        this._btnAddEvent(
-            "_joinRoomBtn",
+        this._btnAddEvent("_joinRoomBtn", `/join-room/${this.locale()}`, {
             prePostFunc,
-            `/join-room/${this.locale()}`,
-            thenFunc
-        );
+            thenFunc,
+        });
     };
 
     kickEvent = (prePostFunc) => {
-        this._btnAddEventBasic(
-            "_kickBtnHolder",
+        this._btnAddEvent("_kickBtnHolder", `/kick-room/${this.locale()}`, {
             prePostFunc,
-            `/kick-room/${this.locale()}`
-        );
+        });
     };
 
     closeEvent = (prePostFunc) => {
-        this._btnAddEventBasic(
-            "_closeRoomBtn",
+        this._btnAddEvent("_closeRoomBtn", `/close-room/${this.locale()}`, {
             prePostFunc,
-            `/close-room/${this.locale()}`
-        );
+        });
     };
 
     exitEvent = (prePostFunc) => {
-        this._btnAddEventBasic(
-            "_exitRoomBtn",
+        this._btnAddEvent("_exitRoomBtn", `/exit-room/${this.locale()}`, {
             prePostFunc,
-            `/exit-room/${this.locale()}`
-        );
+        });
     };
 
     startEvent = (prePostFunc) => {
-        this._btnAddEventBasic(
-            "_startBtnHolder",
+        this._btnAddEvent("_startBtnHolder", `/start-room/${this.locale()}`, {
             prePostFunc,
-            `/start-room/${this.locale()}`
-        );
+        });
     };
 }
 

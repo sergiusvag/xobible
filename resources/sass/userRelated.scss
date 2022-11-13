@@ -236,10 +236,8 @@ a:hover {
     text-align: center;
 }
 .room-label {
-    padding: 5px 7px;
-    border-radius: 15px 15px 0 0;
-    color: #fff;
-    background-color: rgb(243, 126, 210);
+    opacity: 0;
+    transition: opacity ease 1s;
 }
 
 .input-room {

@@ -13,8 +13,8 @@ use Illuminate\Queue\SerializesModels;
 
 class RoomEventStart extends RoomEvent
 {
-    public function __construct($roomNum)
+    public function __construct($room)
     {
-        parent::__construct($roomNum, '');
+        parent::__construct($room, '');
     }
 }

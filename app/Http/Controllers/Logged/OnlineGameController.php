@@ -34,7 +34,7 @@ class OnlineGameController extends Controller
             'status' => $room['status'],
             'is_host' => $isHost,
             'channel' => 'room.'.$room->room_number,
-            'message' => __('You successfully rejoined room'),
+            'message' => 'You successfully rejoined room',
         ];
     }
 
@@ -92,7 +92,7 @@ class OnlineGameController extends Controller
             'room_number' => $roomNum,
             'room_key' => $roomKey,
             'host_name' => Auth::user()->name,
-            'message' => __('Room created'), 
+            'message' => 'Room created', 
             'channel' => 'room.'.$roomNum,
         ];
     }
@@ -101,7 +101,7 @@ class OnlineGameController extends Controller
         $roomNum = $request['roomNum'];
         Room::where('room_number', $roomNum)->delete();
 
-        RoomEventClose::dispatch($roomNum, __('Room closed by host'));
+        RoomEventClose::dispatch(['room_number' => $roomNum, 'join_name' => ''], 'Room closed by host');
         return [];
     }
 
@@ -110,7 +110,7 @@ class OnlineGameController extends Controller
         $roomKey = $request['roomKey'];
         $data = [
             'joinSuccess' => false,
-            'message' => __('Error while joining room'),
+            'message' => 'Error while joining room',
             'channel' => 'room.'.$roomNum,
         ];
         $room = Room::where('room_number', $roomNum)
@@ -123,8 +123,8 @@ class OnlineGameController extends Controller
                 $room->join_id = Auth::user()->id;
                 $room->save();
                 $data['joinSuccess'] = true;
-                HostRoomEventJoin::dispatch($room, Auth::user()->name.' '.__('Joined Room'));
-                MemberRoomEventJoin::dispatch($room, __('You successfully joined room'));
+                HostRoomEventJoin::dispatch($room, 'Joined Room');
+                MemberRoomEventJoin::dispatch($room, 'You successfully joined room');
         }
 
         return $data;
@@ -132,29 +132,31 @@ class OnlineGameController extends Controller
 
     public function removeFromDB(Request $request) {
         $room = Room::where('room_number', $request['roomNum'])->first();
-        $fields = [
+        $roomData = [
             'room_number' => $room->room_number,
             'host_name' => $room->host_name,
-            'host_id' => $room->host_id,
-            'join_name' => null,
-            'join_id' => null,
+            'join_name' => $room->join_name,
             'room_key' => $room->room_key,
         ];
-        $room->forceFill($fields)->save();
+        $room->join_name = null;
+        $room->join_id = null;
+        $room->save();
+
+        return $roomData;
     }
 
     public function kick(Request $request) {
-        $this->removeFromDB($request);
-        HostRoomEventKicked::dispatch($request['roomNum'], __('Successfully kicked'). ' ' . $request['joinName']);
-        MemberRoomEventKicked::dispatch($request['roomNum'], __('You were kicked'));
+        $room = $this->removeFromDB($request);
+        HostRoomEventKicked::dispatch($room, 'Successfully kicked');
+        MemberRoomEventKicked::dispatch($room, 'You were kicked');
 
         return [];
     }
 
     public function exit(Request $request) {
-        $this->removeFromDB($request);
-        HostRoomEventExit::dispatch($request['roomNum'], __('Player left the room'). ' ' . $request['joinName']);
-        MemberRoomEventExit::dispatch($request['roomNum'], __('You successfully left the room'));
+        $room = $this->removeFromDB($request);
+        HostRoomEventExit::dispatch($room, 'Player left the room');
+        MemberRoomEventExit::dispatch($room, 'You successfully left the room');
 
         return [];
     }
@@ -164,7 +166,7 @@ class OnlineGameController extends Controller
         $room->status = 'in_game';
         $room->save();
 
-        RoomEventStart::dispatch($request['roomNum']);
+        RoomEventStart::dispatch($room);
 
         return [];
     }

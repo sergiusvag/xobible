@@ -2,7 +2,6 @@
 
 namespace App\Events;
 
-use App\Models\Room;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -15,7 +14,7 @@ class RoomEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $roomNum;
+    public $room;
     public $message;
     public $channel;
 
@@ -24,11 +23,12 @@ class RoomEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct($roomNum, $message)
+    public function __construct($room, $message)
     {
-        $this->roomNum = $roomNum;
+        $this->room = $room;
         $this->message = $message;
-        $this->channel = 'room.'.$this->roomNum;
+        // $this->channel = 'room.'.$this->room->room_number;
+        $this->channel = 'room.'.$room['room_number'];
     }
     /**
      * Get the channels the event should broadcast on.
@@ -43,6 +43,7 @@ class RoomEvent implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
+            'join_name' => $this->room['join_name'],
             'message' => $this->message,
             'channel' => $this->channel,
         ];
