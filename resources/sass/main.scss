@@ -322,3 +322,10 @@ input[type="number"] {
     opacity: 1 !important;
     transition: opacity ease 1s;
 }
+
+.form-post-input {
+    width: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+}

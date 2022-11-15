@@ -27,7 +27,6 @@ class RoomEvent implements ShouldBroadcast
     {
         $this->room = $room;
         $this->message = $message;
-        // $this->channel = 'room.'.$this->room->room_number;
         $this->channel = 'room.'.$room['room_number'];
     }
     /**

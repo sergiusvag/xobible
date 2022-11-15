@@ -3,14 +3,11 @@
 @section('control_content_menu')
     <div class="row align-items-center justify-content-center pt-3">
         <div class="col-auto align-items-center text-center">
-            @php
-                $locale = app()->getLocale();
-            @endphp
             @auth
                 @csrf
                 <h3 class="text-center">{{ __('Online Room') }}</h3>
 
-                <label class="locale" hidden>{{ app()->getLocale() }}</label>
+                <label class="locale" hidden>{{ $locale }}</label>
                 
                 <div class="row creation-controlls mt-3">
                     
@@ -37,14 +34,14 @@
                         </div>
                         <div class="row">
                             <div class="col">
-                                <label class="room-label room-label-msg room-label-success mt-2 v-hidden">Success joining room</label>
+                                <label class="room-label room-label-msg mt-2 v-hidden"></label>
                             </div>
                         </div>
-                        <a href="{{ '/welcome/' . app()->getLocale() }}" class="btn btn-room-back mt-3">{{ __('Back') }}</a>
+                        <a href="{{ '/welcome/' . $locale }}" class="btn btn-room-back mt-3">{{ __('Back') }}</a>
                         <div class="in-room-controlls v-hidden">
                             <div class="row justify-content-center align-items-center text-center mt-4 usernames">
                                 <div class="col-3">
-                                    <span class="user-profile-text g-label logged-user username username-host v-hidden">Host Name</span>
+                                    <span class="user-profile-text g-label logged-user username username-host v-hidden"></span>
                                 </div>
                                 <div class="col-2 room-smily-holder">
                                     <span class="room-smily room-smily-host v-hidden">💬</span>
@@ -63,7 +60,7 @@
                                     </div>
                                 </div>
                                 <div class="col-3">
-                                    <span class="user-profile-text g-label logged-user username username-join v-hidden">Joinie Name</span>
+                                    <span class="user-profile-text g-label logged-user username username-join v-hidden"></span>
                                 </div>
                             </div>
                             <div class="row mt-3">

@@ -10,14 +10,7 @@
         <div class="user-profile-text text-center mt-1">
             {{ __('We have provided for you a template of the mistake description for your convenience.') }}
         </div>
-        <form id="form-submit-mistake" method="POST" action="{{ url()->current() }}"
-        @php if(app()->getLocale() === 'he') 
-            { 
-        @endphp
-            class="input-rtl"
-        @php
-            }
-        @endphp>
+        <form id="form-submit-mistake" method="POST" action="{{ url()->current() }}" class="{{ $rtlClass }}">
             @csrf
             <div class="mt-4 w-25 m-auto">
                 <input type="number" name="question_id" class="form-control input-field input-field-bg text-center input-group" id="question_id" placeholder="{{ __('Question №') }}" 
@@ -44,10 +37,10 @@
 {{ __('The correct option is wrong, it should be № x and not № y') }}
 {{ __('The answer location is wrong, the correct one is:') }}@endif</textarea>
             </div>
-            <div class="row mt-4">
+            <div class="row mt-3">
                 <div class="col-12 col-md-9 col-lg-6 m-auto text-center">
-                    <button type="submut" class="btn mt-3">{{ __('Submit mistake') }}</button>
-                    <a href="{{ '/welcome/' . app()->getLocale() }}" class="btn mt-3">{{ __('Back') }}</a>
+                    <button type="submut" class="btn btn-pos-action mt-1">{{ __('Submit mistake') }}</button>
+                    <a href="{{ '/welcome/' . app()->getLocale() }}" class="btn mt-1">{{ __('Back') }}</a>
                 </div>
             </div>
         </form>

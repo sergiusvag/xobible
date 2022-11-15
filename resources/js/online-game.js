@@ -32,5 +32,3 @@ window.Echo = new Echo({
     forceTLS: true,
     encryption: true,
 });
-
-import ColorPickerManager from "./colorPickerManager";

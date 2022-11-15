@@ -236,6 +236,12 @@ a:hover {
     text-align: center;
 }
 .room-label {
+    padding: 5px;
+    border-radius: 15px 15px 0 0;
+    background-color: #e62fc4;
+    color: #fff;
+}
+.room-label-msg {
     opacity: 0;
     transition: opacity ease 1s;
 }

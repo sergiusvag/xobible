@@ -3,7 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Logged\MistakeController;
 use App\Http\Controllers\Logged\SuggestionController;
+use App\Http\Controllers\Logged\OnlineRoomController;
+use App\Http\Controllers\Logged\OnlineColorPickerController;
 use App\Http\Controllers\Logged\OnlineGameController;
+use App\Http\Controllers\WelcomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,27 +27,25 @@ Route::get('/welcome', static function () {
     return redirect('/welcome/'. app()->getLocale());
 });
 
-Route::get('/welcome/{locale}', function () {
-    return view('welcome');
-});
+Route::get('/welcome/{locale}', [WelcomeController::class, 'welcome']);
 
+Route::get('/online-game/{locale}', [OnlineGameController::class, 'index']);
 
 Route::middleware('auth')->group(function () {
     Route::post('/mistake/{locale}', [MistakeController::class, 'store']);
-    Route::get('/mistake/{locale}', [MistakeController::class, 'create']);
+    Route::get('/mistake/{locale}', [MistakeController::class, 'index']);
     Route::post('/suggestion/{locale}', [SuggestionController::class, 'store']);
-    Route::get('/suggestion/{locale}', [SuggestionController::class, 'create']);
-    Route::get('/check-room/{locale}' , [OnlineGameController::class, 'checkOnLoad']);
-    Route::get('/online-room/{locale}' , [OnlineGameController::class, 'online']);
-    Route::post('/create-room/{locale}' , [OnlineGameController::class, 'create']);
-    Route::post('/close-room/{locale}' , [OnlineGameController::class, 'close']);
-    Route::post('/join-room/{locale}' , [OnlineGameController::class, 'join']);
-    Route::post('/kick-room/{locale}' , [OnlineGameController::class, 'kick']);
-    Route::post('/exit-room/{locale}' , [OnlineGameController::class, 'exit']);
-    Route::post('/start-room/{locale}' , [OnlineGameController::class, 'start']);
-    Route::get('/online-game/{locale}', function () {
-        return view('logged.online-game');
-    });
+    Route::get('/suggestion/{locale}', [SuggestionController::class, 'index']);
+    Route::get('/check-room/{locale}' , [OnlineRoomController::class, 'checkOnLoad']);
+    Route::get('/online-room/{locale}' , [OnlineRoomController::class, 'index']);
+    Route::post('/create-room/{locale}' , [OnlineRoomController::class, 'create']);
+    Route::post('/close-room/{locale}' , [OnlineRoomController::class, 'close']);
+    Route::post('/join-room/{locale}' , [OnlineRoomController::class, 'join']);
+    Route::post('/kick-room/{locale}' , [OnlineRoomController::class, 'kick']);
+    Route::post('/exit-room/{locale}' , [OnlineRoomController::class, 'exit']);
+    Route::post('/start-room/{locale}' , [OnlineRoomController::class, 'start']);
+    Route::get('/online-color-picker/{locale}', [OnlineColorPickerController::class, 'index']);
+    Route::post('/online-game-start/{locale}', [OnlineColorPickerController::class, 'start']);
 });
 
 Route::get('/dashboard/{locale?}', function () {

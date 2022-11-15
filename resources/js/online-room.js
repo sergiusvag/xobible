@@ -33,12 +33,10 @@ window.Echo = new Echo({
     encryption: true,
 });
 
-const createRoomBtn = document.querySelector(".btn-room-create");
-const joinRoomBtn = document.querySelector(".btn-room-join");
-
 import Loader from "./helper/loader";
 import { initLang, __ } from "./helper/translator";
-import RoomManager from "./roomManager";
+import RoomManager from "./managers/roomManager";
+import roomManager from "./managers/roomManager";
 
 let roomChannel;
 const joinNotified = (data) => {
@@ -63,7 +61,7 @@ const kickNotified = (data) => {
 
 const startNotified = (data) => {
     window.Echo.leave(data.channel);
-    window.location.href = `/online-game/${RoomManager.locale()}`;
+    window.location.href = `/online-color-picker/${RoomManager.locale()}?room_number=${roomManager.roomNumber()}`;
 };
 
 const memberListenChannels = () => {
@@ -160,12 +158,11 @@ const initEvents = () => {
     RoomManager.joinChatEvent(channelListenChat);
 };
 const checkIfInRoom = () => {
-    window.axios
-        .get(`/check-room/${RoomManager.locale()}`)
-        .then(async (resp) => {
-            roomChannel = await window.Echo.private(resp.data.channel);
-            if (resp.data.status === "in_game") {
-                window.location.href = `/online-game/${RoomManager.locale()}`;
+    window.axios.get(`/check-room/${RoomManager.locale()}`).then((resp) => {
+        if (resp.data.status) {
+            roomChannel = window.Echo.private(resp.data.channel);
+            if (resp.data.status === "in_color") {
+                window.location.href = `/online-color-picker/${RoomManager.locale()}?room_number=${roomManager.roomNumber()}`;
             } else if (resp.data.status === "in_room") {
                 if (resp.data.is_host) {
                     hostCreateAndDisplay(resp.data);
@@ -177,8 +174,9 @@ const checkIfInRoom = () => {
                     memberJoinAndDisplay(resp.data);
                 }
             }
-            Loader.Off();
-        });
+        }
+        Loader.Off();
+    });
 };
 const onLoad = async () => {
     Loader.On();

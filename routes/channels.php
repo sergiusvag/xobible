@@ -15,7 +15,7 @@ use App\Broadcasting\RoomChannel;
 |
 */
 
-Broadcast::channel('room.{roomNum}', function () {
+Broadcast::channel('room.{room_number}', function () {
     return true;
 });
 

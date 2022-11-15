@@ -9,15 +9,16 @@ use Illuminate\Support\Facades\Auth;
 
 class SuggestionController extends Controller
 {
-    public function create()
+    public function index($locale)
     {
-        return view('logged.suggestion');
+        return view('logged.suggestion')
+            ->with('rtlClass', $this->getRtlClass($locale));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, $locale)
     {
         $id = Auth::id();
-        $backRoute = '/welcome/' . app()->getLocale() . '/suggestion';
+        $backRoute = '/suggestion/' . $locale;
 
         Suggestion::create([
             'question' => $request['question'],
@@ -31,6 +32,11 @@ class SuggestionController extends Controller
         ]);
 
         return redirect($backRoute)
+            ->with('rtlClass', $this->getRtlClass($locale))
             ->with('success', __('Your suggestion was successfully added!'));
+    }
+
+    public function getRtlClass ($locale) {
+        return $locale === 'he' ? 'input-rtl' : '';
     }
 }

@@ -10,15 +10,7 @@
         <div class="user-profile-text text-center mt-1">
             {{ __('You do not have to think of all the options, but it will make our job easier 💕') }}
         </div>
-        <form id="form-submit-suggestion" method="POST" action="{{ url()->current() }}" 
-        @php if(app()->getLocale() === 'he') 
-            { 
-        @endphp
-            class="input-rtl"
-        @php
-            }
-        @endphp
-            >
+        <form id="form-submit-suggestion" method="POST" action="{{ url()->current() }}" class="{{ $rtlClass }}">
             @csrf
             @if (session('success'))
                 <div class="col-9 mt-2 input-msg input-success-msg m-auto">
@@ -48,7 +40,7 @@
             </div>
             <div class="row mt-2">
                 <div class="col-12 col-md-9 col-lg-6 m-auto text-center">
-                    <button type="submut" class="btn mt-1">{{ __('Submit suggestion') }}</button>
+                    <button type="submut" class="btn btn-pos-action mt-1">{{ __('Submit suggestion') }}</button>
                     <a href="{{ '/welcome/' . app()->getLocale() }}" class="btn mt-1">{{ __('Back') }}</a>
                 </div>
             </div>

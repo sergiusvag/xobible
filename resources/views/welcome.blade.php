@@ -1,24 +1,7 @@
 @extends('layouts-xo.menu')
 
-@php
-    $isInRoom = false;
-@endphp
-
-@auth
-    @php
-        $room = App\Models\Room::where('host_id', Auth::user()->id)
-                        ->orWhere('join_id', Auth::user()->id)
-                        ->first();
-
-        $isInRoom =  $room !== null;
-    @endphp
-@endauth
-
 @section('control_content_menu')
     <h3 class="text-center">{{ __('Welcome') }}</h3>
-    @php
-        $locale = app()->getLocale();
-    @endphp
     @auth
         <form method="POST" class="text-center mt-4" action="{{ route('logout').'/'.$locale }}">
             @csrf
@@ -32,29 +15,29 @@
         </div>
     @endauth
         <div class="text-center mt-4">
-            <a href="{{ '/game/' . $locale }}" class="btn btn-welcome-begin @php echo $isInRoom ? 'control-btn-dis' : '' @endphp">{{ __('Begin game') }}</a>
+            <a href="{{ '/game/' . $locale }}" class="btn btn-pos-action btn-welcome-begin {{ $data['btnClass'] }}">{{ __('Begin game') }}</a>
         </div>
     @auth
         <div class="text-center mt-3">
-            @php
-                if($isInRoom) {
-                    $roomOrGame = $room['status'] === 'in_game' ? 'game' : 'room';
-                    $url = '/online-' . $roomOrGame. '/' . $locale;
-                    $btnText = __('Back to game');
-                } else {
-                    $url = '/online-room/' . $locale;
-                    $btnText = __('Online game');
-                }
-                @endphp
-                    <a href="{{ $url }}" class="btn btn-welcome-online-game">{{ $btnText }}</a>
+            <form action="{{ $data['hostOrJoinExitLink'] }}" method="post">
+                @csrf
+                <a href="{{ $data['btnUrl'] }}" class="btn btn-welcome-online-game btn-pos-action">{{ $data['btnText'] }}</a>
                 @php
-            @endphp
+                    if($data['isInRoom']) {
+                @endphp
+                        <button type="submit" class="btn btn-exit-room">{{ __('Exit game') }}</button>
+                        <input type="text" class="form-post-input" id="room_number" name="room_number" value="{{ $data['room_number'] }}" hidden><br>
+                        <input type="text" class="form-post-input" id="redirect" name="redirect" value="{{ '/welcome/'. $locale }}" hidden><br>
+                @php
+                    }
+                @endphp
+            </form>
         </div>
         <div class="text-center mt-3">
-            <a href="{{ '/suggestion/' . $locale }}" class="btn btn-welcome-suggest @php echo $isInRoom ? 'control-btn-dis' : '' @endphp">{{ __('Suggest a question') }}</a>
+            <a href="{{ '/suggestion/' . $locale }}" class="btn btn-pos-action btn-welcome-suggest {{ $data['btnClass'] }}">{{ __('Suggest a question') }}</a>
         </div>
         <div class="text-center mt-3">
-            <a href="{{ '/mistake/' . $locale }}" class="btn btn-welcome-mistake @php echo $isInRoom ? 'control-btn-dis' : '' @endphp">{{ __('Report a mistake') }}</a>
+            <a href="{{ '/mistake/' . $locale }}" class="btn btn-pos-action btn-welcome-mistake {{ $data['btnClass'] }}">{{ __('Report a mistake') }}</a>
         </div>
     @endauth
 @endsection

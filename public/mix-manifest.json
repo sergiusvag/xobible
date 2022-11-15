@@ -1,5 +1,6 @@
 {
     "/js/app.js": "/js/app.js",
-    "/js/app-online.js": "/js/app-online.js",
+    "/js/app-color-picker.js": "/js/app-color-picker.js",
+    "/js/app-online-game.js": "/js/app-online-game.js",
     "/css/app.css": "/css/app.css"
 }

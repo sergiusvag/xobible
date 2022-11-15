@@ -150,7 +150,9 @@
     "You were kicked": "Вас выкинул хозяин",
     "Player left the room": "Игрок покинул комнату",
     "You successfully left the room": "Вы успешно покинули комнату",
-    "": "",
+    "404 Not Found": "404 Не Найдено",
+    "403 Unauthorized action": "403 Несанкционированное действие",
+    "Exit game": "Выйти из игры",
     "": "",
     "": ""
 }

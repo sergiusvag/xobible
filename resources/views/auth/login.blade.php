@@ -24,7 +24,7 @@
             @endif
         </div>
         <div class="login-group mt-4 text-center">
-            <button type="submit" class="btn">{{ __('Log in') }}</button>
+            <button type="submit" class="btn btn-pos-action">{{ __('Log in') }}</button>
         </div>
         @include('components.back-button')
     </form>

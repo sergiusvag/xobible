@@ -8,7 +8,8 @@ export default defineConfig({
             input: [
                 "resources/sass/app.scss",
                 "resources/js/app.js",
-                "resources/js/app-online.js",
+                "resources/js/app-color-picker.js",
+                "resources/js/app-online-game.js",
             ],
             refresh: true,
         }),

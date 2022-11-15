@@ -11137,6 +11137,13 @@ input[type=number] {
   transition: opacity ease 1s;
 }
 
+.form-post-input {
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+}
+
 .input-field {
   color: #fff;
   background: rgba(118, 4, 82, 0.4);
@@ -11394,6 +11401,13 @@ a:hover {
 }
 
 .room-label {
+  padding: 5px;
+  border-radius: 15px 15px 0 0;
+  background-color: #e62fc4;
+  color: #fff;
+}
+
+.room-label-msg {
   opacity: 0;
   transition: opacity ease 1s;
 }
@@ -11439,12 +11453,24 @@ a:hover {
   transform: translateX(-700px);
 }
 
-@keyframes fade-out {
+.page-error__not-found-rtl {
+  animation-name: fade-out-rtl;
+}
+
+@keyframes fade-out-rtl {
   from {
     transform: translateX(-400px);
   }
   to {
     transform: translateX(400px);
+  }
+}
+@keyframes fade-out {
+  from {
+    transform: translateX(550px);
+  }
+  to {
+    transform: translateX(-550px);
   }
 }
 .input-msg {

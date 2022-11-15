@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('join_name')->nullable();
             $table->bigInteger('room_number');
             $table->bigInteger('room_key')->nullable();
-            $table->enum('status', ['in_room', 'in_game'])->default('in_room');
+            $table->enum('status', ['in_room', 'in_color', 'in_game'])->default('in_room');
             $table->timestamps();
         });
     }

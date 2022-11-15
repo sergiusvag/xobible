@@ -151,8 +151,9 @@
     "You were kicked": "נזרקת",
     "Player left the room": "השחקן יצא מהחדר",
     "You successfully left the room": "אתה יצאת מהחדר",
-    "": "",
-    "": "",
+    "404 Not Found": "404 לא נמצא",
+    "403 Unauthorized action": "403 פעולה לא מורשת",
+    "Exit game": "לצאת מהמשחק",
     "": "",
     "": "",
     "": ""

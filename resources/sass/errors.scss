@@ -12,12 +12,23 @@
     animation-timing-function: ease-in-out;
     transform: translateX(-700px);
 }
-@keyframes fade-out {
+.page-error__not-found-rtl {
+    animation-name: fade-out-rtl;
+}
+@keyframes fade-out-rtl {
     from {
         transform: translateX(-400px);
     }
     to {
         transform: translateX(400px);
+    }
+}
+@keyframes fade-out {
+    from {
+        transform: translateX(550px);
+    }
+    to {
+        transform: translateX(-550px);
     }
 }
 .input-msg {

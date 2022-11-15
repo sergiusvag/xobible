@@ -1,4 +1,4 @@
-import Loader from "./helper/loader";
+import Loader from "../helper/loader";
 
 class RoomManager {
     _localeLabel = document.querySelector(".locale");
@@ -159,6 +159,7 @@ class RoomManager {
     }
     _setDisplayAsError() {
         this._msgLabel.classList.add("room-label-error");
+        this._msgLabel.classList.add("fade-in");
         this._msgLabel.classList.remove("room-label-success");
     }
     _hideMsg() {
@@ -234,7 +235,7 @@ class RoomManager {
             functions.prePostFunc();
             window.axios
                 .post(link, {
-                    roomNum: this.roomNumber(),
+                    room_number: this.roomNumber(),
                     roomKey: this._roomKey(),
                 })
                 .then(functions.thenFunc);

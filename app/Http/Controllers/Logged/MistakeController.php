@@ -11,9 +11,10 @@ use Illuminate\Support\Facades\Auth;
 
 class MistakeController extends Controller
 {
-    public function create()
+    public function index($locale)
     {
-        return view('logged.mistake');
+        return view('logged.mistake')
+            ->with('rtlClass', $this->getRtlClass($locale));
     }
 
     public function store(Request $request)
@@ -38,6 +39,11 @@ class MistakeController extends Controller
         ]);
 
         return redirect($backRoute)
+            ->with('rtlClass', $this->getRtlClass($locale))
             ->with('success', __('Your mistake was successfully added!'));
+    }
+
+    public function getRtlClass ($locale) {
+        return $locale === 'he' ? 'input-rtl' : '';
     }
 }
