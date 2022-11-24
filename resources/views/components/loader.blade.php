@@ -1,7 +1,7 @@
 <div class="wrapper-modal wrapper-modal_loader">
     <div class="overlay overlay_loader"></div>
-    <div class="modal-window">
-        <div class="modal-content">
+    <div class="modal-window modal-window-loader">
+        <div class="modal-content align-items-center text-center">
             <div class="animation animation_5 ">
                 <div class="block-wrap block-wrap_animation_5">
                     <div class="road">
@@ -31,6 +31,8 @@
                     </div>
                 </div>
             </div>
+            <div class="attempting-connection mt-3">{{ __('Connecting...') }} <span class="connection-counter"></span></div>
+            <a href="{{ '/welcome/' . $locale }}" class="btn btn-room-back mt-3 btn-room-back-loader hide">{{ __('Back') }}</a>
         </div>
     </div>
 </div>

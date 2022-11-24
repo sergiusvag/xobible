@@ -26,8 +26,7 @@
         @php
             }
         @endphp
-        <button type="button" class="btn btn-pos-action btn-start">
-            {{ __('Start') }}
-        </button>
+        <button type="button" class="btn btn-pos-action btn-start control-btn-dis">{{ __('Start') }}</button>
+        <button type="button" class="btn btn-pos-action btn-ready control-btn-dis">{{ __('Ready') }}</button>
     </div>
 </div>

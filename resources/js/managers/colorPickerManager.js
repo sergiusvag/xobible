@@ -8,20 +8,19 @@ export default class ColorPickerManager {
         "color-pink",
         "color-orange",
     ];
+    _colorsForSending = ["red", "green", "blue", "pink", "orange"];
     _xPickerOtions = document.querySelector(".color-picker-wrap_one").children;
     _oPickerOtions = document.querySelector(".color-picker-wrap_two").children;
     _playerOneTxt = document.querySelector(".player-one");
     _playerTwoTxt = document.querySelector(".player-two");
     _picker = document.querySelector(".picker");
+    _playerOneBtn = document.querySelector(".btn-start");
+    _playerTwoBtn = document.querySelector(".btn-ready");
     _playerOnePick = -1;
     _playerTwoPick = -1;
-
-    getData() {
-        return {
-            host_color: this._colorClasses[this._playerOnePick],
-            join_color: this._colorClasses[this._playerTwoPick],
-        };
-    }
+    _isReady = false;
+    _readyBtnFunc = () => {};
+    _hostPickedFunc = () => {};
 
     constructor(isHost) {
         this.isHost = isHost;
@@ -39,6 +38,7 @@ export default class ColorPickerManager {
                 this._playerTwoTxt,
                 "_playerTwoPick"
             );
+            this._playerTwoBtn.classList.add("d-hide");
         } else {
             this._addOptionListener(
                 this._oPickerOtions,
@@ -51,10 +51,39 @@ export default class ColorPickerManager {
                 this._playerOneTxt,
                 "_playerOnePick"
             );
+
+            this._playerOneBtn.classList.add("d-hide");
+            this._playerTwoBtn.addEventListener("click", (e) => {
+                this._isReady = !this._isReady;
+                this._playerTwoBtn.classList.toggle("btn-ready-clicked");
+                this._readyBtnFunc(this._isReady);
+            });
         }
     }
 
-    setPicks(one, two) {
+    setReadyBtnFunc(readyBtnFunc) {
+        this._readyBtnFunc = readyBtnFunc;
+    }
+    setHostPickedFunc(hostPickedFunc) {
+        this._hostPickedFunc = hostPickedFunc;
+    }
+    getIsReady() {
+        return this._isReady;
+    }
+    switchStartBtn(isReady) {
+        this._isReady = isReady;
+        const addOrRemove = isReady ? "remove" : "add";
+        this._playerOneBtn.classList[addOrRemove]("control-btn-dis");
+    }
+
+    getData() {
+        return {
+            host_color: this._colorsForSending[this._playerOnePick],
+            join_color: this._colorsForSending[this._playerTwoPick],
+        };
+    }
+
+    setPicks(one, two, isReady) {
         if (one !== -1) {
             this._playerOnePick = one;
             this._changePick(
@@ -70,6 +99,17 @@ export default class ColorPickerManager {
                 this._playerTwoTxt,
                 this._playerTwoPick
             );
+        }
+        if (one !== -1 && two !== -1) {
+            if (this.isHost && isReady) {
+                this._playerOneBtn.classList.remove("control-btn-dis");
+            } else if (!this.isHost) {
+                this._playerTwoBtn.classList.remove("control-btn-dis");
+                this._isReady = isReady;
+                if (isReady) {
+                    this._playerTwoBtn.classList.add("btn-ready-clicked");
+                }
+            }
         }
     }
 
@@ -110,13 +150,23 @@ export default class ColorPickerManager {
         };
     }
 
+    enableReadyBtn() {
+        if (this._playerOnePick !== -1 && this._playerTwoPick !== -1) {
+            this._playerTwoBtn.classList.remove("control-btn-dis");
+        }
+    }
     _addOptionListener(options, playerText, thisPlayerPick, otherPlayerPick) {
         for (let i = 0; i < options.length; i++) {
             options[i].addEventListener("click", (e) => {
-                if (this[otherPlayerPick] != i) {
+                if (this[otherPlayerPick] !== i) {
                     this._changePick(options, playerText, i);
                     this.additionalFunc(i);
                     this[thisPlayerPick] = i;
+                    if (!this.isHost) {
+                        this.enableReadyBtn();
+                    } else {
+                        this._hostPickedFunc();
+                    }
                 }
             });
         }

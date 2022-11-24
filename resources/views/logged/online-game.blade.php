@@ -2,9 +2,23 @@
 
 @auth
 @section('control_left_side')
-<div class="player-score-wrap">
-    <label class="user-profile-text">Sergey</label>
-    <label class="round-score"></label>
+<div class="player-score-wrap wrap-host">
+    <label class="score-txt score-txt name-host"></label>
+    <div class="row mt-4 score-txt-holder">
+        <label class="col-12 score-txt">{{ __('Correct : ') }}<span class="score-correct-round-host"></span></label>
+    </div>
+    <div class="row mt-1 score-txt-holder">
+        <label class="col-12 score-txt">{{ __('Bonus : ') }}<span class="score-bonus-round-host"></span></label>
+    </div>
+    <div class="row mt-1 score-txt-holder">
+        <label class="col-12 score-txt">{{ __('Wrong : ') }}<span class="score-wrong-round-host"></span></label>
+    </div>
+    <div class="row mt-3 score-txt-holder">
+        <label class="col-12 score-txt">{{ __('Total : ') }}<span class="score-total-round-host"></span></label>
+    </div>
+    <div class="row mt-5 score-txt-holder">
+        <label class="col-12 score-txt">{{ __('Game total : ') }}<span class="score-total-game-host"></span></label>
+    </div>
 </div>
 @endsection
 
@@ -13,12 +27,38 @@
         $locale = app()->getLocale();
     @endphp
         @csrf
-        <div class="game">GAME</div>
-    
+        <label class="locale" hidden>{{ $locale }}</label>
+        <label class="room_number" hidden>{{ $data['room_number'] }}</label>
+        @include('components.game.rules')
+        @include('components.game.round')
+        @include('components.game.board')
+        @include('components.game.question')
+        @include('components.game.result')
+        @include('components.game.over')
+        <button class="btn btn-rules btn-rules-turn-on mt-1">{{ __('Rules') }}</button>
+        <button class="btn btn-pos-action btn-over-turn-on mt-1">{{ __('Game Over') }}</button>
 @endsection
 
 @section('control_right_side')
-<div class="host_score">SCORE</div>
+<div class="player-score-wrap border-right wrap-join">
+    <label class="score-txt border-right name-join">Sergey</label>
+    <div class="row mt-4 score-txt-holder">
+        <label class="col-12 score-txt border-right">{{ __('Correct : ') }}<span class="score-correct-round-join"></span></label>
+    </div>
+    <div class="row mt-1 score-txt-holder">
+        <label class="col-12 score-txt border-right">{{ __('Bonus : ') }}<span class="score-bonus-round-join"></span></label>
+    </div>
+    <div class="row mt-1 score-txt-holder">
+        <label class="col-12 score-txt border-right">{{ __('Wrong : ') }}<span class="score-wrong-round-join"></span></label>
+    </div>
+    <div class="row mt-3 score-txt-holder">
+        <label class="col-12 score-txt border-right">{{ __('Total : ') }}<span class="score-total-round-join"></span></label>
+    </div>
+    <div class="row mt-5 score-txt-holder">
+        <label class="col-12 score-txt border-right">{{ __('Game total : ') }}<span class="score-total-game-join"></span></label>
+    </div>
+
+</div>
 @endsection
 
 @endauth

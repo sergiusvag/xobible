@@ -29,7 +29,6 @@ Route::get('/welcome', static function () {
 
 Route::get('/welcome/{locale}', [WelcomeController::class, 'welcome']);
 
-Route::get('/online-game/{locale}', [OnlineGameController::class, 'index']);
 
 Route::middleware('auth')->group(function () {
     Route::post('/mistake/{locale}', [MistakeController::class, 'store']);
@@ -46,6 +45,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/start-room/{locale}' , [OnlineRoomController::class, 'start']);
     Route::get('/online-color-picker/{locale}', [OnlineColorPickerController::class, 'index']);
     Route::post('/online-game-start/{locale}', [OnlineColorPickerController::class, 'start']);
+    Route::get('/online-game/{locale}', [OnlineGameController::class, 'index']);
+    Route::get('/online-game-load/{locale}', [OnlineGameController::class, 'load']);
+    Route::post('/online-game-tile-selected/{locale}', [OnlineGameController::class, 'tileSelected']);
+    Route::post('/online-game-option-selected/{locale}', [OnlineGameController::class, 'optionSelected']);
+    Route::post('/online-game-question-answered/{locale}', [OnlineGameController::class, 'questionAnswered']);
+    Route::post('/online-game-close-result/{locale}', [OnlineGameController::class, 'closeResult']);
 });
 
 Route::get('/dashboard/{locale?}', function () {

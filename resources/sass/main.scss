@@ -1,3 +1,28 @@
+$color-red-light: #e76c6c;
+$color-red-middle: #e55050;
+$color-red-dark: #c93737;
+$color-red-darker: #960b0b;
+
+$color-green-light: #54c052;
+$color-green-middle: #1c921a;
+$color-green-dark: #0c700a;
+$color-green-darker: #064d05;
+
+$color-blue-light: #5f64e1;
+$color-blue-middle: #343ad3;
+$color-blue-dark: #232789;
+$color-blue-darker: #0c0f60;
+
+$color-pink-light: #df6ff1;
+$color-pink-middle: #d44de9;
+$color-pink-dark: #bd31d3;
+$color-pink-darker: #87039c;
+
+$color-orange-light: #e77f05;
+$color-orange-middle: #dc8d33;
+$color-orange-dark: #c56e0a;
+$color-orange-darker: #884c07;
+
 a:hover {
     color: #fff;
 }
@@ -50,6 +75,14 @@ body {
 .btn-pos-action:hover {
     background-color: #1d840b;
     border: 3px solid #0f5303;
+}
+.btn-ready-clicked {
+    background-color: #1d840b;
+    border: 3px solid #105204;
+    transition: background-color 0 ease, border 0 ease;
+}
+.btn-ready-clicked:hover {
+    background-color: #2abb10;
 }
 .btn-dis {
     cursor: auto;
@@ -105,7 +138,20 @@ input[type="number"] {
     transition: opacity 0.5s ease;
 }
 .overlay_loader {
-    background-color: rgb(128, 94, 94);
+    opacity: 1;
+    background: radial-gradient(
+                36.19% 44.64% at 70.43% 63.81%,
+                rgba(16, 213, 177, 0.2) 0%,
+                rgba(0, 0, 0, 0.16) 100%
+            )
+            /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */,
+        radial-gradient(
+                72.04% 72.04% at 22.41% 27.96%,
+                rgba(147, 26, 26, 0.2) 0%,
+                rgba(0, 0, 0, 0.16) 100%
+            )
+            /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */,
+        #731bb8;
 }
 .modal-content {
     // background-color: #fff;
@@ -117,8 +163,31 @@ input[type="number"] {
     transform: translate(-50%, -50%);
     z-index: 2;
 }
-
+.wrapper-modal_loader {
+    z-index: 50;
+}
 /* Loader Start*/
+.attempting-connection {
+    font-size: 16px;
+    color: #fff;
+}
+.btn-room-back-loader {
+    opacity: 0;
+    transition: opactiy 0.5s ease;
+}
+.show-loader {
+    animation-name: show-animation;
+    animation-duration: 6s;
+    animation-iteration-count: 1;
+}
+@keyframes show-animation {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
 .block-wrap_animation_5 {
     position: relative;
     width: 150px;
@@ -140,7 +209,12 @@ input[type="number"] {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background-color: #e76c6c;
+    // background-color: $color-red-light;
+    background: radial-gradient(
+        50% 50% at 50% 50%,
+        $color-red-light 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
 }
 .road-2 {
     animation-delay: 0.3s;
@@ -155,16 +229,36 @@ input[type="number"] {
     animation-delay: 1.2s;
 }
 .road-2 .driver {
-    background-color: #54c052;
+    // background-color: $color-green-light;
+    background: radial-gradient(
+        50% 50% at 50% 50%,
+        $color-green-light 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
 }
 .road-3 .driver {
-    background-color: #5f64e1;
+    // background-color: $color-blue-light;
+    background: radial-gradient(
+        50% 50% at 50% 50%,
+        $color-blue-light 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
 }
 .road-4 .driver {
-    background-color: #df6ff1;
+    // background-color: $color-pink-light;
+    background: radial-gradient(
+        50% 50% at 50% 50%,
+        $color-pink-light 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
 }
 .road-5 .driver {
-    background-color: #e77f05;
+    // background-color: $color-orange-light;
+    background: radial-gradient(
+        50% 50% at 50% 50%,
+        $color-orange-light 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
 }
 @keyframes road-animation {
     0% {
@@ -188,8 +282,11 @@ input[type="number"] {
     padding-right: 0;
     padding-left: 0;
 }
+.padding-1 {
+    padding-right: 5px;
+    padding-left: 5px;
+}
 .picker {
-    // width: 710px;
     margin: 0 auto;
     padding: 30px;
     border-radius: 30px;
@@ -211,25 +308,26 @@ input[type="number"] {
     background: #fff;
     filter: drop-shadow(0px 4px 10px rgba(109, 109, 109, 0.3));
     border-radius: 20px;
+    transition: background-color 1.5s ease;
 }
 .color-img {
     border: 2px solid #fff;
     border-radius: 30px;
 }
 .color-img_red:hover {
-    border: 2px solid #e76c6c;
+    border: 2px solid $color-red-light;
 }
 .color-img_green:hover {
-    border: 2px solid #54c052;
+    border: 2px solid $color-green-light;
 }
 .color-img_blue:hover {
-    border: 2px solid #5f64e1;
+    border: 2px solid $color-blue-light;
 }
 .color-img_pink:hover {
-    border: 2px solid #df6ff1;
+    border: 2px solid $color-pink-light;
 }
 .color-img_orange:hover {
-    border: 2px solid #e77f05;
+    border: 2px solid $color-orange-light;
 }
 .color-wrap-clicked-red,
 .color-wrap-clicked-green,
@@ -239,19 +337,19 @@ input[type="number"] {
     filter: none;
 }
 .color-wrap-clicked-red {
-    border: 2px solid #e76c6c;
+    border: 2px solid $color-red-light;
 }
 .color-wrap-clicked-green {
-    border: 2px solid #54c052;
+    border: 2px solid $color-green-light;
 }
 .color-wrap-clicked-blue {
-    border: 2px solid #5f64e1;
+    border: 2px solid $color-blue-light;
 }
 .color-wrap-clicked-pink {
-    border: 2px solid #df6ff1;
+    border: 2px solid $color-pink-light;
 }
 .color-wrap-clicked-orange {
-    border: 2px solid #e77f05;
+    border: 2px solid $color-orange-light;
 }
 .color-red,
 .color-green,
@@ -260,31 +358,31 @@ input[type="number"] {
 .color-orange {
     border-width: 3px;
     border-style: solid;
-    background-color: #fff !important;
+    background-color: #fff;
 }
 .color-red {
-    border-color: #e76c6c !important;
-    color: #e76c6c !important;
+    border-color: $color-red-light;
+    color: $color-red-light;
 }
 .color-green {
-    border-color: #54c052 !important;
-    color: #54c052 !important;
+    border-color: $color-green-light;
+    color: $color-green-light;
 }
 .color-blue {
-    border-color: #5f64e1 !important;
-    color: #5f64e1 !important;
+    border-color: $color-blue-light;
+    color: $color-blue-light;
 }
 .color-pink {
-    border-color: #df6ff1 !important;
-    color: #df6ff1 !important;
+    border-color: $color-pink-light;
+    color: $color-pink-light;
 }
 .color-orange {
-    border-color: #e77f05 !important;
-    color: #e77f05 !important;
+    border-color: $color-orange-light;
+    color: $color-orange-light;
 }
 .color-white {
-    border-color: #fff !important;
-    color: #fff !important;
+    border-color: #fff;
+    color: #fff;
 }
 /* Color Picker End */
 
@@ -328,4 +426,341 @@ input[type="number"] {
     height: 0;
     padding: 0;
     margin: 0;
+}
+
+.player-score-wrap {
+    padding: 30px;
+    border-radius: 0 25px 25px 25px;
+}
+.player-score-wrap.color-red {
+    background-color: $color-red-dark;
+}
+.player-score-wrap.color-green {
+    background-color: $color-green-dark;
+}
+.player-score-wrap.color-blue {
+    background-color: $color-blue-dark;
+}
+.player-score-wrap.color-pink {
+    background-color: $color-pink-dark;
+}
+.player-score-wrap.color-orange {
+    background-color: $color-orange-dark;
+}
+.score-txt-holder {
+    border-radius: 25px;
+}
+.score-txt {
+    font-size: 18px;
+    border-radius: 0 25px 25px 25px;
+    padding: 5px;
+}
+.player-score-wrap,
+.score-txt {
+    color: #fff;
+}
+.bg-blue,
+.score-txt.color-red,
+.bg-green,
+.score-txt.color-green,
+.bg-green,
+.score-txt.color-blue,
+.bg-green,
+.score-txt.color-pink,
+.bg-green,
+.score-txt.color-orange {
+    transition: background-color 1.5s ease;
+}
+.bg-red,
+.player-score-wrap.color-red .score-txt {
+    background-color: $color-red-middle;
+}
+.bg-green,
+.player-score-wrap.color-green .score-txt {
+    background-color: $color-green-middle;
+}
+.bg-blue,
+.player-score-wrap.color-blue .score-txt {
+    background-color: $color-blue-middle;
+}
+.bg-pink,
+.player-score-wrap.color-pink .score-txt {
+    background-color: $color-pink-middle;
+}
+.bg-orange,
+.player-score-wrap.color-orange .score-txt {
+    background-color: $color-orange-middle;
+}
+.tile {
+    padding: 15px;
+    border-radius: 20px;
+}
+
+.game-board {
+    padding: 15px;
+    display: none;
+    opacity: 1;
+}
+.game-board.active {
+    display: block;
+}
+.animator-fader-out,
+.animator-fader-in {
+    animation-name: fader-out;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+}
+.game-board.faded-out {
+    opacity: 0;
+}
+.animator-fader-in {
+    animation-name: fader-in;
+}
+@keyframes fader-out {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+@keyframes fader-in {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Question */
+.rules-wrap,
+.result-correct-location {
+    display: none;
+}
+.rules-wrap.active,
+.result-correct-location.active {
+    display: block;
+}
+.rules-wrap,
+.modal-wrap,
+.question-wrap,
+.question,
+.option {
+    padding: 25px;
+    border-radius: 0 25px 25px 25px;
+    border-width: 4px;
+    border-style: solid;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+.question,
+.option {
+    padding: 10px;
+    border-width: 3px;
+}
+.option {
+    cursor: pointer;
+}
+.player-score-wrap.border-right,
+.score-txt.border-right,
+.question-wrap.border-right,
+.question-wrap.border-right .question,
+.question-wrap.border-right .option {
+    border-radius: 25px 0 25px 25px;
+}
+
+.question-wrap.color-red,
+.question-wrap.color-red .question,
+.question-wrap.color-red .option {
+    transition: background 0.5s ease, color 0.5s ease;
+}
+.question-wrap.color-red .option:hover,
+.question-wrap.color-red .option.active {
+    color: #fff;
+    background-color: $color-red-darker;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+.question-wrap.color-green,
+.question-wrap.color-green .question,
+.question-wrap.color-green .option {
+    transition: background 0.5s ease, color 0.5s ease;
+}
+.question-wrap.color-green .option:hover,
+.question-wrap.color-green .option.active {
+    color: #fff;
+    background-color: $color-green-darker;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+.question-wrap.color-blue,
+.question-wrap.color-blue .question,
+.question-wrap.color-blue .option {
+    transition: background 0.5s ease, color 0.5s ease;
+}
+.question-wrap.color-blue .option:hover,
+.question-wrap.color-blue .option.active {
+    color: #fff;
+    background-color: $color-blue-darker;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+.question-wrap.color-pink,
+.question-wrap.color-pink .question,
+.question-wrap.color-pink .option {
+    transition: background 0.5s ease, color 0.5s ease;
+}
+.question-wrap.color-pink .option:hover,
+.question-wrap.color-pink .option.active {
+    color: #fff;
+    background-color: $color-pink-darker;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+.question-wrap.color-orange,
+.question-wrap.color-orange .question,
+.question-wrap.color-orange .option {
+    transition: background 0.5s ease, color 0.5s ease;
+}
+.question-wrap.color-orange .option:hover,
+.question-wrap.color-orange .option.active {
+    color: #fff;
+    background-color: $color-orange-darker;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+
+/* Question End */
+
+.rules-wrap,
+.modal-wrap,
+.modal-header,
+.modal-message {
+    padding: 10px;
+    border-radius: 25px;
+    border: 3px solid #b1aaaa;
+    background-color: #474646;
+    color: #fff;
+}
+.modal-header {
+    display: block;
+    font-size: 20px;
+    padding: 5px;
+    border: 3px solid #474646;
+    background-color: #918787;
+}
+.modal-message-wrap {
+    padding: 5px;
+    border-radius: 25px;
+    border: 2px solid #474646;
+    background-color: #b1aaaa;
+}
+.modal-message {
+    font-size: 16px;
+    padding: 5px;
+    border: 2px solid #918787;
+    background-color: #606060;
+}
+.btn-rules {
+    border: 3px solid #474646;
+    background-color: #b1aaaa;
+}
+.btn-rules:hover {
+    border: 3px solid #474646;
+    background-color: #918787;
+}
+.animation-slide-out,
+.animation-slide-in {
+    animation-name: slide-left-out;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+}
+.animation-slide-in {
+    animation-name: slide-left-in;
+}
+@keyframes slide-left-out {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-100vw);
+    }
+}
+@keyframes slide-left-in {
+    0% {
+        transform: translateX(100vw);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.modal-wrap.color-wrong,
+.modal-wrap.color-red {
+    background-color: $color-red-dark;
+    border-color: $color-red-light;
+}
+.modal-wrap.color-wrong .modal-message,
+.modal-wrap.color-red .modal-message {
+    background-color: $color-red-middle;
+    border-color: $color-red-light;
+}
+.modal-header-result.color-wrong,
+.modal-wrap.color-wrong .modal-header,
+.modal-wrap.color-red .modal-header {
+    background-color: $color-red-light;
+    border-color: $color-red-dark;
+}
+
+.modal-wrap.color-correct,
+.modal-wrap.color-green {
+    background-color: $color-green-dark;
+    border-color: $color-green-light;
+}
+.modal-wrap.color-correct .modal-message,
+.modal-wrap.color-green .modal-message {
+    background-color: $color-green-middle;
+    border-color: $color-green-light;
+}
+.modal-header-result.color-correct,
+.modal-wrap.color-correct .modal-header,
+.modal-wrap.color-green .modal-header {
+    background-color: $color-green-light;
+    border-color: $color-green-dark;
+}
+
+.modal-wrap.color-blue {
+    background-color: $color-blue-dark;
+    border-color: $color-blue-light;
+}
+.modal-wrap.color-blue .modal-message {
+    background-color: $color-blue-middle;
+    border-color: $color-blue-light;
+}
+.modal-wrap.color-blue .modal-header {
+    background-color: $color-blue-light;
+    border-color: $color-blue-dark;
+}
+
+.modal-wrap.color-pink {
+    background-color: $color-pink-dark;
+    border-color: $color-pink-light;
+}
+.modal-wrap.color-pink .modal-message {
+    background-color: $color-pink-middle;
+    border-color: $color-pink-light;
+}
+.modal-wrap.color-pink .modal-header {
+    background-color: $color-pink-light;
+    border-color: $color-pink-dark;
+}
+.modal-wrap.color-orange {
+    background-color: $color-orange-dark;
+    border-color: $color-orange-light;
+}
+.modal-wrap.color-orange .modal-message {
+    background-color: $color-orange-middle;
+    border-color: $color-orange-light;
+}
+.modal-wrap.color-orange .modal-header {
+    background-color: $color-orange-light;
+    border-color: $color-orange-dark;
+}
+.d-hide {
+    display: none;
 }

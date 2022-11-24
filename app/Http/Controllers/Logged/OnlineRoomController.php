@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers\Logged;
 
-use App\Models\Mistake;
 use App\Models\User;
-use App\Models\Question;
 use App\Models\Room;
 use App\Events\HostRoomEventJoin;
 use App\Events\MemberRoomEventJoin;
@@ -176,6 +174,7 @@ class OnlineRoomController extends Controller
         $room = Room::where('room_number', $request['room_number'])->first();
         $room->status = 'in_color';
         $room->save();
+
 
         RoomEventStart::dispatch($room);
 

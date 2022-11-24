@@ -35,6 +35,7 @@ window.Echo = new Echo({
 
 import Loader from "./helper/loader";
 import ColorPickerManager from "./managers/colorPickerManager";
+import ConnectionValidator from "./managers/connectionValidator";
 
 const room_number = document.querySelector(".room_number").textContent;
 const btnStart = document.querySelector(".btn-start");
@@ -42,61 +43,64 @@ const locale = document.querySelector(".locale").textContent;
 const isHost = document.querySelector(".isHost").textContent === "is_host";
 
 let colorPickerManager;
-
+let connectionValidator;
 let roomChannel;
-let isConnected = false;
-let interval;
-const init = () => {
-    if (isConnected) {
-        clearInterval(interval);
-        Loader.Off();
-        if (!colorPickerManager) {
-            colorPickerManager = new ColorPickerManager(isHost);
-            colorPickerManager.additionalFunc = (pickedColorIndex) => {
-                roomChannel.whisper("colorPicked", {
-                    pickedColorIndex,
-                });
-            };
-        }
-    }
-};
-const checkConnection = () => {
-    interval = setInterval(() => {
-        roomChannel.whisper("requestConnect", {
-            isHost: isHost,
-        });
-    }, 5000);
-};
 const startNotified = (data) => {
     window.Echo.leave(data.channel);
     window.location.href = `/online-game/${locale}?room_number=${room_number}`;
 };
+const connectionEstablishedFunc = () => {
+    Loader.Off();
+    if (!colorPickerManager) {
+        colorPickerManager = new ColorPickerManager(isHost);
+        colorPickerManager.additionalFunc = (pickedColorIndex) => {
+            roomChannel.whisper("colorPicked", {
+                pickedColorIndex,
+            });
+        };
+        colorPickerManager.setReadyBtnFunc((isReady) => {
+            roomChannel.whisper("readyBtnClicked", {
+                isReady: isReady,
+            });
+        });
+        colorPickerManager.setHostPickedFunc((e) => {
+            roomChannel.whisper("hostPickedColor", {});
+        });
+    }
+    connectionValidator.setPreReconnectRequestFunc(preReconnectFunc);
+};
+const preReconnectFunc = () => {
+    const data = {
+        isReady: colorPickerManager.getIsReady(),
+        ...colorPickerManager.getPicks(),
+    };
+    connectionValidator.setData(data);
+};
+const reconnectionEstablishedFunc = (e) => {
+    connectionEstablishedFunc();
+    colorPickerManager.setPicks(e.playerOnePick, e.playerTwoPick, e.isReady);
+};
 
+const initConnectionValidator = () => {
+    connectionValidator.setConnectionEstablishedFunc(connectionEstablishedFunc);
+    connectionValidator.setReconnectionEstablishedFunc(
+        reconnectionEstablishedFunc
+    );
+    connectionValidator.establishConnection();
+};
 const onLoad = () => {
     Loader.On();
     roomChannel = window.Echo.private(`room.${room_number}`);
-    checkConnection();
-    roomChannel.listenForWhisper("requestConnect", (request) => {
-        if (isConnected) {
-            init();
-            roomChannel.whisper("requestReconnectRecieved", {
-                isHost: isHost,
-                ...colorPickerManager.getPicks(),
-            });
-        } else {
-            isConnected = isHost !== request.isHost;
-        }
-    });
-    roomChannel.listenForWhisper("requestReconnectRecieved", (request) => {
-        isConnected = isHost !== request.isHost;
-        init();
-        colorPickerManager.setPicks(
-            request.playerOnePick,
-            request.playerTwoPick
-        );
-    });
+    connectionValidator = new ConnectionValidator(roomChannel, isHost);
+    initConnectionValidator();
     roomChannel.listenForWhisper("colorPicked", (e) => {
         colorPickerManager.changePickForOther(e.pickedColorIndex);
+    });
+    roomChannel.listenForWhisper("readyBtnClicked", (e) => {
+        colorPickerManager.switchStartBtn(e.isReady);
+    });
+    roomChannel.listenForWhisper("hostPickedColor", (e) => {
+        colorPickerManager.enableReadyBtn();
     });
     roomChannel.listen("ColorEventStart", startNotified);
 };

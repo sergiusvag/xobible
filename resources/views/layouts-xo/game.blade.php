@@ -7,7 +7,7 @@
 <body>
     <section id="main-screen" class="main-screen d-flex align-items-center">
 		<div class="container">
-            <div class="row align-items-center justify-content-center pt-3">
+            <div class="row align-items-center justify-content-center pt-1">
                 <div class="col-3 d-none d-lg-block align-items-center text-center">
                     @yield('control_left_side')
                 </div>

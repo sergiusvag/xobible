@@ -22813,6 +22813,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 var ColorPickerManager = /*#__PURE__*/function () {
   function ColorPickerManager(isHost) {
+    var _this = this;
+
     _classCallCheck(this, ColorPickerManager);
 
     _defineProperty(this, "_colorPicked", "color-wrap-clicked");
@@ -22820,6 +22822,8 @@ var ColorPickerManager = /*#__PURE__*/function () {
     _defineProperty(this, "_colorsAddon", ["-red", "-green", "-blue", "-pink", "-orange"]);
 
     _defineProperty(this, "_colorClasses", ["color-red", "color-green", "color-blue", "color-pink", "color-orange"]);
+
+    _defineProperty(this, "_colorsForSending", ["red", "green", "blue", "pink", "orange"]);
 
     _defineProperty(this, "_xPickerOtions", document.querySelector(".color-picker-wrap_one").children);
 
@@ -22831,9 +22835,19 @@ var ColorPickerManager = /*#__PURE__*/function () {
 
     _defineProperty(this, "_picker", document.querySelector(".picker"));
 
+    _defineProperty(this, "_playerOneBtn", document.querySelector(".btn-start"));
+
+    _defineProperty(this, "_playerTwoBtn", document.querySelector(".btn-ready"));
+
     _defineProperty(this, "_playerOnePick", -1);
 
     _defineProperty(this, "_playerTwoPick", -1);
+
+    _defineProperty(this, "_isReady", false);
+
+    _defineProperty(this, "_readyBtnFunc", function () {});
+
+    _defineProperty(this, "_hostPickedFunc", function () {});
 
     this.isHost = isHost;
 
@@ -22845,24 +22859,59 @@ var ColorPickerManager = /*#__PURE__*/function () {
       this._addOptionListener(this._xPickerOtions, this._playerOneTxt, "_playerOnePick", "_playerTwoPick");
 
       this.changePickForOther = this._changePickForOtherFuncMaker(this._oPickerOtions, this._playerTwoTxt, "_playerTwoPick");
+
+      this._playerTwoBtn.classList.add("d-hide");
     } else {
       this._addOptionListener(this._oPickerOtions, this._playerTwoTxt, "_playerTwoPick", "_playerOnePick");
 
       this.changePickForOther = this._changePickForOtherFuncMaker(this._xPickerOtions, this._playerOneTxt, "_playerOnePick");
+
+      this._playerOneBtn.classList.add("d-hide");
+
+      this._playerTwoBtn.addEventListener("click", function (e) {
+        _this._isReady = !_this._isReady;
+
+        _this._playerTwoBtn.classList.toggle("btn-ready-clicked");
+
+        _this._readyBtnFunc(_this._isReady);
+      });
     }
   }
 
   _createClass(ColorPickerManager, [{
+    key: "setReadyBtnFunc",
+    value: function setReadyBtnFunc(readyBtnFunc) {
+      this._readyBtnFunc = readyBtnFunc;
+    }
+  }, {
+    key: "setHostPickedFunc",
+    value: function setHostPickedFunc(hostPickedFunc) {
+      this._hostPickedFunc = hostPickedFunc;
+    }
+  }, {
+    key: "getIsReady",
+    value: function getIsReady() {
+      return this._isReady;
+    }
+  }, {
+    key: "switchStartBtn",
+    value: function switchStartBtn(isReady) {
+      this._isReady = isReady;
+      var addOrRemove = isReady ? "remove" : "add";
+
+      this._playerOneBtn.classList[addOrRemove]("control-btn-dis");
+    }
+  }, {
     key: "getData",
     value: function getData() {
       return {
-        host_color: this._colorClasses[this._playerOnePick],
-        join_color: this._colorClasses[this._playerTwoPick]
+        host_color: this._colorsForSending[this._playerOnePick],
+        join_color: this._colorsForSending[this._playerTwoPick]
       };
     }
   }, {
     key: "setPicks",
-    value: function setPicks(one, two) {
+    value: function setPicks(one, two, isReady) {
       if (one !== -1) {
         this._playerOnePick = one;
 
@@ -22873,6 +22922,20 @@ var ColorPickerManager = /*#__PURE__*/function () {
         this._playerTwoPick = two;
 
         this._changePick(this._oPickerOtions, this._playerTwoTxt, this._playerTwoPick);
+      }
+
+      if (one !== -1 && two !== -1) {
+        if (this.isHost && isReady) {
+          this._playerOneBtn.classList.remove("control-btn-dis");
+        } else if (!this.isHost) {
+          this._playerTwoBtn.classList.remove("control-btn-dis");
+
+          this._isReady = isReady;
+
+          if (isReady) {
+            this._playerTwoBtn.classList.add("btn-ready-clicked");
+          }
+        }
       }
     }
   }, {
@@ -22909,18 +22972,31 @@ var ColorPickerManager = /*#__PURE__*/function () {
       };
     }
   }, {
+    key: "enableReadyBtn",
+    value: function enableReadyBtn() {
+      if (this._playerOnePick !== -1 && this._playerTwoPick !== -1) {
+        this._playerTwoBtn.classList.remove("control-btn-dis");
+      }
+    }
+  }, {
     key: "_addOptionListener",
     value: function _addOptionListener(options, playerText, thisPlayerPick, otherPlayerPick) {
-      var _this = this;
+      var _this2 = this;
 
       var _loop = function _loop(i) {
         options[i].addEventListener("click", function (e) {
-          if (_this[otherPlayerPick] != i) {
-            _this._changePick(options, playerText, i);
+          if (_this2[otherPlayerPick] !== i) {
+            _this2._changePick(options, playerText, i);
 
-            _this.additionalFunc(i);
+            _this2.additionalFunc(i);
 
-            _this[thisPlayerPick] = i;
+            _this2[thisPlayerPick] = i;
+
+            if (!_this2.isHost) {
+              _this2.enableReadyBtn();
+            } else {
+              _this2._hostPickedFunc();
+            }
           }
         });
       };
@@ -22932,6 +23008,160 @@ var ColorPickerManager = /*#__PURE__*/function () {
   }]);
 
   return ColorPickerManager;
+}();
+
+
+
+/***/ }),
+
+/***/ "./resources/js/managers/connectionValidator.js":
+/*!******************************************************!*\
+  !*** ./resources/js/managers/connectionValidator.js ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ ConnectionValidator)
+/* harmony export */ });
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var ConnectionValidator = /*#__PURE__*/function () {
+  function ConnectionValidator(roomChannel, myKey) {
+    var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+    _classCallCheck(this, ConnectionValidator);
+
+    _defineProperty(this, "_isConnected", false);
+
+    _defineProperty(this, "_counter", 0);
+
+    _defineProperty(this, "_interval", void 0);
+
+    _defineProperty(this, "_countFunc", function () {});
+
+    _defineProperty(this, "_connectionAtemptFunc", function () {});
+
+    _defineProperty(this, "_connectionEstablishedFunc", function () {});
+
+    _defineProperty(this, "_reconnectionEstablishedFunc", function () {});
+
+    this.roomChannel = roomChannel;
+    this.myKey = myKey;
+    this.data = data;
+  }
+
+  _createClass(ConnectionValidator, [{
+    key: "setData",
+    value: function setData(data) {
+      this.data = data;
+    }
+  }, {
+    key: "_getData",
+    value: function _getData() {
+      return this.data;
+    }
+  }, {
+    key: "setCountFunc",
+    value: function setCountFunc(countFunc) {
+      this._countFunc = countFunc;
+    }
+  }, {
+    key: "setConnectionAtemptFunc",
+    value: function setConnectionAtemptFunc(connectionAtemptFunc) {
+      this._connectionAtemptFunc = connectionAtemptFunc;
+    }
+  }, {
+    key: "setConnectionEstablishedFunc",
+    value: function setConnectionEstablishedFunc(connectionEstablishedFunc) {
+      this._connectionEstablishedFunc = connectionEstablishedFunc;
+    }
+  }, {
+    key: "setReconnectionEstablishedFunc",
+    value: function setReconnectionEstablishedFunc(reconnectionEstablishedFunc) {
+      this._reconnectionEstablishedFunc = reconnectionEstablishedFunc;
+    }
+  }, {
+    key: "setPreReconnectRequestFunc",
+    value: function setPreReconnectRequestFunc(preReconnectRequestFunc) {
+      this._preReconnectRequestFunc = preReconnectRequestFunc;
+    }
+  }, {
+    key: "establishConnection",
+    value: function establishConnection() {
+      var _this = this;
+
+      this._interval = setInterval(function () {
+        _this._counter++;
+
+        _this._countFunc(_this._counter);
+
+        _this.roomChannel.whisper("requestConnect", _objectSpread({
+          key: _this.myKey
+        }, _this._getData()));
+
+        _this._connectionAtemptFunc(_this._counter);
+      }, 5000);
+
+      this._listeToRequestConnect();
+
+      this._listeToRequestReconnect();
+    }
+  }, {
+    key: "_listeToRequestConnect",
+    value: function _listeToRequestConnect() {
+      var _this2 = this;
+
+      this.roomChannel.listenForWhisper("requestConnect", function (e) {
+        if (!_this2._isConnected) {
+          if (e.key !== _this2.myKey) {
+            _this2._isConnected = true;
+
+            _this2.roomChannel.whisper("requestConnect", _objectSpread({
+              key: _this2.myKey
+            }, _this2._getData()));
+
+            clearInterval(_this2._interval);
+
+            _this2._connectionEstablishedFunc();
+          }
+        } else {
+          _this2._preReconnectRequestFunc();
+
+          _this2.roomChannel.whisper("reconnectRequest", _objectSpread({
+            key: _this2.myKey
+          }, _this2._getData()));
+        }
+      });
+    }
+  }, {
+    key: "_listeToRequestReconnect",
+    value: function _listeToRequestReconnect() {
+      var _this3 = this;
+
+      this.roomChannel.listenForWhisper("reconnectRequest", function (e) {
+        if (e.key !== _this3.myKey) {
+          _this3._isConnected = true;
+          clearInterval(_this3._interval);
+
+          _this3._reconnectionEstablishedFunc(e);
+        }
+      });
+    }
+  }]);
+
+  return ConnectionValidator;
 }();
 
 
@@ -22956,6 +23186,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var pusher_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(pusher_js__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _helper_loader__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./helper/loader */ "./resources/js/helper/loader.js");
 /* harmony import */ var _managers_colorPickerManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./managers/colorPickerManager */ "./resources/js/managers/colorPickerManager.js");
+/* harmony import */ var _managers_connectionValidator__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./managers/connectionValidator */ "./resources/js/managers/connectionValidator.js");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
@@ -22992,66 +23223,77 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_3__["default"]({
 });
 
 
+
 var room_number = document.querySelector(".room_number").textContent;
 var btnStart = document.querySelector(".btn-start");
 var locale = document.querySelector(".locale").textContent;
 var isHost = document.querySelector(".isHost").textContent === "is_host";
 var colorPickerManager;
+var connectionValidator;
 var roomChannel;
-var isConnected = false;
-var interval;
-
-var init = function init() {
-  if (isConnected) {
-    clearInterval(interval);
-    _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].Off();
-
-    if (!colorPickerManager) {
-      colorPickerManager = new _managers_colorPickerManager__WEBPACK_IMPORTED_MODULE_6__["default"](isHost);
-
-      colorPickerManager.additionalFunc = function (pickedColorIndex) {
-        roomChannel.whisper("colorPicked", {
-          pickedColorIndex: pickedColorIndex
-        });
-      };
-    }
-  }
-};
-
-var checkConnection = function checkConnection() {
-  interval = setInterval(function () {
-    roomChannel.whisper("requestConnect", {
-      isHost: isHost
-    });
-  }, 5000);
-};
 
 var startNotified = function startNotified(data) {
   window.Echo.leave(data.channel);
   window.location.href = "/online-game/".concat(locale, "?room_number=").concat(room_number);
 };
 
+var connectionEstablishedFunc = function connectionEstablishedFunc() {
+  _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].Off();
+
+  if (!colorPickerManager) {
+    colorPickerManager = new _managers_colorPickerManager__WEBPACK_IMPORTED_MODULE_6__["default"](isHost);
+
+    colorPickerManager.additionalFunc = function (pickedColorIndex) {
+      roomChannel.whisper("colorPicked", {
+        pickedColorIndex: pickedColorIndex
+      });
+    };
+
+    colorPickerManager.setReadyBtnFunc(function (isReady) {
+      roomChannel.whisper("readyBtnClicked", {
+        isReady: isReady
+      });
+    });
+    colorPickerManager.setHostPickedFunc(function (e) {
+      roomChannel.whisper("hostPickedColor", {});
+    });
+  }
+
+  connectionValidator.setPreReconnectRequestFunc(preReconnectFunc);
+};
+
+var preReconnectFunc = function preReconnectFunc() {
+  var data = _objectSpread({
+    isReady: colorPickerManager.getIsReady()
+  }, colorPickerManager.getPicks());
+
+  connectionValidator.setData(data);
+};
+
+var reconnectionEstablishedFunc = function reconnectionEstablishedFunc(e) {
+  connectionEstablishedFunc();
+  colorPickerManager.setPicks(e.playerOnePick, e.playerTwoPick, e.isReady);
+};
+
+var initConnectionValidator = function initConnectionValidator() {
+  connectionValidator.setConnectionEstablishedFunc(connectionEstablishedFunc);
+  connectionValidator.setReconnectionEstablishedFunc(reconnectionEstablishedFunc);
+  connectionValidator.establishConnection();
+};
+
 var onLoad = function onLoad() {
   _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
   roomChannel = window.Echo["private"]("room.".concat(room_number));
-  checkConnection();
-  roomChannel.listenForWhisper("requestConnect", function (request) {
-    if (isConnected) {
-      init();
-      roomChannel.whisper("requestReconnectRecieved", _objectSpread({
-        isHost: isHost
-      }, colorPickerManager.getPicks()));
-    } else {
-      isConnected = isHost !== request.isHost;
-    }
-  });
-  roomChannel.listenForWhisper("requestReconnectRecieved", function (request) {
-    isConnected = isHost !== request.isHost;
-    init();
-    colorPickerManager.setPicks(request.playerOnePick, request.playerTwoPick);
-  });
+  connectionValidator = new _managers_connectionValidator__WEBPACK_IMPORTED_MODULE_7__["default"](roomChannel, isHost);
+  initConnectionValidator();
   roomChannel.listenForWhisper("colorPicked", function (e) {
     colorPickerManager.changePickForOther(e.pickedColorIndex);
+  });
+  roomChannel.listenForWhisper("readyBtnClicked", function (e) {
+    colorPickerManager.switchStartBtn(e.isReady);
+  });
+  roomChannel.listenForWhisper("hostPickedColor", function (e) {
+    colorPickerManager.enableReadyBtn();
   });
   roomChannel.listen("ColorEventStart", startNotified);
 };

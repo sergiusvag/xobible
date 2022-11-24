@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Logged;
 
 use App\Models\Room;
+use App\Models\GameStatus;
 use App\Events\ColorEventStart;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -23,6 +24,9 @@ class OnlineColorPickerController extends Controller
         }
         if($room->status === 'in_room') {
             return redirect('/online-room/'. $locale);
+        }
+        if($room->status === 'in_game') {
+            return redirect('/online-game/'. $locale .'?room_number='.$room_number);
         }
 
         $isHost = $room->host_name === Auth::user()->name;
@@ -49,7 +53,16 @@ class OnlineColorPickerController extends Controller
         $room->status = 'in_game';
         $room->save();
 
-        // Also need to create and save settings of game in DB
+        $gameStatus = new GameStatus([
+            'host_id' => $room->host_id,
+            'host_name' => $room->host_name,
+            'host_color' => $request['host_color'],
+            'join_id' => $room->join_id,
+            'join_name' => $room->join_name,
+            'join_color' => $request['join_color'],
+            'room_number' => $room->room_number,
+        ]);
+        $gameStatus->save();
 
         ColorEventStart::dispatch($room);
 

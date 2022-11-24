@@ -1,7 +1,7 @@
 @extends('layouts-xo.menu')
 
 @section('control_content_menu')
-    <div class="row align-items-center justify-content-center pt-3">
+    <div class="row align-items-center justify-content-center pt-1">
         <div class="col-auto align-items-center text-center">
             @auth
                 @csrf
