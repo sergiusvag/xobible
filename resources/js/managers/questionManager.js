@@ -18,6 +18,7 @@ export default class QuestionManager {
     _resultSelectedAnswer = document.querySelector(".selected-answer-result");
 
     _questionWrap = document.querySelector(".question-wrap");
+    _questionNumber = document.querySelector(".question-number");
     _question = document.querySelectorAll(".question");
     _options = document.querySelectorAll(".option");
     _selected = -1;
@@ -69,7 +70,7 @@ export default class QuestionManager {
             this._options[this._selected].textContent;
     }
     _setQuestionModalManager() {
-        this._questionModalManager._btn.classList.add("control-btn-dis");
+        this._questionModalManager.continueBtn.classList.add("control-btn-dis");
         this._options.forEach((e, i) => {
             e.addEventListener("click", (e) => {
                 this._optionClickedFunction(i);
@@ -80,7 +81,9 @@ export default class QuestionManager {
         this._resultModalManager.off();
     }
     enableAnswerButton() {
-        this._questionModalManager._btn.classList.remove("control-btn-dis");
+        this._questionModalManager.continueBtn.classList.remove(
+            "control-btn-dis"
+        );
     }
     questionAnswered(isCorrect) {
         this.setQuestionAnswered(isCorrect);
@@ -95,7 +98,7 @@ export default class QuestionManager {
     }
     setQuestionAnsweredFunction(questionAnsweredFunction) {
         this._questionAnsweredFunction = questionAnsweredFunction;
-        this._questionModalManager._btn.addEventListener(
+        this._questionModalManager.continueBtn.addEventListener(
             "click",
             this._questionAnsweredFunction.bind(
                 this,
@@ -106,7 +109,7 @@ export default class QuestionManager {
     }
     setCloseResultFunction(closeResultFunction) {
         this._closeResultFunction = closeResultFunction;
-        this._resultModalManager._btn.addEventListener(
+        this._resultModalManager.continueBtn.addEventListener(
             "click",
             this._closeResultFunction.bind(this)
         );
@@ -120,13 +123,15 @@ export default class QuestionManager {
     }
     _setQuestion(questionData, isMyTurn) {
         const addOrRemove = isMyTurn() ? "remove" : "add";
-        this._resultModalManager._btn.classList[addOrRemove]("control-btn-dis");
-        this._questionModalManager._btn.classList.add("control-btn-dis");
+        this._resultModalManager.continueBtn.classList[addOrRemove](
+            "control-btn-dis"
+        );
+        this._questionModalManager.continueBtn.classList.add("control-btn-dis");
         // question data still need handling
         this._questionData = questionData.confirmed
             ? questionData
             : this.defaultQuestion;
-        console.log(this._questionData);
+        this._questionNumber.textContent = this._questionData.id;
         this._question.forEach((e, i) => {
             this._question[i].textContent = this._questionData.question;
         });
@@ -137,10 +142,17 @@ export default class QuestionManager {
             this._options[i].classList[addOrRemove]("control-dis");
         });
     }
+    _setBorderHost() {
+        this._questionWrap.classList.remove("border-right");
+    }
+    _setBorderJoin() {
+        this._questionWrap.classList.add("border-right");
+    }
     _setColor(player) {
         this._questionWrap.classList.remove(this._colorClassHost);
         this._questionWrap.classList.remove(this._colorClassJoin);
         this._questionWrap.classList.add(this[`_colorClass${player}`]);
+        this[`_setBorder${player}`]();
     }
     start(questionData, player, isMyTurn) {
         this.setData(questionData, player, isMyTurn);

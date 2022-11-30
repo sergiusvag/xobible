@@ -22,7 +22,7 @@ class RulesModalManager extends ModalManager {
                 this._rulesSlideOutEnd.bind(this);
         });
 
-        this._btn.addEventListener("click", this.off.bind(this));
+        this.continueBtn.addEventListener("click", this.off.bind(this));
     }
 
     _rulesSlideOutEnd(e) {

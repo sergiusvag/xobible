@@ -131,6 +131,13 @@ class ScoreManager {
     addWrongJoin() {
         this._add("join", "Wrong");
     }
+
+    addScore(isCorrect, player) {
+        const scoreToAddFunc = isCorrect
+            ? `addCorrect${player}`
+            : `addWrong${player}`;
+        this[scoreToAddFunc]();
+    }
 }
 
 export default new ScoreManager();

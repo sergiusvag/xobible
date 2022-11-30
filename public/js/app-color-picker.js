@@ -23055,6 +23055,8 @@ var ConnectionValidator = /*#__PURE__*/function () {
 
     _defineProperty(this, "_connectionEstablishedFunc", function () {});
 
+    _defineProperty(this, "_preReconnectRequestFunc", function () {});
+
     _defineProperty(this, "_reconnectionEstablishedFunc", function () {});
 
     this.roomChannel = roomChannel;

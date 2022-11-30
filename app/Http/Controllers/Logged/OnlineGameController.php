@@ -13,6 +13,8 @@ use App\Events\GameTileSelected;
 use App\Events\GameOptionSelected;
 use App\Events\GameQuestionAnswered;
 use App\Events\GameCloseResult;
+use App\Events\GameOver;
+use App\Events\GameNextRoundClicked;
 
 class OnlineGameController extends Controller
 {
@@ -42,20 +44,45 @@ class OnlineGameController extends Controller
         }
     }
 
+    public function getRtlClass ($locale) {
+        return $locale === 'he' ? 'input-rtl' : '';
+    }
+
     public function index(Request $request, $locale)
     {
         $room_number = $request->room_number;
         $gameStatus = GameStatus::where('room_number', $room_number)->first();
-        $currentRound = $gameStatus->current_round;
 
+        if($gameStatus === null){ 
+            $room = Room::where('room_number', $request['room_number'])->delete();
+            return redirect('/welcome/'. $locale);
+        }
         $questionStatuses = QuestionStatus::where('game_status_id', $gameStatus->id)->get();
+
         if($questionStatuses->isEmpty()){
             $this->createQuestionStatuses($room_number, $gameStatus->id);
         }
+        $maxRound = $questionStatuses->count();
 
         return view('logged.online-game')
-            ->with('data' , ['room_number' => $room_number])
+            ->with('data' , ['room_number' => $room_number, 'max_round' => $maxRound, 'current_round' => $gameStatus->current_round])
+            ->with('rtlClass', $this->getRtlClass($locale))
             ->with('locale', $locale);
+    }
+
+    public function extractQuestions($questionStatus, $locale) {
+        $questions = [];
+        for($i = 0; $i < 9; $i++) {
+            $questions[$i] = $questionStatus['question_'.$i];
+        }
+        if($locale !== 'en'){
+            $upLocale = ucfirst($locale);
+            for($i = 0; $i < 9; $i++) {
+                $questions[$i] = $questions[$i]['question' . $upLocale];
+            }
+        }
+
+        return $questions;
     }
 
     public function load(Request $request, $locale) {
@@ -66,17 +93,7 @@ class OnlineGameController extends Controller
                                             ->first();
         $data = ['game_status' => $gameStatus];                       
         if($questionStatus !== null) {
-            $questions = [];
-            for($i = 0; $i < 9; $i++) {
-                $questions[$i] = $questionStatus['question_'.$i];
-            }
-            if($locale !== 'en'){
-                $upLocale = ucfirst($locale);
-                for($i = 0; $i < 9; $i++) {
-                    $questions[$i] = $questions[$i]['question' . $upLocale];
-                }
-            }
-            $data['questions'] = $questions;
+            $data['questions'] =  $this->extractQuestions($questionStatus, $locale);
             $data['question_status'] = $questionStatus;
         } 
         
@@ -115,7 +132,7 @@ class OnlineGameController extends Controller
         ];
         $gameStatus = GameStatus::where('room_number', $request['room_number'])->first();
 
-        broadcast(new GameQuestionAnswered($request['room_number'],  $data))->toOthers();
+        broadcast(new GameQuestionAnswered($request['room_number'], $data))->toOthers();
 
         $gameStatus['result'] = $request['is_correct'] ? "is_correct" : "is_wrong";
         $gameStatus['status'] = "in_result ";
@@ -140,7 +157,8 @@ class OnlineGameController extends Controller
         $nextPlayer = $currentPlayer === "host" ? "join" : "host";
         $selected_field = $questionStatus['selected_field'];
         $gameStatus['current_player'] = $nextPlayer;
-        $gameStatus['status'] = "in_board ";
+        $status = $request['is_all_full'] ? "in_round" : "in_board ";
+        $gameStatus['status'] = $status;
 
         if($request['is_correct']) {
             $questionStatus[$selected_field."_question_status"] = $currentPlayer."_answered";
@@ -163,4 +181,103 @@ class OnlineGameController extends Controller
 
         return [];
     }
+
+    public function gameOver(Request $request, $locale) {
+        $gameStatus = GameStatus::where('room_number', $request['room_number'])->first();
+        $gameStatus['status'] = 'in_over';
+        $gameStatus->save();
+
+        broadcast(new GameOver($request['room_number'], []))->toOthers();
+        
+        return [];
+    }
+
+    public function nextRoundStatus($gameStatus) {
+        $gameStatus['host_current_score'] = 0;
+        $gameStatus['host_current_wrong_score'] = 0;
+        $gameStatus['host_current_bonus_score'] = 0;
+        $gameStatus['host_current_total_score'] = 0;
+        $gameStatus['join_current_score'] = 0;
+        $gameStatus['join_current_wrong_score'] = 0;
+        $gameStatus['join_current_bonus_score'] = 0;
+        $gameStatus['join_current_total_score'] = 0;
+        $gameStatus['current_round'] += 1;
+        $gameStatus['status'] = 'in_board';
+        $gameStatus['result'] = 'none';
+
+        return $gameStatus;
+    }
+    public function nextRound(Request $request, $locale) {
+        $gameStatus = GameStatus::where('room_number', $request['room_number'])->first();
+        $gameStatus = $this->nextRoundStatus($gameStatus);
+        
+        $questionStatus = QuestionStatus::where('game_status_id', $gameStatus->id)
+                                            ->where('round_number', $gameStatus->current_round)
+                                            ->first();
+
+        $data = ['game_status' => $gameStatus];                       
+        if($questionStatus !== null) {
+            $data['questions'] =  $this->extractQuestions($questionStatus, $locale);
+            $data['question_status'] = $questionStatus;
+        } 
+
+        $gameStatus->save();
+        broadcast(new GameNextRoundClicked($request['room_number'], []))->toOthers();
+
+        return $data;
+    }
+
+    public function newRoundJoin(Request $request, $locale) {
+        $gameStatus = GameStatus::where('room_number', $request['room_number'])->first();
+        $questionStatus = QuestionStatus::where('game_status_id', $gameStatus->id)
+                                            ->where('round_number', $gameStatus->current_round)
+                                            ->first();
+
+        $data = ['game_status' => $gameStatus];                       
+        if($questionStatus !== null) {
+            $data['questions'] =  $this->extractQuestions($questionStatus, $locale);
+            $data['question_status'] = $questionStatus;
+        } 
+        
+        return $data;
+    }
+
+    public function newGame(Request $request, $locale) {
+        $gameStatus = GameStatus::where('room_number', $request['room_number'])->first();
+        $questionStatuses = QuestionStatus::where('game_status_id', $gameStatus->id)->delete();
+
+        $gameStatus['host_current_score'] = 0;
+        $gameStatus['host_current_wrong_score'] = 0;
+        $gameStatus['host_current_bonus_score'] = 0;
+        $gameStatus['host_current_total_score'] = 0;
+        $gameStatus['join_current_score'] = 0;
+        $gameStatus['join_current_wrong_score'] = 0;
+        $gameStatus['join_current_bonus_score'] = 0;
+        $gameStatus['join_current_total_score'] = 0;
+        $gameStatus['host_score'] = 0;
+        $gameStatus['host_wrong_score'] = 0;
+        $gameStatus['host_bonus_score'] = 0;
+        $gameStatus['host_total_score'] = 0;
+        $gameStatus['join_score'] = 0;
+        $gameStatus['join_wrong_score'] = 0;
+        $gameStatus['join_bonus_score'] = 0;
+        $gameStatus['join_total_score'] = 0;
+        $gameStatus['current_round'] = 1;
+        $gameStatus['status'] = 'in_board';
+        $gameStatus['result'] = 'none';
+
+        $gameStatus->save();
+
+        return [];
+    }
+
+    public function finishGame(Request $request, $locale) {
+        $gameStatus = GameStatus::where('room_number', $request['room_number'])->first();
+        $room = Room::where('room_number', $request['room_number'])->delete();
+        $questionStatuses = QuestionStatus::where('game_status_id', $gameStatus->id)->delete();
+        $gameStatus->delete();
+
+        return [];
+    }
 }
+

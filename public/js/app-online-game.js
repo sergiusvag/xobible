@@ -22898,6 +22898,8 @@ var BoardManager = /*#__PURE__*/function () {
 
     _defineProperty(this, "_symbolJoin", "/img/o.png");
 
+    _defineProperty(this, "_symbolDefault", "/img/blank.jpg");
+
     _defineProperty(this, "_selectedTile", void 0);
 
     _defineProperty(this, "_addOrRemove", void 0);
@@ -22911,6 +22913,24 @@ var BoardManager = /*#__PURE__*/function () {
   }
 
   _createClass(BoardManager, [{
+    key: "resetBoard",
+    value: function resetBoard() {
+      var _this = this;
+
+      this._tileField.forEach(function (e, i) {
+        _this._tileField[i].classList.remove("control-dis");
+
+        _this._tileField[i].classList.remove(_this._colorClassBgHost);
+
+        _this._tileField[i].classList.remove(_this._colorClassBgJoin);
+
+        _this._tileField[i].children[0].src = _this._symbolDefault;
+      });
+
+      this._logicalTile = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+      this._filledTiles = 0;
+    }
+  }, {
     key: "_setLogicalTile",
     value: function _setLogicalTile(index, player) {
       var setTo = player === "Host" ? 1 : 2;
@@ -23008,45 +23028,45 @@ var BoardManager = /*#__PURE__*/function () {
   }, {
     key: "setTileFunction",
     value: function setTileFunction(tileFunction) {
-      var _this = this;
+      var _this2 = this;
 
       this._tileField.forEach(function (e, i) {
         e.addEventListener("click", function (e) {
-          _this._selectedTile = i;
-          tileFunction(_this._tileField[i]);
+          _this2._selectedTile = i;
+          tileFunction(_this2._tileField[i]);
         });
       });
     }
   }, {
     key: "enableFreeTiles",
     value: function enableFreeTiles() {
-      var _this2 = this;
+      var _this3 = this;
 
       this._tileField.forEach(function (e, i) {
-        if (_this2._tileField[i].dataset.isFree === "free") {
-          _this2._tileField[i].classList.remove("control-dis");
+        if (_this3._tileField[i].dataset.isFree === "free") {
+          _this3._tileField[i].classList.remove("control-dis");
         }
       });
     }
   }, {
     key: "disableFreeTiles",
     value: function disableFreeTiles() {
-      var _this3 = this;
+      var _this4 = this;
 
       this._tileField.forEach(function (e, i) {
-        if (_this3._tileField[i].dataset.isFree === "free") {
-          _this3._tileField[i].classList.add("control-dis");
+        if (_this4._tileField[i].dataset.isFree === "free") {
+          _this4._tileField[i].classList.add("control-dis");
         }
       });
     }
   }, {
     key: "toggleFreeTiles",
     value: function toggleFreeTiles() {
-      var _this4 = this;
+      var _this5 = this;
 
       this._tileField.forEach(function (e, i) {
-        if (_this4._tileField[i].dataset.isFree === "free") {
-          _this4._tileField[i].classList[_this4._addOrRemove]("control-dis");
+        if (_this5._tileField[i].dataset.isFree === "free") {
+          _this5._tileField[i].classList[_this5._addOrRemove]("control-dis");
         }
       });
 
@@ -23055,30 +23075,30 @@ var BoardManager = /*#__PURE__*/function () {
   }, {
     key: "setBoard",
     value: function setBoard(questionStatus, isMyTurn) {
-      var _this5 = this;
+      var _this6 = this;
 
       this._tileField.forEach(function (e, i) {
         switch (questionStatus["".concat(i, "_field_question_status")]) {
           case "none":
             if (!isMyTurn()) {
-              _this5._tileField[i].classList.add("control-dis");
+              _this6._tileField[i].classList.add("control-dis");
 
-              _this5._addOrRemove = "remove";
+              _this6._addOrRemove = "remove";
             } else {
-              _this5._addOrRemove = "add";
+              _this6._addOrRemove = "add";
             }
 
-            _this5._tileField[i].dataset.isFree = "free";
-            _this5._tileField[i].dataset.questionId = questionStatus["".concat(i, "_field_question_id")];
+            _this6._tileField[i].dataset.isFree = "free";
+            _this6._tileField[i].dataset.questionId = questionStatus["".concat(i, "_field_question_id")];
             break;
 
           case "host_answered":
-            _this5.selectedHost(i);
+            _this6.selectedHost(i);
 
             break;
 
           case "join_answered":
-            _this5.selectedJoin(i);
+            _this6.selectedJoin(i);
 
             break;
         }
@@ -23113,12 +23133,17 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var ColorsManager = /*#__PURE__*/function () {
-  function ColorsManager(colorHost, colorJoin) {
+  // transparent
+  function ColorsManager(colorHost, colorJoin, currentPlayer, otherPlayer, isMyTurn) {
     _classCallCheck(this, ColorsManager);
 
     _defineProperty(this, "_coloredWrapsHost", document.querySelectorAll(".wrap-host"));
 
     _defineProperty(this, "_coloredWrapsJoin", document.querySelectorAll(".wrap-join"));
+
+    _defineProperty(this, "_coloredWrapGameMainHost", document.querySelector(".wrap-host-game-main"));
+
+    _defineProperty(this, "_coloredWrapGameMainJoin", document.querySelector(".wrap-join-game-main"));
 
     this._colorClassHost = "color-".concat(colorHost);
     this._colorClassJoin = "color-".concat(colorJoin);
@@ -23126,6 +23151,11 @@ var ColorsManager = /*#__PURE__*/function () {
     this._setColors("_coloredWrapsHost", this._colorClassHost);
 
     this._setColors("_coloredWrapsJoin", this._colorClassJoin);
+
+    var currentAction = isMyTurn ? "remove" : "add";
+    var otherAction = isMyTurn ? "add" : "remove";
+    this["_coloredWrapGameMain".concat(currentPlayer)].classList[currentAction]("transparent");
+    this["_coloredWrapGameMain".concat(otherPlayer)].classList[otherAction]("transparent");
   }
 
   _createClass(ColorsManager, [{
@@ -23134,6 +23164,13 @@ var ColorsManager = /*#__PURE__*/function () {
       this[playerWrap].forEach(function (e) {
         e.classList.add(colorClass);
       });
+    }
+  }, {
+    key: "toggleColors",
+    value: function toggleColors() {
+      this._coloredWrapGameMainHost.classList.toggle("transparent");
+
+      this._coloredWrapGameMainJoin.classList.toggle("transparent");
     }
   }]);
 
@@ -23184,6 +23221,8 @@ var ConnectionValidator = /*#__PURE__*/function () {
     _defineProperty(this, "_connectionAtemptFunc", function () {});
 
     _defineProperty(this, "_connectionEstablishedFunc", function () {});
+
+    _defineProperty(this, "_preReconnectRequestFunc", function () {});
 
     _defineProperty(this, "_reconnectionEstablishedFunc", function () {});
 
@@ -23325,11 +23364,11 @@ var ModalManager = /*#__PURE__*/function () {
 
     _defineProperty(this, "_animation", void 0);
 
-    _defineProperty(this, "_btn", void 0);
+    _defineProperty(this, "_additionalSlideOutFunc", function () {});
 
     this._modal = document.querySelector(modalName);
     this._animation = document.querySelector(animationWrapName);
-    this._btn = document.querySelector(btnName);
+    this.continueBtn = document.querySelector(btnName);
   }
 
   _createClass(ModalManager, [{
@@ -23363,6 +23402,8 @@ var ModalManager = /*#__PURE__*/function () {
       this._animation.onanimationiteration = function () {};
 
       this._modal.classList.remove("active");
+
+      this._additionalSlideOutFunc();
     }
   }]);
 
@@ -23461,6 +23502,8 @@ var QuestionManager = /*#__PURE__*/function () {
 
     _defineProperty(this, "_questionWrap", document.querySelector(".question-wrap"));
 
+    _defineProperty(this, "_questionNumber", document.querySelector(".question-number"));
+
     _defineProperty(this, "_question", document.querySelectorAll(".question"));
 
     _defineProperty(this, "_options", document.querySelectorAll(".option"));
@@ -23534,7 +23577,7 @@ var QuestionManager = /*#__PURE__*/function () {
     value: function _setQuestionModalManager() {
       var _this = this;
 
-      this._questionModalManager._btn.classList.add("control-btn-dis");
+      this._questionModalManager.continueBtn.classList.add("control-btn-dis");
 
       this._options.forEach(function (e, i) {
         e.addEventListener("click", function (e) {
@@ -23550,7 +23593,7 @@ var QuestionManager = /*#__PURE__*/function () {
   }, {
     key: "enableAnswerButton",
     value: function enableAnswerButton() {
-      this._questionModalManager._btn.classList.remove("control-btn-dis");
+      this._questionModalManager.continueBtn.classList.remove("control-btn-dis");
     }
   }, {
     key: "questionAnswered",
@@ -23576,14 +23619,14 @@ var QuestionManager = /*#__PURE__*/function () {
     value: function setQuestionAnsweredFunction(questionAnsweredFunction) {
       this._questionAnsweredFunction = questionAnsweredFunction;
 
-      this._questionModalManager._btn.addEventListener("click", this._questionAnsweredFunction.bind(this, this._isAnswerCorrect.bind(this), this._selectedIndex.bind(this)));
+      this._questionModalManager.continueBtn.addEventListener("click", this._questionAnsweredFunction.bind(this, this._isAnswerCorrect.bind(this), this._selectedIndex.bind(this)));
     }
   }, {
     key: "setCloseResultFunction",
     value: function setCloseResultFunction(closeResultFunction) {
       this._closeResultFunction = closeResultFunction;
 
-      this._resultModalManager._btn.addEventListener("click", this._closeResultFunction.bind(this));
+      this._resultModalManager.continueBtn.addEventListener("click", this._closeResultFunction.bind(this));
     }
   }, {
     key: "switchSelected",
@@ -23603,13 +23646,13 @@ var QuestionManager = /*#__PURE__*/function () {
 
       var addOrRemove = isMyTurn() ? "remove" : "add";
 
-      this._resultModalManager._btn.classList[addOrRemove]("control-btn-dis");
+      this._resultModalManager.continueBtn.classList[addOrRemove]("control-btn-dis");
 
-      this._questionModalManager._btn.classList.add("control-btn-dis"); // question data still need handling
+      this._questionModalManager.continueBtn.classList.add("control-btn-dis"); // question data still need handling
 
 
       this._questionData = questionData.confirmed ? questionData : this.defaultQuestion;
-      console.log(this._questionData);
+      this._questionNumber.textContent = this._questionData.id;
 
       this._question.forEach(function (e, i) {
         _this2._question[i].textContent = _this2._questionData.question;
@@ -23624,6 +23667,16 @@ var QuestionManager = /*#__PURE__*/function () {
       });
     }
   }, {
+    key: "_setBorderHost",
+    value: function _setBorderHost() {
+      this._questionWrap.classList.remove("border-right");
+    }
+  }, {
+    key: "_setBorderJoin",
+    value: function _setBorderJoin() {
+      this._questionWrap.classList.add("border-right");
+    }
+  }, {
     key: "_setColor",
     value: function _setColor(player) {
       this._questionWrap.classList.remove(this._colorClassHost);
@@ -23631,6 +23684,8 @@ var QuestionManager = /*#__PURE__*/function () {
       this._questionWrap.classList.remove(this._colorClassJoin);
 
       this._questionWrap.classList.add(this["_colorClass".concat(player)]);
+
+      this["_setBorder".concat(player)]();
     }
   }, {
     key: "start",
@@ -23652,6 +23707,188 @@ var QuestionManager = /*#__PURE__*/function () {
   }]);
 
   return QuestionManager;
+}();
+
+
+
+/***/ }),
+
+/***/ "./resources/js/managers/roundManager.js":
+/*!***********************************************!*\
+  !*** ./resources/js/managers/roundManager.js ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ RoundManager)
+/* harmony export */ });
+/* harmony import */ var _modalManager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modalManager */ "./resources/js/managers/modalManager.js");
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+var RoundManager = /*#__PURE__*/function () {
+  function RoundManager(currentPlayer) {
+    var _this = this;
+
+    _classCallCheck(this, RoundManager);
+
+    _defineProperty(this, "_roundModalManager", new _modalManager__WEBPACK_IMPORTED_MODULE_0__["default"](".wrapper-modal_round", ".round-animation-wrap", ".btn-round-continue"));
+
+    _defineProperty(this, "_roundFinishBtn", document.querySelector(".btn-round-finish"));
+
+    _defineProperty(this, "_overModalManager", new _modalManager__WEBPACK_IMPORTED_MODULE_0__["default"](".wrapper-modal_over", ".over-animation-wrap", ".btn-over-continue"));
+
+    _defineProperty(this, "_overFinishBtn", document.querySelector(".btn-over-finish"));
+
+    _defineProperty(this, "_overNewGameBtn", document.querySelector(".btn-over-new-game"));
+
+    _defineProperty(this, "_overReadyBtn", document.querySelector(".btn-over-ready"));
+
+    _defineProperty(this, "_roundNumber", document.querySelector(".round-number"));
+
+    _defineProperty(this, "_isFinal", false);
+
+    _defineProperty(this, "_isReady", false);
+
+    _defineProperty(this, "_overFunction", function () {});
+
+    _defineProperty(this, "_nextRoundFunc", function () {});
+
+    _defineProperty(this, "_readyBtnFunc", function () {});
+
+    _defineProperty(this, "_newGameBtnFunc", function () {});
+
+    _defineProperty(this, "_finishGameBtnFunc", function () {});
+
+    this["init".concat(currentPlayer)]();
+
+    this._overFinishBtn.addEventListener("click", function () {
+      _this._finishGameBtnFunc();
+    });
+  }
+
+  _createClass(RoundManager, [{
+    key: "initHost",
+    value: function initHost() {
+      var _this2 = this;
+
+      this._roundModalManager.continueBtn.classList.remove("control-btn-dis");
+
+      this._roundFinishBtn.classList.remove("control-btn-dis");
+
+      this._roundModalManager.continueBtn.addEventListener("click", function (e) {
+        if (_this2._isFinal) {
+          _this2._showOver();
+        } else {
+          _this2._nextRoundFunc();
+        }
+      });
+
+      this._roundFinishBtn.addEventListener("click", function (e) {
+        _this2._showOver();
+      });
+
+      this._overReadyBtn.classList.add("d-hide");
+
+      this._overNewGameBtn.classList.add("control-btn-dis");
+
+      this._overNewGameBtn.addEventListener("click", function (e) {
+        _this2._newGameBtnFunc();
+      });
+    }
+  }, {
+    key: "initJoin",
+    value: function initJoin() {
+      var _this3 = this;
+
+      this._roundModalManager.continueBtn.classList.add("control-btn-dis");
+
+      this._roundFinishBtn.classList.add("control-btn-dis");
+
+      this._overNewGameBtn.classList.add("d-hide");
+
+      this._overReadyBtn.addEventListener("click", function (e) {
+        _this3._isReady = !_this3._isReady;
+
+        _this3._overReadyBtn.classList.toggle("btn-ready-clicked");
+
+        _this3._readyBtnFunc(_this3._isReady);
+      });
+    }
+  }, {
+    key: "setOverFunction",
+    value: function setOverFunction(overFunction) {
+      this._overFunction = overFunction;
+    }
+  }, {
+    key: "setNextRoundFunction",
+    value: function setNextRoundFunction(nextRoundFunc) {
+      this._nextRoundFunc = nextRoundFunc;
+    }
+  }, {
+    key: "setReadyBtnFunction",
+    value: function setReadyBtnFunction(readyBtnFunc) {
+      this._readyBtnFunc = readyBtnFunc;
+    }
+  }, {
+    key: "setNewGameBtnFunction",
+    value: function setNewGameBtnFunction(newGameBtnFunc) {
+      this._newGameBtnFunc = newGameBtnFunc;
+    }
+  }, {
+    key: "setFinishGameBtnFunction",
+    value: function setFinishGameBtnFunction(finishGameBtnFunc) {
+      this._finishGameBtnFunc = finishGameBtnFunc;
+    }
+  }, {
+    key: "_showOver",
+    value: function _showOver() {
+      this._overFunction();
+
+      this.showOver();
+    }
+  }, {
+    key: "showOver",
+    value: function showOver() {
+      this._roundModalManager.off();
+
+      this._overModalManager.on();
+    }
+  }, {
+    key: "nextRound",
+    value: function nextRound() {
+      this._roundModalManager.off();
+    }
+  }, {
+    key: "showRoundEnd",
+    value: function showRoundEnd(roundNumber) {
+      var isFinal = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      this._roundNumber.textContent = roundNumber;
+
+      this._roundModalManager.on();
+
+      this._isFinal = isFinal;
+    }
+  }, {
+    key: "switchStartBtn",
+    value: function switchStartBtn(isReady) {
+      this._isReady = isReady;
+      var addOrRemove = isReady ? "remove" : "add";
+
+      this._overNewGameBtn.classList[addOrRemove]("control-btn-dis");
+    }
+  }]);
+
+  return RoundManager;
 }();
 
 
@@ -23728,7 +23965,7 @@ var RulesModalManager = /*#__PURE__*/function (_ModalManager) {
       _this._animation.onanimationiteration = _this._rulesSlideOutEnd.bind(_assertThisInitialized(_this));
     });
 
-    _this._btn.addEventListener("click", _this.off.bind(_assertThisInitialized(_this)));
+    _this.continueBtn.addEventListener("click", _this.off.bind(_assertThisInitialized(_this)));
 
     return _this;
   }
@@ -23958,6 +24195,12 @@ var ScoreManager = /*#__PURE__*/function () {
     value: function addWrongJoin() {
       this._add("join", "Wrong");
     }
+  }, {
+    key: "addScore",
+    value: function addScore(isCorrect, player) {
+      var scoreToAddFunc = isCorrect ? "addCorrect".concat(player) : "addWrong".concat(player);
+      this[scoreToAddFunc]();
+    }
   }]);
 
   return ScoreManager;
@@ -23986,12 +24229,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _helper_loader__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./helper/loader */ "./resources/js/helper/loader.js");
 /* harmony import */ var _helper_translator__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./helper/translator */ "./resources/js/helper/translator.js");
 /* harmony import */ var _managers_rulesModalManager__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./managers/rulesModalManager */ "./resources/js/managers/rulesModalManager.js");
-/* harmony import */ var _managers_modalManager__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./managers/modalManager */ "./resources/js/managers/modalManager.js");
-/* harmony import */ var _managers_scoreManager__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./managers/scoreManager */ "./resources/js/managers/scoreManager.js");
-/* harmony import */ var _managers_namesManager__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./managers/namesManager */ "./resources/js/managers/namesManager.js");
-/* harmony import */ var _managers_colorsManager__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./managers/colorsManager */ "./resources/js/managers/colorsManager.js");
-/* harmony import */ var _managers_boardManager__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./managers/boardManager */ "./resources/js/managers/boardManager.js");
-/* harmony import */ var _managers_questionManager__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./managers/questionManager */ "./resources/js/managers/questionManager.js");
+/* harmony import */ var _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./managers/scoreManager */ "./resources/js/managers/scoreManager.js");
+/* harmony import */ var _managers_namesManager__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./managers/namesManager */ "./resources/js/managers/namesManager.js");
+/* harmony import */ var _managers_colorsManager__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./managers/colorsManager */ "./resources/js/managers/colorsManager.js");
+/* harmony import */ var _managers_boardManager__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./managers/boardManager */ "./resources/js/managers/boardManager.js");
+/* harmony import */ var _managers_questionManager__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./managers/questionManager */ "./resources/js/managers/questionManager.js");
+/* harmony import */ var _managers_roundManager__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./managers/roundManager */ "./resources/js/managers/roundManager.js");
 /* harmony import */ var _managers_connectionValidator__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./managers/connectionValidator */ "./resources/js/managers/connectionValidator.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
@@ -24040,41 +24283,40 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_3__["default"]({
 
 
 var locale = document.querySelector(".locale").textContent;
-var room_number = document.querySelector(".room_number").textContent; // const gameOverOnBtn = document.querySelector(".btn-over-turn-on");
-// const overModalManager = new ModalManager(
-//     ".wrapper-modal_over",
-//     ".over-animation-wrap",
-//     ".btn-over-continue"
-// );
-// gameOverOnBtn.addEventListener("click", (e) => {
-//     overModalManager.on();
-// });
-
+var room_number = document.querySelector(".room_number").textContent;
+var max_round = document.querySelector(".max_round").textContent;
+var current_round = document.querySelector(".current_round").textContent;
+var domCounter = document.querySelector(".connection-counter");
 var questionManager;
 var namesManager;
 var colorsManager;
 var boardManager;
+var roundManager;
 var roomChannel;
 var myTurn;
+var questionStatus;
 var questions;
 var isCorrect;
 var currentPlayer;
 var otherPlayer;
 var connectionValidator;
+var gameStatus;
+var isHost;
 
 var isMyTurn = function isMyTurn() {
   return myTurn;
 };
 
-var setManagers = function setManagers(hostName, joinName, hostColor, joinColor) {
-  namesManager = new _managers_namesManager__WEBPACK_IMPORTED_MODULE_10__["default"](hostName, joinName);
-  colorsManager = new _managers_colorsManager__WEBPACK_IMPORTED_MODULE_11__["default"](hostColor, joinColor);
-  boardManager = new _managers_boardManager__WEBPACK_IMPORTED_MODULE_12__["default"](hostColor, joinColor);
-  questionManager = new _managers_questionManager__WEBPACK_IMPORTED_MODULE_13__["default"](hostColor, joinColor, (0,_helper_translator__WEBPACK_IMPORTED_MODULE_6__.__)("Correct"), (0,_helper_translator__WEBPACK_IMPORTED_MODULE_6__.__)("Wrong"));
+var setManagers = function setManagers(hostName, joinName, hostColor, joinColor, currentPlayer, otherPlayer, isMyTurn) {
+  namesManager = new _managers_namesManager__WEBPACK_IMPORTED_MODULE_9__["default"](hostName, joinName);
+  colorsManager = new _managers_colorsManager__WEBPACK_IMPORTED_MODULE_10__["default"](hostColor, joinColor, currentPlayer, otherPlayer, isMyTurn);
+  boardManager = new _managers_boardManager__WEBPACK_IMPORTED_MODULE_11__["default"](hostColor, joinColor);
+  questionManager = new _managers_questionManager__WEBPACK_IMPORTED_MODULE_12__["default"](hostColor, joinColor, (0,_helper_translator__WEBPACK_IMPORTED_MODULE_6__.__)("Correct"), (0,_helper_translator__WEBPACK_IMPORTED_MODULE_6__.__)("Wrong"));
+  roundManager = new _managers_roundManager__WEBPACK_IMPORTED_MODULE_13__["default"](currentPlayer);
 };
 
 var setScoreManager = function setScoreManager(gameStatus) {
-  _managers_scoreManager__WEBPACK_IMPORTED_MODULE_9__["default"].setAll({
+  _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__["default"].setAll({
     correct: gameStatus.host_current_score,
     bonus: gameStatus.host_current_bonus_score,
     wrong: gameStatus.host_current_wrong_score,
@@ -24097,26 +24339,9 @@ var setScoreManager = function setScoreManager(gameStatus) {
   });
 };
 
-var addScore = function addScore(isCorrect, player) {
-  var scoreToAddFunc = isCorrect ? "addCorrect".concat(player) : "addWrong".concat(player);
-  _managers_scoreManager__WEBPACK_IMPORTED_MODULE_9__["default"][scoreToAddFunc]();
-};
-
 var showQuestion = function showQuestion(index, currentPlayer, otherPlayer) {
   var player = myTurn ? currentPlayer : otherPlayer;
   questionManager.start(questions[index], player, isMyTurn);
-};
-
-var setInQuestion = function setInQuestion(index, currentPlayer, otherPlayer) {
-  boardManager.setSelectedTile(index);
-  showQuestion(index, currentPlayer, otherPlayer);
-};
-
-var setInResult = function setInResult(index, isCorrect, currentPlayer, otherPlayer) {
-  var player = myTurn ? currentPlayer : otherPlayer;
-  boardManager.setSelectedTile(index);
-  questionManager.setData(questions[index], player, isMyTurn);
-  questionManager.setQuestionAnswered(isCorrect);
 };
 
 var setChannelListeners = function setChannelListeners() {
@@ -24133,8 +24358,36 @@ var setChannelListeners = function setChannelListeners() {
     gameClosedFunc(e.is_correct, e.index, e.bonus, otherPlayer);
 
     if (e.is_all_full) {
-      initFinishRound(currentPlayer);
+      setInRound(currentPlayer);
     }
+  });
+  roomChannel.listen("GameOver", function (e) {
+    roundManager.showOver();
+  });
+  roomChannel.listen("GameNextRoundClicked", function (e) {
+    _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
+    roundManager.nextRound();
+    window.axios.post("/online-game-next-round-join/".concat(locale), {
+      room_number: room_number
+    }).then(function (resp) {
+      prepareBoard(resp.data);
+      _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].Off();
+    });
+  });
+  roomChannel.listenForWhisper("readyBtnClicked", function (e) {
+    roundManager.switchStartBtn(e.isReady);
+  });
+  roomChannel.listenForWhisper("newGamePreparing", function () {
+    _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
+  });
+  roomChannel.listenForWhisper("newGameReady", function () {
+    window.location.href = "/online-game/".concat(locale, "?room_number=").concat(room_number);
+  });
+  roomChannel.listenForWhisper("finishGamePreparing", function () {
+    _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
+  });
+  roomChannel.listenForWhisper("finishGameReady", function () {
+    window.location.href = "/welcome/".concat(locale);
   });
 };
 
@@ -24165,10 +24418,10 @@ var closeResultClicked = function closeResultClicked() {
 
   if (isCorrect) {
     bonus = boardManager.calculateBonus(currentPlayer, index);
-    isAllFull = boardManager.isAllFull();
   }
 
   gameClosedFunc(isCorrect, index, bonus, currentPlayer);
+  isAllFull = boardManager.isAllFull();
   window.axios.post("/online-game-close-result/".concat(locale), {
     room_number: room_number,
     is_correct: isCorrect,
@@ -24177,26 +24430,88 @@ var closeResultClicked = function closeResultClicked() {
     is_all_full: isAllFull
   }).then(function () {
     if (isAllFull) {
-      initFinishRound(currentPlayer);
+      setInRound(currentPlayer);
     }
   });
 };
 
-var initFinishRound = function initFinishRound(player) {
-  console.log(player);
+var overFunction = function overFunction() {
+  window.axios.post("/online-game-over/".concat(locale), {
+    room_number: room_number
+  });
+};
+
+var nextRoundClickedFunction = function nextRoundClickedFunction() {
+  roundManager.nextRound();
+  _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
+  window.axios.post("/online-game-next-round/".concat(locale), {
+    room_number: room_number
+  }).then(function (resp) {
+    prepareBoard(resp.data);
+    _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].Off();
+  });
+};
+
+var readyBtnFunction = function readyBtnFunction(isReady) {
+  roomChannel.whisper("readyBtnClicked", {
+    isReady: isReady
+  });
+};
+
+var newGameBtnFunction = function newGameBtnFunction() {
+  _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
+  roomChannel.whisper("newGamePreparing", {});
+  window.axios.post("/online-game-new-game/".concat(locale), {
+    room_number: room_number
+  }).then(function () {
+    roomChannel.whisper("newGameReady", {});
+    window.location.href = "/online-game/".concat(locale, "?room_number=").concat(room_number);
+  });
+};
+
+var finishGameBtnFunction = function finishGameBtnFunction() {
+  _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
+  roomChannel.whisper("finishGamePreparing", {});
+  window.axios.post("/online-game-finish-game/".concat(locale), {
+    room_number: room_number
+  }).then(function () {
+    roomChannel.whisper("finishGameReady", {});
+    window.location.href = "/welcome/".concat(locale);
+  });
+};
+
+var setInQuestion = function setInQuestion(index, currentPlayer, otherPlayer) {
+  boardManager.setSelectedTile(index);
+  showQuestion(index, currentPlayer, otherPlayer);
+};
+
+var setInResult = function setInResult(index, isCorrect, currentPlayer, otherPlayer) {
+  var player = myTurn ? currentPlayer : otherPlayer;
+  boardManager.setSelectedTile(index);
+  questionManager.setData(questions[index], player, isMyTurn);
+  questionManager.setQuestionAnswered(isCorrect);
+};
+
+var setInRound = function setInRound() {
+  roundManager.showRoundEnd(current_round, current_round === max_round);
+};
+
+var setInOver = function setInOver() {
+  roundManager.showOver();
 };
 
 var gameClosedFunc = function gameClosedFunc(isCorrect, index, bonus, player) {
   questionManager.closeResult();
-  addScore(isCorrect, player);
+  _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__["default"].addScore(isCorrect, player);
 
   if (isCorrect) {
     boardManager["selected".concat(player)](index);
-    _managers_scoreManager__WEBPACK_IMPORTED_MODULE_9__["default"]["addBonus".concat(player)](bonus);
+    _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__["default"]["addBonus".concat(player)](bonus);
   }
 
   boardManager.toggleFreeTiles();
   myTurn = !myTurn;
+  colorsManager.toggleColors();
 };
 
 var setQuestionClicks = function setQuestionClicks() {
@@ -24205,8 +24520,15 @@ var setQuestionClicks = function setQuestionClicks() {
   questionManager.setCloseResultFunction(closeResultClicked);
 };
 
+var setRoundClicks = function setRoundClicks() {
+  roundManager.setNextRoundFunction(nextRoundClickedFunction);
+  roundManager.setOverFunction(overFunction);
+  roundManager.setReadyBtnFunction(readyBtnFunction);
+  roundManager.setNewGameBtnFunction(newGameBtnFunction);
+  roundManager.setFinishGameBtnFunction(finishGameBtnFunction);
+};
+
 var connectionCountFunc = function connectionCountFunc(counter) {
-  var domCounter = document.querySelector(".connection-counter");
   domCounter.textContent = counter;
 };
 
@@ -24226,6 +24548,7 @@ var connectionAtemptFunc = function connectionAtemptFunc(counter) {
 };
 
 var connectionEstablishedFunc = function connectionEstablishedFunc() {
+  domCounter.textContent = "";
   _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].Off();
 };
 
@@ -24235,6 +24558,15 @@ var initConnectionValidator = function initConnectionValidator() {
   connectionValidator.setConnectionEstablishedFunc(connectionEstablishedFunc);
   connectionValidator.setReconnectionEstablishedFunc(connectionEstablishedFunc);
   connectionValidator.establishConnection();
+};
+
+var prepareBoard = function prepareBoard(data) {
+  gameStatus = data.game_status;
+  questionStatus = data.question_status;
+  questions = data.questions;
+  setScoreManager(gameStatus);
+  boardManager.resetBoard();
+  boardManager.setBoard(questionStatus, isMyTurn);
 };
 
 var onLoad = /*#__PURE__*/function () {
@@ -24250,41 +24582,44 @@ var onLoad = /*#__PURE__*/function () {
 
           case 4:
             window.axios.get("/online-game-load/".concat(locale, "?room_number=").concat(room_number)).then(function (resp) {
-              console.log(resp.data);
-              var gameStatus = resp.data.game_status;
-              currentPlayer = resp.data["i_am_upper"];
-              otherPlayer = currentPlayer === "Host" ? "Join" : "Host";
+              gameStatus = resp.data.game_status;
+              questionStatus = resp.data.question_status;
+              questions = resp.data.questions;
+              isHost = resp.data["i_am_upper"] === "Host";
+              otherPlayer = isHost ? "Join" : "Host";
               isCorrect = gameStatus.result === "is_correct";
               myTurn = resp.data["i_am"] === gameStatus.current_player;
-              setManagers(gameStatus.host_name, gameStatus.join_name, gameStatus.host_color, gameStatus.join_color);
-
-              if (gameStatus.status !== "in_over") {
-                var questionStatus = resp.data.question_status;
-                questions = resp.data.questions;
-                setScoreManager(gameStatus);
-                boardManager.setBoard(questionStatus, isMyTurn);
-                boardManager.setTileFunction(function (clickedTile) {
-                  window.axios.post("/online-game-tile-selected/".concat(locale), {
-                    room_number: room_number,
-                    index: clickedTile.dataset.questionIndex
-                  });
+              currentPlayer = resp.data["i_am_upper"];
+              setManagers(gameStatus.host_name, gameStatus.join_name, gameStatus.host_color, gameStatus.join_color, currentPlayer, otherPlayer, myTurn);
+              setScoreManager(gameStatus);
+              boardManager.setBoard(questionStatus, isMyTurn);
+              boardManager.setTileFunction(function (clickedTile) {
+                window.axios.post("/online-game-tile-selected/".concat(locale), {
+                  room_number: room_number,
+                  index: clickedTile.dataset.questionIndex
                 });
-                setQuestionClicks();
-                setChannelListeners();
-                var index = questionStatus.selected_field.charAt(0) * 1;
+              });
+              setQuestionClicks();
+              setChannelListeners();
+              setRoundClicks();
+              var index = questionStatus.selected_field.charAt(0) * 1;
 
-                switch (gameStatus.status) {
-                  case "in_round":
-                    break;
+              switch (gameStatus.status) {
+                case "in_round":
+                  setInRound();
+                  break;
 
-                  case "in_question":
-                    setInQuestion(index, currentPlayer, otherPlayer);
-                    break;
+                case "in_question":
+                  setInQuestion(index, currentPlayer, otherPlayer);
+                  break;
 
-                  case "in_result":
-                    setInResult(index, isCorrect, currentPlayer, otherPlayer);
-                    break;
-                }
+                case "in_result":
+                  setInResult(index, isCorrect, currentPlayer, otherPlayer);
+                  break;
+
+                case "in_over":
+                  setInOver();
+                  break;
               }
 
               connectionValidator = new _managers_connectionValidator__WEBPACK_IMPORTED_MODULE_14__["default"](roomChannel, currentPlayer);

@@ -36,46 +36,56 @@ window.Echo = new Echo({
 import Loader from "./helper/loader";
 import { initLang, __ } from "./helper/translator";
 import RulesModalManager from "./managers/rulesModalManager";
-import ModalManager from "./managers/modalManager";
 import ScoreManager from "./managers/scoreManager";
 import NamesManager from "./managers/namesManager";
 import ColorsManager from "./managers/colorsManager";
 import BoardManager from "./managers/boardManager";
 import QuestionManager from "./managers/questionManager";
+import RoundManager from "./managers/roundManager";
 import ConnectionValidator from "./managers/connectionValidator";
 
 const locale = document.querySelector(".locale").textContent;
 const room_number = document.querySelector(".room_number").textContent;
-
-// const gameOverOnBtn = document.querySelector(".btn-over-turn-on");
-
-// const overModalManager = new ModalManager(
-//     ".wrapper-modal_over",
-//     ".over-animation-wrap",
-//     ".btn-over-continue"
-// );
-// gameOverOnBtn.addEventListener("click", (e) => {
-//     overModalManager.on();
-// });
+const max_round = document.querySelector(".max_round").textContent;
+const current_round = document.querySelector(".current_round").textContent;
+const domCounter = document.querySelector(".connection-counter");
 
 let questionManager;
 let namesManager;
 let colorsManager;
 let boardManager;
+let roundManager;
 let roomChannel;
 let myTurn;
+let questionStatus;
 let questions;
 let isCorrect;
 let currentPlayer;
 let otherPlayer;
 let connectionValidator;
+let gameStatus;
+let isHost;
 
 const isMyTurn = () => {
     return myTurn;
 };
-const setManagers = (hostName, joinName, hostColor, joinColor) => {
+const setManagers = (
+    hostName,
+    joinName,
+    hostColor,
+    joinColor,
+    currentPlayer,
+    otherPlayer,
+    isMyTurn
+) => {
     namesManager = new NamesManager(hostName, joinName);
-    colorsManager = new ColorsManager(hostColor, joinColor);
+    colorsManager = new ColorsManager(
+        hostColor,
+        joinColor,
+        currentPlayer,
+        otherPlayer,
+        isMyTurn
+    );
     boardManager = new BoardManager(hostColor, joinColor);
     questionManager = new QuestionManager(
         hostColor,
@@ -83,6 +93,7 @@ const setManagers = (hostName, joinName, hostColor, joinColor) => {
         __("Correct"),
         __("Wrong")
     );
+    roundManager = new RoundManager(currentPlayer);
 };
 const setScoreManager = (gameStatus) => {
     ScoreManager.setAll(
@@ -113,26 +124,9 @@ const setScoreManager = (gameStatus) => {
     );
 };
 
-const addScore = (isCorrect, player) => {
-    const scoreToAddFunc = isCorrect
-        ? `addCorrect${player}`
-        : `addWrong${player}`;
-    ScoreManager[scoreToAddFunc]();
-};
 const showQuestion = (index, currentPlayer, otherPlayer) => {
     const player = myTurn ? currentPlayer : otherPlayer;
     questionManager.start(questions[index], player, isMyTurn);
-};
-
-const setInQuestion = (index, currentPlayer, otherPlayer) => {
-    boardManager.setSelectedTile(index);
-    showQuestion(index, currentPlayer, otherPlayer);
-};
-const setInResult = (index, isCorrect, currentPlayer, otherPlayer) => {
-    const player = myTurn ? currentPlayer : otherPlayer;
-    boardManager.setSelectedTile(index);
-    questionManager.setData(questions[index], player, isMyTurn);
-    questionManager.setQuestionAnswered(isCorrect);
 };
 const setChannelListeners = () => {
     roomChannel.listen("GameTileSelected", (e) => {
@@ -147,8 +141,39 @@ const setChannelListeners = () => {
     roomChannel.listen("GameCloseResult", (e) => {
         gameClosedFunc(e.is_correct, e.index, e.bonus, otherPlayer);
         if (e.is_all_full) {
-            initFinishRound(currentPlayer);
+            setInRound(currentPlayer);
         }
+    });
+    roomChannel.listen("GameOver", (e) => {
+        roundManager.showOver();
+    });
+    roomChannel.listen("GameNextRoundClicked", (e) => {
+        Loader.On();
+        roundManager.nextRound();
+        window.axios
+            .post(`/online-game-next-round-join/${locale}`, {
+                room_number: room_number,
+            })
+            .then((resp) => {
+                prepareBoard(resp.data);
+                Loader.Off();
+            });
+    });
+
+    roomChannel.listenForWhisper("readyBtnClicked", (e) => {
+        roundManager.switchStartBtn(e.isReady);
+    });
+    roomChannel.listenForWhisper("newGamePreparing", () => {
+        Loader.On();
+    });
+    roomChannel.listenForWhisper("newGameReady", () => {
+        window.location.href = `/online-game/${locale}?room_number=${room_number}`;
+    });
+    roomChannel.listenForWhisper("finishGamePreparing", () => {
+        Loader.On();
+    });
+    roomChannel.listenForWhisper("finishGameReady", () => {
+        window.location.href = `/welcome/${locale}`;
     });
 };
 const optionClicked = (index) => {
@@ -159,6 +184,7 @@ const optionClicked = (index) => {
         index: index,
     });
 };
+
 const questionAnsweredClicked = (getIsCorrect, getIndex) => {
     isCorrect = getIsCorrect();
     const index = getIndex();
@@ -175,9 +201,9 @@ const closeResultClicked = () => {
     let bonus = 0;
     if (isCorrect) {
         bonus = boardManager.calculateBonus(currentPlayer, index);
-        isAllFull = boardManager.isAllFull();
     }
     gameClosedFunc(isCorrect, index, bonus, currentPlayer);
+    isAllFull = boardManager.isAllFull();
     window.axios
         .post(`/online-game-close-result/${locale}`, {
             room_number: room_number,
@@ -188,30 +214,99 @@ const closeResultClicked = () => {
         })
         .then(() => {
             if (isAllFull) {
-                initFinishRound(currentPlayer);
+                setInRound(currentPlayer);
             }
         });
 };
-const initFinishRound = (player) => {
-    console.log(player);
+const overFunction = () => {
+    window.axios.post(`/online-game-over/${locale}`, {
+        room_number: room_number,
+    });
+};
+
+const nextRoundClickedFunction = () => {
+    roundManager.nextRound();
+    Loader.On();
+    window.axios
+        .post(`/online-game-next-round/${locale}`, {
+            room_number: room_number,
+        })
+        .then((resp) => {
+            prepareBoard(resp.data);
+            Loader.Off();
+        });
+};
+const readyBtnFunction = (isReady) => {
+    roomChannel.whisper("readyBtnClicked", {
+        isReady: isReady,
+    });
+};
+const newGameBtnFunction = () => {
+    Loader.On();
+    roomChannel.whisper("newGamePreparing", {});
+    window.axios
+        .post(`/online-game-new-game/${locale}`, {
+            room_number: room_number,
+        })
+        .then(() => {
+            roomChannel.whisper("newGameReady", {});
+            window.location.href = `/online-game/${locale}?room_number=${room_number}`;
+        });
+};
+
+const finishGameBtnFunction = () => {
+    Loader.On();
+    roomChannel.whisper("finishGamePreparing", {});
+    window.axios
+        .post(`/online-game-finish-game/${locale}`, {
+            room_number: room_number,
+        })
+        .then(() => {
+            roomChannel.whisper("finishGameReady", {});
+            window.location.href = `/welcome/${locale}`;
+        });
+};
+const setInQuestion = (index, currentPlayer, otherPlayer) => {
+    boardManager.setSelectedTile(index);
+    showQuestion(index, currentPlayer, otherPlayer);
+};
+const setInResult = (index, isCorrect, currentPlayer, otherPlayer) => {
+    const player = myTurn ? currentPlayer : otherPlayer;
+    boardManager.setSelectedTile(index);
+    questionManager.setData(questions[index], player, isMyTurn);
+    questionManager.setQuestionAnswered(isCorrect);
+};
+const setInRound = () => {
+    roundManager.showRoundEnd(current_round, current_round === max_round);
+};
+const setInOver = () => {
+    roundManager.showOver();
 };
 const gameClosedFunc = (isCorrect, index, bonus, player) => {
     questionManager.closeResult();
-    addScore(isCorrect, player);
+    ScoreManager.addScore(isCorrect, player);
     if (isCorrect) {
         boardManager[`selected${player}`](index);
         ScoreManager[`addBonus${player}`](bonus);
     }
     boardManager.toggleFreeTiles();
     myTurn = !myTurn;
+    colorsManager.toggleColors();
 };
 const setQuestionClicks = () => {
     questionManager.setOptionClickedFunction(optionClicked);
     questionManager.setQuestionAnsweredFunction(questionAnsweredClicked);
     questionManager.setCloseResultFunction(closeResultClicked);
 };
+const setRoundClicks = () => {
+    roundManager.setNextRoundFunction(nextRoundClickedFunction);
+    roundManager.setOverFunction(overFunction);
+
+    roundManager.setReadyBtnFunction(readyBtnFunction);
+    roundManager.setNewGameBtnFunction(newGameBtnFunction);
+    roundManager.setFinishGameBtnFunction(finishGameBtnFunction);
+};
 const connectionCountFunc = (counter) => {
-    const domCounter = document.querySelector(".connection-counter");
     domCounter.textContent = counter;
 };
 const connectionAtemptFunc = (counter) => {
@@ -226,6 +321,7 @@ const connectionAtemptFunc = (counter) => {
     }
 };
 const connectionEstablishedFunc = () => {
+    domCounter.textContent = "";
     Loader.Off();
 };
 const initConnectionValidator = () => {
@@ -237,6 +333,16 @@ const initConnectionValidator = () => {
     );
     connectionValidator.establishConnection();
 };
+
+const prepareBoard = (data) => {
+    gameStatus = data.game_status;
+    questionStatus = data.question_status;
+    questions = data.questions;
+
+    setScoreManager(gameStatus);
+    boardManager.resetBoard();
+    boardManager.setBoard(questionStatus, isMyTurn);
+};
 const onLoad = async () => {
     Loader.On();
     roomChannel = window.Echo.private(`room.${room_number}`);
@@ -244,51 +350,52 @@ const onLoad = async () => {
     window.axios
         .get(`/online-game-load/${locale}?room_number=${room_number}`)
         .then((resp) => {
-            console.log(resp.data);
-            const gameStatus = resp.data.game_status;
-            currentPlayer = resp.data["i_am_upper"];
-            otherPlayer = currentPlayer === "Host" ? "Join" : "Host";
+            gameStatus = resp.data.game_status;
+            questionStatus = resp.data.question_status;
+            questions = resp.data.questions;
+            isHost = resp.data["i_am_upper"] === "Host";
+            otherPlayer = isHost ? "Join" : "Host";
             isCorrect = gameStatus.result === "is_correct";
             myTurn = resp.data["i_am"] === gameStatus.current_player;
+            currentPlayer = resp.data["i_am_upper"];
 
             setManagers(
                 gameStatus.host_name,
                 gameStatus.join_name,
                 gameStatus.host_color,
-                gameStatus.join_color
+                gameStatus.join_color,
+                currentPlayer,
+                otherPlayer,
+                myTurn
             );
-            if (gameStatus.status !== "in_over") {
-                let questionStatus = resp.data.question_status;
-                questions = resp.data.questions;
 
-                setScoreManager(gameStatus);
-                boardManager.setBoard(questionStatus, isMyTurn);
-                boardManager.setTileFunction((clickedTile) => {
-                    window.axios.post(`/online-game-tile-selected/${locale}`, {
-                        room_number: room_number,
-                        index: clickedTile.dataset.questionIndex,
-                    });
+            setScoreManager(gameStatus);
+            boardManager.setBoard(questionStatus, isMyTurn);
+            boardManager.setTileFunction((clickedTile) => {
+                window.axios.post(`/online-game-tile-selected/${locale}`, {
+                    room_number: room_number,
+                    index: clickedTile.dataset.questionIndex,
                 });
+            });
 
-                setQuestionClicks();
-                setChannelListeners();
+            setQuestionClicks();
+            setChannelListeners();
+            setRoundClicks();
 
-                const index = questionStatus.selected_field.charAt(0) * 1;
-                switch (gameStatus.status) {
-                    case "in_round":
-                        break;
-                    case "in_question":
-                        setInQuestion(index, currentPlayer, otherPlayer);
-                        break;
-                    case "in_result":
-                        setInResult(
-                            index,
-                            isCorrect,
-                            currentPlayer,
-                            otherPlayer
-                        );
-                        break;
-                }
+            const index = questionStatus.selected_field.charAt(0) * 1;
+            switch (gameStatus.status) {
+                case "in_round":
+                    setInRound();
+                    break;
+                case "in_question":
+                    setInQuestion(index, currentPlayer, otherPlayer);
+                    break;
+                case "in_result":
+                    setInResult(index, isCorrect, currentPlayer, otherPlayer);
+                    break;
+                case "in_over":
+                    setInOver();
+                    break;
             }
             connectionValidator = new ConnectionValidator(
                 roomChannel,

@@ -13,9 +13,10 @@ class PasswordResetLinkController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create($locale)
     {
-        return view('auth.forgot-password');
+        return view('auth.forgot-password')
+                ->with('locale', $locale);;
     }
 
     /**

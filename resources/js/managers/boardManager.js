@@ -4,6 +4,7 @@ export default class BoardManager {
     _colorClassBgJoin;
     _symbolHost = "/img/x.png";
     _symbolJoin = "/img/o.png";
+    _symbolDefault = "/img/blank.jpg";
     _selectedTile;
     _addOrRemove;
     _logicalTile = [0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -12,6 +13,17 @@ export default class BoardManager {
     constructor(colorHost, colorJoin) {
         this._colorClassBgHost = `bg-${colorHost}`;
         this._colorClassBgJoin = `bg-${colorJoin}`;
+    }
+
+    resetBoard() {
+        this._tileField.forEach((e, i) => {
+            this._tileField[i].classList.remove("control-dis");
+            this._tileField[i].classList.remove(this._colorClassBgHost);
+            this._tileField[i].classList.remove(this._colorClassBgJoin);
+            this._tileField[i].children[0].src = this._symbolDefault;
+        });
+        this._logicalTile = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+        this._filledTiles = 0;
     }
 
     _setLogicalTile(index, player) {

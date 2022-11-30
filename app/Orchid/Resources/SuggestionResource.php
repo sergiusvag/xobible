@@ -63,7 +63,7 @@ class SuggestionResource extends AuthorableResource
             Input::make('author_id')->type('hidden'),
             Select::make('addToQuestionsLocale')
                 ->options($langOptions)
-                ->title('Select tags'),
+                ->title(__('Choose langauge')),
         ];
     }
 

@@ -11227,6 +11227,12 @@ input[type=number] {
 .player-score-wrap,
 .score-txt {
   color: #fff;
+  transition: opacity 0.5s ease;
+}
+
+.player-score-wrap.transparent {
+  opacity: 0.8;
+  transition: opacity 0.5s ease;
 }
 
 .bg-blue,

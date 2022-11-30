@@ -71,7 +71,7 @@ class PlatformScreen extends Screen
     {
         return [
             // Layout::view('platform::partials.welcome'),
-            Layout::view('welcome'),
+            Layout::view('backoffice.welcome'),
         ];
     }
 }

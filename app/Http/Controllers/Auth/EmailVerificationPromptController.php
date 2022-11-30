@@ -14,10 +14,10 @@ class EmailVerificationPromptController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return mixed
      */
-    public function __invoke(Request $request)
+    public function __invoke(Request $request, $locale)
     {
         return $request->user()->hasVerifiedEmail()
                     ? redirect()->intended(RouteServiceProvider::HOME)
-                    : view('auth.verify-email');
+                    : view('auth.verify-email')->with('locale', $locale);;
     }
 }

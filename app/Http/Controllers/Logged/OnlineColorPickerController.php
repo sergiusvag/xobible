@@ -61,6 +61,7 @@ class OnlineColorPickerController extends Controller
             'join_name' => $room->join_name,
             'join_color' => $request['join_color'],
             'room_number' => $room->room_number,
+            'status' => 'in_board'
         ]);
         $gameStatus->save();
 

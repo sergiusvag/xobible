@@ -15,9 +15,10 @@ class ConfirmablePasswordController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function show()
+    public function show($locale)
     {
-        return view('auth.confirm-password');
+        return view('auth.confirm-password')
+            ->with('locale', $locale);
     }
 
     /**

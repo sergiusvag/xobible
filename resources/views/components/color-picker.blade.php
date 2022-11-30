@@ -17,7 +17,7 @@
                     for ($j = 0; $j < 5; $j++) {
                 @endphp
                     <div class="color-wrap col-2 padding-0 color-img_{{ $data['colors'][$j] }} {{ $data['playersBtnClass'][$i] }}">
-                        <img src="{{ '/img/'.$data['playerSymbol'][$i].'-'.$data['colors'][$j].'.png' }}" class="img-fluid color-img">
+                        <img src="{{ asset('/img/'.$data['playerSymbol'][$i].'-'.$data['colors'][$j].'.png') }}" class="img-fluid color-img">
                     </div>
                 @php
                     }

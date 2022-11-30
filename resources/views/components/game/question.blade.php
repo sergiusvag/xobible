@@ -3,8 +3,9 @@
     <div class="modal-window">
         <div class="question-animation-wrap">
             <div class="question-wrapper">
-                <div class="modal-wrap question-wrap">
-                    <h4 class="modal-header question">{{ __('This question is not available in your langauge') }}</h4>
+                <div class="modal-wrap question-wrap {{ $rtlClass }}">
+                    <div class="modal-header">{{ __('Number : ') }}<span class="question-number"></span></div>
+                    <h4 class="modal-header question mt-2">{{ __('This question is not available in your langauge') }}</h4>
                     <div class="option mt-2">{{ __('Not available') }}</div>
                     <div class="option mt-2">{{ __('Not available') }}</div>
                     <div class="option mt-2">{{ __('Not available') }}</div>

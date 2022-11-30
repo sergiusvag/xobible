@@ -10,6 +10,32 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
+// redirects
+Route::get('/register', static function () {
+    return redirect('/register/'. app()->getLocale());
+});
+Route::get('/login', static function () {
+    return redirect('/login/'. app()->getLocale());
+});
+Route::get('/forgot-password', static function () {
+    return redirect('/forgot-password/'. app()->getLocale());
+});
+Route::get('/reset-password', static function () {
+    return redirect('/reset-password/'. app()->getLocale());
+});
+Route::get('/verify-email', static function () {
+    return redirect('/verify-email/'. app()->getLocale());
+});
+Route::get('/email/verification-notification', static function () {
+    return redirect('/email/verification-notification/'. app()->getLocale());
+});
+Route::get('/confirm-password', static function () {
+    return redirect('/confirm-password/'. app()->getLocale());
+});
+Route::get('/logout', static function () {
+    return redirect('/logout/'. app()->getLocale());
+});
+
 Route::middleware(['guest', 'locale'])->group(function () {
     Route::get('register/{locale?}', [RegisteredUserController::class, 'create'])
                 ->name('register');

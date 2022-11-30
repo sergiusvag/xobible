@@ -5,6 +5,7 @@ export default class ConnectionValidator {
     _countFunc = () => {};
     _connectionAtemptFunc = () => {};
     _connectionEstablishedFunc = () => {};
+    _preReconnectRequestFunc = () => {};
     _reconnectionEstablishedFunc = () => {};
     constructor(roomChannel, myKey, data = {}) {
         this.roomChannel = roomChannel;

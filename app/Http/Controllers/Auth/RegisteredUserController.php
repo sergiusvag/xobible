@@ -18,9 +18,10 @@ class RegisteredUserController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create($locale)
     {
-        return view('auth.register');
+        return view('auth.register')
+                ->with('locale', $locale);;
     }
 
     /**

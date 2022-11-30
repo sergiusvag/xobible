@@ -31,6 +31,7 @@ Route::get('/welcome/{locale}', [WelcomeController::class, 'welcome']);
 
 
 Route::middleware('auth')->group(function () {
+    Route::post('/welcome-exit-game/{locale}', [WelcomeController::class, 'exitGame']);
     Route::post('/mistake/{locale}', [MistakeController::class, 'store']);
     Route::get('/mistake/{locale}', [MistakeController::class, 'index']);
     Route::post('/suggestion/{locale}', [SuggestionController::class, 'store']);
@@ -51,6 +52,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/online-game-option-selected/{locale}', [OnlineGameController::class, 'optionSelected']);
     Route::post('/online-game-question-answered/{locale}', [OnlineGameController::class, 'questionAnswered']);
     Route::post('/online-game-close-result/{locale}', [OnlineGameController::class, 'closeResult']);
+    Route::post('/online-game-over/{locale}', [OnlineGameController::class, 'gameOver']);
+    Route::post('/online-game-next-round/{locale}', [OnlineGameController::class, 'nextRound']);
+    Route::post('/online-game-next-round-join/{locale}', [OnlineGameController::class, 'newRoundJoin']);
+    Route::post('/online-game-new-game/{locale}', [OnlineGameController::class, 'newGame']);
+    Route::post('/online-game-finish-game/{locale}', [OnlineGameController::class, 'finishGame']);
 });
 
 Route::get('/dashboard/{locale?}', function () {
