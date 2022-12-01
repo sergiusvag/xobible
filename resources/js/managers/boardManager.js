@@ -30,10 +30,11 @@ export default class BoardManager {
         const setTo = player === "Host" ? 1 : 2;
         this._logicalTile[index] = setTo;
         this._filledTiles++;
+        console.log(this._filledTiles);
     }
 
-    isAllFull() {
-        return this._filledTiles === 9;
+    countFilledTiles() {
+        return this._filledTiles;
     }
 
     _setTile(index, player) {

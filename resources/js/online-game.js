@@ -59,7 +59,10 @@ let roomChannel;
 let myTurn;
 let questionStatus;
 let questions;
+let bonus;
 let isCorrect;
+let selectedIndex;
+let thisTurnPlayer;
 let currentPlayer;
 let otherPlayer;
 let connectionValidator;
@@ -139,7 +142,11 @@ const setChannelListeners = () => {
         questionManager.questionAnswered(e.is_correct);
     });
     roomChannel.listen("GameCloseResult", (e) => {
-        gameClosedFunc(e.is_correct, e.index, e.bonus, otherPlayer);
+        bonus = e.bonus;
+        isCorrect = e.is_correct;
+        selectedIndex = e.index;
+        thisTurnPlayer = otherPlayer;
+        gameClosedFunc();
         if (e.is_all_full) {
             setInRound(currentPlayer);
         }
@@ -196,19 +203,22 @@ const questionAnsweredClicked = (getIsCorrect, getIndex) => {
     });
 };
 const closeResultClicked = () => {
-    const index = boardManager.getSelectedTile();
+    let filledTiles = boardManager.countFilledTiles();
     let isAllFull = false;
-    let bonus = 0;
+    selectedIndex = boardManager.getSelectedTile();
+    bonus = 0;
     if (isCorrect) {
-        bonus = boardManager.calculateBonus(currentPlayer, index);
+        bonus = boardManager.calculateBonus(currentPlayer, selectedIndex);
+        filledTiles++;
     }
-    gameClosedFunc(isCorrect, index, bonus, currentPlayer);
-    isAllFull = boardManager.isAllFull();
+    isAllFull = filledTiles === 9;
+    thisTurnPlayer = currentPlayer;
+    gameClosedFunc();
     window.axios
         .post(`/online-game-close-result/${locale}`, {
             room_number: room_number,
             is_correct: isCorrect,
-            index: index,
+            index: selectedIndex,
             bonus: bonus,
             is_all_full: isAllFull,
         })
@@ -282,26 +292,47 @@ const setInRound = () => {
 const setInOver = () => {
     roundManager.showOver();
 };
-const gameClosedFunc = (isCorrect, index, bonus, player) => {
-    questionManager.closeResult();
-    ScoreManager.addScore(isCorrect, player);
-    if (isCorrect) {
-        boardManager[`selected${player}`](index);
-        ScoreManager[`addBonus${player}`](bonus);
+
+const get_isCorrect = () => {
+    return isCorrect;
+};
+const get_index = () => {
+    return selectedIndex;
+};
+const get_bonus = () => {
+    return bonus;
+};
+const get_thisTurnPlayer = () => {
+    return thisTurnPlayer;
+};
+
+const afterCloseFunc = () => {
+    const curIsCorrect = get_isCorrect();
+    const curIndex = get_index();
+    const curBonus = get_bonus();
+    const curThisTurnPlayer = get_thisTurnPlayer();
+    ScoreManager.addScore(curIsCorrect, curThisTurnPlayer);
+    if (curIsCorrect) {
+        boardManager[`selected${curThisTurnPlayer}`](curIndex);
+        ScoreManager[`addBonus${curThisTurnPlayer}`](curBonus);
     }
     boardManager.toggleFreeTiles();
     myTurn = !myTurn;
     colorsManager.toggleColors();
 };
+const gameClosedFunc = () => {
+    questionManager.closeResult();
+};
+
 const setQuestionClicks = () => {
     questionManager.setOptionClickedFunction(optionClicked);
     questionManager.setQuestionAnsweredFunction(questionAnsweredClicked);
     questionManager.setCloseResultFunction(closeResultClicked);
+    questionManager.setAfterCloseFunction(afterCloseFunc);
 };
 const setRoundClicks = () => {
     roundManager.setNextRoundFunction(nextRoundClickedFunction);
     roundManager.setOverFunction(overFunction);
-
     roundManager.setReadyBtnFunction(readyBtnFunction);
     roundManager.setNewGameBtnFunction(newGameBtnFunction);
     roundManager.setFinishGameBtnFunction(finishGameBtnFunction);

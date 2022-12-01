@@ -1,7 +1,7 @@
 export default class ModalManager {
     _modal;
     _animation;
-    _additionalSlideOutFunc = () => {};
+    _afterCloseFunction = () => {};
     constructor(modalName, animationWrapName, btnName) {
         this._modal = document.querySelector(modalName);
         this._animation = document.querySelector(animationWrapName);
@@ -24,6 +24,9 @@ export default class ModalManager {
         this._animation.classList.remove("animation-slide-out");
         this._animation.onanimationiteration = () => {};
         this._modal.classList.remove("active");
-        this._additionalSlideOutFunc();
+        this._afterCloseFunction();
+    }
+    setAfterOffFunction(afterCloseFunction) {
+        this._afterCloseFunction = afterCloseFunction;
     }
 }

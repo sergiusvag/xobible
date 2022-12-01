@@ -22936,11 +22936,12 @@ var BoardManager = /*#__PURE__*/function () {
       var setTo = player === "Host" ? 1 : 2;
       this._logicalTile[index] = setTo;
       this._filledTiles++;
+      console.log(this._filledTiles);
     }
   }, {
-    key: "isAllFull",
-    value: function isAllFull() {
-      return this._filledTiles === 9;
+    key: "countFilledTiles",
+    value: function countFilledTiles() {
+      return this._filledTiles;
     }
   }, {
     key: "_setTile",
@@ -23364,7 +23365,7 @@ var ModalManager = /*#__PURE__*/function () {
 
     _defineProperty(this, "_animation", void 0);
 
-    _defineProperty(this, "_additionalSlideOutFunc", function () {});
+    _defineProperty(this, "_afterCloseFunction", function () {});
 
     this._modal = document.querySelector(modalName);
     this._animation = document.querySelector(animationWrapName);
@@ -23403,7 +23404,12 @@ var ModalManager = /*#__PURE__*/function () {
 
       this._modal.classList.remove("active");
 
-      this._additionalSlideOutFunc();
+      this._afterCloseFunction();
+    }
+  }, {
+    key: "setAfterOffFunction",
+    value: function setAfterOffFunction(afterCloseFunction) {
+      this._afterCloseFunction = afterCloseFunction;
     }
   }]);
 
@@ -23627,6 +23633,11 @@ var QuestionManager = /*#__PURE__*/function () {
       this._closeResultFunction = closeResultFunction;
 
       this._resultModalManager.continueBtn.addEventListener("click", this._closeResultFunction.bind(this));
+    }
+  }, {
+    key: "setAfterCloseFunction",
+    value: function setAfterCloseFunction(afterCloseFunction) {
+      this._resultModalManager.setAfterOffFunction(afterCloseFunction);
     }
   }, {
     key: "switchSelected",
@@ -24296,7 +24307,10 @@ var roomChannel;
 var myTurn;
 var questionStatus;
 var questions;
+var bonus;
 var isCorrect;
+var selectedIndex;
+var thisTurnPlayer;
 var currentPlayer;
 var otherPlayer;
 var connectionValidator;
@@ -24355,7 +24369,11 @@ var setChannelListeners = function setChannelListeners() {
     questionManager.questionAnswered(e.is_correct);
   });
   roomChannel.listen("GameCloseResult", function (e) {
-    gameClosedFunc(e.is_correct, e.index, e.bonus, otherPlayer);
+    bonus = e.bonus;
+    isCorrect = e.is_correct;
+    selectedIndex = e.index;
+    thisTurnPlayer = otherPlayer;
+    gameClosedFunc();
 
     if (e.is_all_full) {
       setInRound(currentPlayer);
@@ -24412,20 +24430,23 @@ var questionAnsweredClicked = function questionAnsweredClicked(getIsCorrect, get
 };
 
 var closeResultClicked = function closeResultClicked() {
-  var index = boardManager.getSelectedTile();
+  var filledTiles = boardManager.countFilledTiles();
   var isAllFull = false;
-  var bonus = 0;
+  selectedIndex = boardManager.getSelectedTile();
+  bonus = 0;
 
   if (isCorrect) {
-    bonus = boardManager.calculateBonus(currentPlayer, index);
+    bonus = boardManager.calculateBonus(currentPlayer, selectedIndex);
+    filledTiles++;
   }
 
-  gameClosedFunc(isCorrect, index, bonus, currentPlayer);
-  isAllFull = boardManager.isAllFull();
+  isAllFull = filledTiles === 9;
+  thisTurnPlayer = currentPlayer;
+  gameClosedFunc();
   window.axios.post("/online-game-close-result/".concat(locale), {
     room_number: room_number,
     is_correct: isCorrect,
-    index: index,
+    index: selectedIndex,
     bonus: bonus,
     is_all_full: isAllFull
   }).then(function () {
@@ -24500,13 +24521,32 @@ var setInOver = function setInOver() {
   roundManager.showOver();
 };
 
-var gameClosedFunc = function gameClosedFunc(isCorrect, index, bonus, player) {
-  questionManager.closeResult();
-  _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__["default"].addScore(isCorrect, player);
+var get_isCorrect = function get_isCorrect() {
+  return isCorrect;
+};
 
-  if (isCorrect) {
-    boardManager["selected".concat(player)](index);
-    _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__["default"]["addBonus".concat(player)](bonus);
+var get_index = function get_index() {
+  return selectedIndex;
+};
+
+var get_bonus = function get_bonus() {
+  return bonus;
+};
+
+var get_thisTurnPlayer = function get_thisTurnPlayer() {
+  return thisTurnPlayer;
+};
+
+var afterCloseFunc = function afterCloseFunc() {
+  var curIsCorrect = get_isCorrect();
+  var curIndex = get_index();
+  var curBonus = get_bonus();
+  var curThisTurnPlayer = get_thisTurnPlayer();
+  _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__["default"].addScore(curIsCorrect, curThisTurnPlayer);
+
+  if (curIsCorrect) {
+    boardManager["selected".concat(curThisTurnPlayer)](curIndex);
+    _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__["default"]["addBonus".concat(curThisTurnPlayer)](curBonus);
   }
 
   boardManager.toggleFreeTiles();
@@ -24514,10 +24554,15 @@ var gameClosedFunc = function gameClosedFunc(isCorrect, index, bonus, player) {
   colorsManager.toggleColors();
 };
 
+var gameClosedFunc = function gameClosedFunc() {
+  questionManager.closeResult();
+};
+
 var setQuestionClicks = function setQuestionClicks() {
   questionManager.setOptionClickedFunction(optionClicked);
   questionManager.setQuestionAnsweredFunction(questionAnsweredClicked);
   questionManager.setCloseResultFunction(closeResultClicked);
+  questionManager.setAfterCloseFunction(afterCloseFunc);
 };
 
 var setRoundClicks = function setRoundClicks() {

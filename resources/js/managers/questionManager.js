@@ -114,6 +114,9 @@ export default class QuestionManager {
             this._closeResultFunction.bind(this)
         );
     }
+    setAfterCloseFunction(afterCloseFunction) {
+        this._resultModalManager.setAfterOffFunction(afterCloseFunction);
+    }
     switchSelected(index) {
         this._options.forEach((e) => {
             e.classList.remove("active");
