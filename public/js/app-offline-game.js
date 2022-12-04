@@ -23182,162 +23182,6 @@ var ColorsManager = /*#__PURE__*/function () {
 
 /***/ }),
 
-/***/ "./resources/js/managers/connectionValidator.js":
-/*!******************************************************!*\
-  !*** ./resources/js/managers/connectionValidator.js ***!
-  \******************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ ConnectionValidator)
-/* harmony export */ });
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var ConnectionValidator = /*#__PURE__*/function () {
-  function ConnectionValidator(roomChannel, myKey) {
-    var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-    _classCallCheck(this, ConnectionValidator);
-
-    _defineProperty(this, "_isConnected", false);
-
-    _defineProperty(this, "_counter", 0);
-
-    _defineProperty(this, "_interval", void 0);
-
-    _defineProperty(this, "_countFunc", function () {});
-
-    _defineProperty(this, "_connectionAtemptFunc", function () {});
-
-    _defineProperty(this, "_connectionEstablishedFunc", function () {});
-
-    _defineProperty(this, "_preReconnectRequestFunc", function () {});
-
-    _defineProperty(this, "_reconnectionEstablishedFunc", function () {});
-
-    this.roomChannel = roomChannel;
-    this.myKey = myKey;
-    this.data = data;
-  }
-
-  _createClass(ConnectionValidator, [{
-    key: "setData",
-    value: function setData(data) {
-      this.data = data;
-    }
-  }, {
-    key: "_getData",
-    value: function _getData() {
-      return this.data;
-    }
-  }, {
-    key: "setCountFunc",
-    value: function setCountFunc(countFunc) {
-      this._countFunc = countFunc;
-    }
-  }, {
-    key: "setConnectionAtemptFunc",
-    value: function setConnectionAtemptFunc(connectionAtemptFunc) {
-      this._connectionAtemptFunc = connectionAtemptFunc;
-    }
-  }, {
-    key: "setConnectionEstablishedFunc",
-    value: function setConnectionEstablishedFunc(connectionEstablishedFunc) {
-      this._connectionEstablishedFunc = connectionEstablishedFunc;
-    }
-  }, {
-    key: "setReconnectionEstablishedFunc",
-    value: function setReconnectionEstablishedFunc(reconnectionEstablishedFunc) {
-      this._reconnectionEstablishedFunc = reconnectionEstablishedFunc;
-    }
-  }, {
-    key: "setPreReconnectRequestFunc",
-    value: function setPreReconnectRequestFunc(preReconnectRequestFunc) {
-      this._preReconnectRequestFunc = preReconnectRequestFunc;
-    }
-  }, {
-    key: "establishConnection",
-    value: function establishConnection() {
-      var _this = this;
-
-      this._interval = setInterval(function () {
-        _this._counter++;
-
-        _this._countFunc(_this._counter);
-
-        _this.roomChannel.whisper("requestConnect", _objectSpread({
-          key: _this.myKey
-        }, _this._getData()));
-
-        _this._connectionAtemptFunc(_this._counter);
-      }, 5000);
-
-      this._listeToRequestConnect();
-
-      this._listeToRequestReconnect();
-    }
-  }, {
-    key: "_listeToRequestConnect",
-    value: function _listeToRequestConnect() {
-      var _this2 = this;
-
-      this.roomChannel.listenForWhisper("requestConnect", function (e) {
-        if (!_this2._isConnected) {
-          if (e.key !== _this2.myKey) {
-            _this2._isConnected = true;
-
-            _this2.roomChannel.whisper("requestConnect", _objectSpread({
-              key: _this2.myKey
-            }, _this2._getData()));
-
-            clearInterval(_this2._interval);
-
-            _this2._connectionEstablishedFunc();
-          }
-        } else {
-          _this2._preReconnectRequestFunc();
-
-          _this2.roomChannel.whisper("reconnectRequest", _objectSpread({
-            key: _this2.myKey
-          }, _this2._getData()));
-        }
-      });
-    }
-  }, {
-    key: "_listeToRequestReconnect",
-    value: function _listeToRequestReconnect() {
-      var _this3 = this;
-
-      this.roomChannel.listenForWhisper("reconnectRequest", function (e) {
-        if (e.key !== _this3.myKey) {
-          _this3._isConnected = true;
-          clearInterval(_this3._interval);
-
-          _this3._reconnectionEstablishedFunc(e);
-        }
-      });
-    }
-  }]);
-
-  return ConnectionValidator;
-}();
-
-
-
-/***/ }),
-
 /***/ "./resources/js/managers/modalManager.js":
 /*!***********************************************!*\
   !*** ./resources/js/managers/modalManager.js ***!
@@ -23414,54 +23258,6 @@ var ModalManager = /*#__PURE__*/function () {
   }]);
 
   return ModalManager;
-}();
-
-
-
-/***/ }),
-
-/***/ "./resources/js/managers/namesManager.js":
-/*!***********************************************!*\
-  !*** ./resources/js/managers/namesManager.js ***!
-  \***********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ NamesManager)
-/* harmony export */ });
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var NamesManager = /*#__PURE__*/function () {
-  function NamesManager(nameHost, nameJoin) {
-    _classCallCheck(this, NamesManager);
-
-    _defineProperty(this, "_nameHost", document.querySelectorAll(".name-host"));
-
-    _defineProperty(this, "_nameJoin", document.querySelectorAll(".name-join"));
-
-    this._setName("_nameHost", nameHost);
-
-    this._setName("_nameJoin", nameJoin);
-  }
-
-  _createClass(NamesManager, [{
-    key: "_setName",
-    value: function _setName(player, name) {
-      this[player].forEach(function (e) {
-        e.textContent = name;
-      });
-    }
-  }]);
-
-  return NamesManager;
 }();
 
 
@@ -24225,10 +24021,10 @@ var ScoreManager = /*#__PURE__*/function () {
 
 /***/ }),
 
-/***/ "./resources/js/online-game.js":
-/*!*************************************!*\
-  !*** ./resources/js/online-game.js ***!
-  \*************************************/
+/***/ "./resources/js/offline-game.js":
+/*!**************************************!*\
+  !*** ./resources/js/offline-game.js ***!
+  \**************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -24245,12 +24041,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _helper_translator__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./helper/translator */ "./resources/js/helper/translator.js");
 /* harmony import */ var _managers_rulesModalManager__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./managers/rulesModalManager */ "./resources/js/managers/rulesModalManager.js");
 /* harmony import */ var _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./managers/scoreManager */ "./resources/js/managers/scoreManager.js");
-/* harmony import */ var _managers_namesManager__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./managers/namesManager */ "./resources/js/managers/namesManager.js");
-/* harmony import */ var _managers_colorsManager__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./managers/colorsManager */ "./resources/js/managers/colorsManager.js");
-/* harmony import */ var _managers_boardManager__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./managers/boardManager */ "./resources/js/managers/boardManager.js");
-/* harmony import */ var _managers_questionManager__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./managers/questionManager */ "./resources/js/managers/questionManager.js");
-/* harmony import */ var _managers_roundManager__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./managers/roundManager */ "./resources/js/managers/roundManager.js");
-/* harmony import */ var _managers_connectionValidator__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./managers/connectionValidator */ "./resources/js/managers/connectionValidator.js");
+/* harmony import */ var _managers_colorsManager__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./managers/colorsManager */ "./resources/js/managers/colorsManager.js");
+/* harmony import */ var _managers_boardManager__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./managers/boardManager */ "./resources/js/managers/boardManager.js");
+/* harmony import */ var _managers_questionManager__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./managers/questionManager */ "./resources/js/managers/questionManager.js");
+/* harmony import */ var _managers_roundManager__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./managers/roundManager */ "./resources/js/managers/roundManager.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return generator._invoke = function (innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; }(innerFn, self, context), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; this._invoke = function (method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); }; } function maybeInvokeDelegate(delegate, context) { var method = delegate.iterator[context.method]; if (undefined === method) { if (context.delegate = null, "throw" === context.method) { if (delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method)) return ContinueSentinel; context.method = "throw", context.arg = new TypeError("The iterator does not provide a 'throw' method"); } return ContinueSentinel; } var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) { if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; } return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, define(Gp, "constructor", GeneratorFunctionPrototype), define(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (object) { var keys = []; for (var key in object) { keys.push(key); } return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) { "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); } }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
@@ -24295,142 +24089,72 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_3__["default"]({
 
 
 
-
-
 var locale = document.querySelector(".locale").textContent;
-var room_number = document.querySelector(".room_number").textContent;
-var max_round = document.querySelector(".max_round").textContent;
-var current_round = document.querySelector(".current_round").textContent;
-var domCounter = document.querySelector(".connection-counter");
-var namesManager;
+var host_color = document.querySelector(".host_color").textContent;
+var join_color = document.querySelector(".join_color").textContent;
+var current_round;
 var questionManager;
 var colorsManager;
 var boardManager;
 var roundManager;
-var roomChannel;
 var myTurn;
-var questionStatus;
 var questions;
 var bonus;
 var isCorrect;
 var selectedIndex;
 var thisTurnPlayer;
-var currentPlayer;
-var otherPlayer;
-var connectionValidator;
-var gameStatus;
-var isHost;
+var currentPlayer = "Host";
+var otherPlayer = "Join";
+var allRoundsQuestions;
+var max_round;
 
 var isMyTurn = function isMyTurn() {
-  return myTurn;
+  return true;
 };
 
-var setManagers = function setManagers(hostName, joinName, hostColor, joinColor, currentPlayer, otherPlayer, isMyTurn) {
-  namesManager = new _managers_namesManager__WEBPACK_IMPORTED_MODULE_9__["default"](hostName, joinName);
-  colorsManager = new _managers_colorsManager__WEBPACK_IMPORTED_MODULE_10__["default"](hostColor, joinColor, currentPlayer, otherPlayer, isMyTurn);
-  boardManager = new _managers_boardManager__WEBPACK_IMPORTED_MODULE_11__["default"](hostColor, joinColor);
-  questionManager = new _managers_questionManager__WEBPACK_IMPORTED_MODULE_12__["default"](hostColor, joinColor, (0,_helper_translator__WEBPACK_IMPORTED_MODULE_6__.__)("Correct"), (0,_helper_translator__WEBPACK_IMPORTED_MODULE_6__.__)("Wrong"));
-  roundManager = new _managers_roundManager__WEBPACK_IMPORTED_MODULE_13__["default"](currentPlayer);
+var setManagers = function setManagers(isMyTurn) {
+  colorsManager = new _managers_colorsManager__WEBPACK_IMPORTED_MODULE_9__["default"](host_color, join_color, "Host", "Join", isMyTurn);
+  boardManager = new _managers_boardManager__WEBPACK_IMPORTED_MODULE_10__["default"](host_color, join_color);
+  questionManager = new _managers_questionManager__WEBPACK_IMPORTED_MODULE_11__["default"](host_color, join_color, (0,_helper_translator__WEBPACK_IMPORTED_MODULE_6__.__)("Correct"), (0,_helper_translator__WEBPACK_IMPORTED_MODULE_6__.__)("Wrong"));
+  roundManager = new _managers_roundManager__WEBPACK_IMPORTED_MODULE_12__["default"]("Host", false);
 };
 
-var setScoreManager = function setScoreManager(gameStatus) {
+var setScoreManager = function setScoreManager() {
   _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__["default"].setAll({
-    correct: gameStatus.host_current_score,
-    bonus: gameStatus.host_current_bonus_score,
-    wrong: gameStatus.host_current_wrong_score,
-    total: gameStatus.host_current_total_score
+    correct: 0,
+    bonus: 0,
+    wrong: 0,
+    total: 0
   }, {
-    correct: gameStatus.host_score,
-    bonus: gameStatus.host_bonus_score,
-    wrong: gameStatus.host_wrong_score,
-    total: gameStatus.host_total_score
+    correct: 0,
+    bonus: 0,
+    wrong: 0,
+    total: 0
   }, {
-    correct: gameStatus.join_current_score,
-    bonus: gameStatus.join_current_bonus_score,
-    wrong: gameStatus.join_current_wrong_score,
-    total: gameStatus.join_current_total_score
+    correct: 0,
+    bonus: 0,
+    wrong: 0,
+    total: 0
   }, {
-    correct: gameStatus.join_score,
-    bonus: gameStatus.join_bonus_score,
-    wrong: gameStatus.join_wrong_score,
-    total: gameStatus.join_total_score
+    correct: 0,
+    bonus: 0,
+    wrong: 0,
+    total: 0
   });
 };
 
 var showQuestion = function showQuestion(index, currentPlayer, otherPlayer) {
-  var player = myTurn ? currentPlayer : otherPlayer;
-  questionManager.start(questions[index], player, isMyTurn);
-};
-
-var setChannelListeners = function setChannelListeners() {
-  roomChannel.listen("GameTileSelected", function (e) {
-    showQuestion(e.index, currentPlayer, otherPlayer);
-  });
-  roomChannel.listen("GameOptionSelected", function (e) {
-    questionManager.switchSelected(e.index);
-  });
-  roomChannel.listen("GameQuestionAnswered", function (e) {
-    questionManager.questionAnswered(e.is_correct);
-  });
-  roomChannel.listen("GameCloseResult", function (e) {
-    bonus = e.bonus;
-    isCorrect = e.is_correct;
-    selectedIndex = e.index;
-    thisTurnPlayer = otherPlayer;
-    gameClosedFunc();
-
-    if (e.is_all_full) {
-      setInRound(currentPlayer);
-    }
-  });
-  roomChannel.listen("GameOver", function (e) {
-    roundManager.showOver();
-  });
-  roomChannel.listen("GameNextRoundClicked", function (e) {
-    _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
-    roundManager.nextRound();
-    window.axios.post("/online-game-next-round-join/".concat(locale), {
-      room_number: room_number
-    }).then(function (resp) {
-      prepareBoard(resp.data);
-      _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].Off();
-    });
-  });
-  roomChannel.listenForWhisper("readyBtnClicked", function (e) {
-    roundManager.switchStartBtn(e.isReady);
-  });
-  roomChannel.listenForWhisper("newGamePreparing", function () {
-    _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
-  });
-  roomChannel.listenForWhisper("newGameReady", function () {
-    window.location.href = "/online-game/".concat(locale, "?room_number=").concat(room_number);
-  });
-  roomChannel.listenForWhisper("finishGamePreparing", function () {
-    _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
-  });
-  roomChannel.listenForWhisper("finishGameReady", function () {
-    window.location.href = "/welcome/".concat(locale);
-  });
+  questionManager.start(questions[index], currentPlayer, isMyTurn);
 };
 
 var optionClicked = function optionClicked(index) {
   questionManager.enableAnswerButton();
   questionManager.switchSelected(index);
-  window.axios.post("/online-game-option-selected/".concat(locale), {
-    room_number: room_number,
-    index: index
-  });
 };
 
 var questionAnsweredClicked = function questionAnsweredClicked(getIsCorrect, getIndex) {
   isCorrect = getIsCorrect();
-  var index = getIndex();
   questionManager.questionAnswered(isCorrect);
-  window.axios.post("/online-game-question-answered/".concat(locale), {
-    room_number: room_number,
-    is_correct: isCorrect,
-    index: index
-  });
 };
 
 var closeResultClicked = function closeResultClicked() {
@@ -24447,82 +24171,31 @@ var closeResultClicked = function closeResultClicked() {
   isAllFull = filledTiles === 9;
   thisTurnPlayer = currentPlayer;
   gameClosedFunc();
-  window.axios.post("/online-game-close-result/".concat(locale), {
-    room_number: room_number,
-    is_correct: isCorrect,
-    index: selectedIndex,
-    bonus: bonus,
-    is_all_full: isAllFull
-  }).then(function () {
-    if (isAllFull) {
-      setInRound(currentPlayer);
-    }
-  });
-};
 
-var overFunction = function overFunction() {
-  window.axios.post("/online-game-over/".concat(locale), {
-    room_number: room_number
-  });
+  if (isAllFull) {
+    setInRound(currentPlayer);
+  }
 };
 
 var nextRoundClickedFunction = function nextRoundClickedFunction() {
   roundManager.nextRound();
   _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
-  window.axios.post("/online-game-next-round/".concat(locale), {
-    room_number: room_number
-  }).then(function (resp) {
-    prepareBoard(resp.data);
-    _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].Off();
-  });
-};
-
-var readyBtnFunction = function readyBtnFunction(isReady) {
-  roomChannel.whisper("readyBtnClicked", {
-    isReady: isReady
-  });
+  prepareBoard();
+  _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].Off();
 };
 
 var newGameBtnFunction = function newGameBtnFunction() {
   _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
-  roomChannel.whisper("newGamePreparing", {});
-  window.axios.post("/online-game-new-game/".concat(locale), {
-    room_number: room_number
-  }).then(function () {
-    roomChannel.whisper("newGameReady", {});
-    window.location.href = "/online-game/".concat(locale, "?room_number=").concat(room_number);
-  });
+  window.location.href = "/offline-game/".concat(locale, "?host_color=").concat(host_color, "&join_color=").concat(join_color);
 };
 
 var finishGameBtnFunction = function finishGameBtnFunction() {
   _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
-  roomChannel.whisper("finishGamePreparing", {});
-  window.axios.post("/online-game-finish-game/".concat(locale), {
-    room_number: room_number
-  }).then(function () {
-    roomChannel.whisper("finishGameReady", {});
-    window.location.href = "/welcome/".concat(locale);
-  });
-};
-
-var setInQuestion = function setInQuestion(index, currentPlayer, otherPlayer) {
-  boardManager.setSelectedTile(index);
-  showQuestion(index, currentPlayer, otherPlayer);
-};
-
-var setInResult = function setInResult(index, isCorrect, currentPlayer, otherPlayer) {
-  var player = myTurn ? currentPlayer : otherPlayer;
-  boardManager.setSelectedTile(index);
-  questionManager.setData(questions[index], player, isMyTurn);
-  questionManager.setQuestionAnswered(isCorrect);
+  window.location.href = "/welcome/".concat(locale);
 };
 
 var setInRound = function setInRound() {
   roundManager.showRoundEnd(current_round, current_round === max_round);
-};
-
-var setInOver = function setInOver() {
-  roundManager.showOver();
 };
 
 var get_isCorrect = function get_isCorrect() {
@@ -24546,6 +24219,7 @@ var afterCloseFunc = function afterCloseFunc() {
   var curIndex = get_index();
   var curBonus = get_bonus();
   var curThisTurnPlayer = get_thisTurnPlayer();
+  var tempPlayer = currentPlayer;
   _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__["default"].addScore(curIsCorrect, curThisTurnPlayer);
 
   if (curIsCorrect) {
@@ -24556,6 +24230,8 @@ var afterCloseFunc = function afterCloseFunc() {
   boardManager.toggleFreeTiles();
   myTurn = !myTurn;
   colorsManager.toggleColors();
+  currentPlayer = otherPlayer;
+  otherPlayer = tempPlayer;
 };
 
 var gameClosedFunc = function gameClosedFunc() {
@@ -24571,51 +24247,23 @@ var setQuestionClicks = function setQuestionClicks() {
 
 var setRoundClicks = function setRoundClicks() {
   roundManager.setNextRoundFunction(nextRoundClickedFunction);
-  roundManager.setOverFunction(overFunction);
-  roundManager.setReadyBtnFunction(readyBtnFunction);
   roundManager.setNewGameBtnFunction(newGameBtnFunction);
   roundManager.setFinishGameBtnFunction(finishGameBtnFunction);
 };
 
-var connectionCountFunc = function connectionCountFunc(counter) {
-  domCounter.textContent = counter;
-};
-
-var connectionAtemptFunc = function connectionAtemptFunc(counter) {
-  var backBtn = document.querySelector(".btn-room-back-loader");
-  var isBackOn = false;
-
-  if (!isBackOn && counter >= 2) {
-    backBtn.classList.add("show-loader");
-
-    backBtn.onanimationend = function () {
-      backBtn.style.opacity = 1;
-    };
-
-    isBackOn = true;
-  }
-};
-
-var connectionEstablishedFunc = function connectionEstablishedFunc() {
-  domCounter.textContent = "";
-  _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].Off();
-};
-
-var initConnectionValidator = function initConnectionValidator() {
-  connectionValidator.setCountFunc(connectionCountFunc);
-  connectionValidator.setConnectionAtemptFunc(connectionAtemptFunc);
-  connectionValidator.setConnectionEstablishedFunc(connectionEstablishedFunc);
-  connectionValidator.setReconnectionEstablishedFunc(connectionEstablishedFunc);
-  connectionValidator.establishConnection();
-};
-
-var prepareBoard = function prepareBoard(data) {
-  gameStatus = data.game_status;
-  questionStatus = data.question_status;
-  questions = data.questions;
-  setScoreManager(gameStatus);
+var prepareBoard = function prepareBoard() {
+  current_round++;
+  questions = allRoundsQuestions[current_round];
+  _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__["default"].resetCurrectRound();
   boardManager.resetBoard();
-  boardManager.setBoard(questionStatus, isMyTurn);
+};
+
+var getCurrentPlayer = function getCurrentPlayer() {
+  return currentPlayer;
+};
+
+var getOtherPlayer = function getOtherPlayer() {
+  return otherPlayer;
 };
 
 var onLoad = /*#__PURE__*/function () {
@@ -24625,57 +24273,30 @@ var onLoad = /*#__PURE__*/function () {
         switch (_context.prev = _context.next) {
           case 0:
             _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
-            roomChannel = window.Echo["private"]("room.".concat(room_number));
-            _context.next = 4;
+            _context.next = 3;
             return (0,_helper_translator__WEBPACK_IMPORTED_MODULE_6__.initLang)(locale);
 
-          case 4:
-            window.axios.get("/online-game-load/".concat(locale, "?room_number=").concat(room_number)).then(function (resp) {
-              gameStatus = resp.data.game_status;
-              questionStatus = resp.data.question_status;
-              questions = resp.data.questions;
-              isHost = resp.data["i_am_upper"] === "Host";
-              otherPlayer = isHost ? "Join" : "Host";
-              isCorrect = gameStatus.result === "is_correct";
-              myTurn = resp.data["i_am"] === gameStatus.current_player;
-              currentPlayer = resp.data["i_am_upper"];
-              setManagers(gameStatus.host_name, gameStatus.join_name, gameStatus.host_color, gameStatus.join_color, currentPlayer, otherPlayer, myTurn);
-              setScoreManager(gameStatus);
-              boardManager.setBoard(questionStatus, isMyTurn);
+          case 3:
+            window.axios.get("/offline-game-load/".concat(locale)).then(function (resp) {
+              allRoundsQuestions = resp.data.questions;
+              current_round = 1;
+              questions = allRoundsQuestions[current_round];
+              max_round = resp.data.maxRound;
+              myTurn = true;
+              setManagers(true);
+              _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].Off();
+              setScoreManager();
               boardManager.setTileFunction(function (clickedTile) {
-                window.axios.post("/online-game-tile-selected/".concat(locale), {
-                  room_number: room_number,
-                  index: clickedTile.dataset.questionIndex
-                });
+                var index = clickedTile.dataset.questionIndex;
+                var currentPlayer = getCurrentPlayer();
+                var otherPlayer = getOtherPlayer();
+                showQuestion(index, currentPlayer, otherPlayer);
               });
               setQuestionClicks();
-              setChannelListeners();
               setRoundClicks();
-              var index = questionStatus.selected_field.charAt(0) * 1;
-
-              switch (gameStatus.status) {
-                case "in_round":
-                  setInRound();
-                  break;
-
-                case "in_question":
-                  setInQuestion(index, currentPlayer, otherPlayer);
-                  break;
-
-                case "in_result":
-                  setInResult(index, isCorrect, currentPlayer, otherPlayer);
-                  break;
-
-                case "in_over":
-                  setInOver();
-                  break;
-              }
-
-              connectionValidator = new _managers_connectionValidator__WEBPACK_IMPORTED_MODULE_14__["default"](roomChannel, currentPlayer);
-              initConnectionValidator();
             });
 
-          case 5:
+          case 4:
           case "end":
             return _context.stop();
         }
@@ -54235,11 +53856,11 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
 "use strict";
-/*!*****************************************!*\
-  !*** ./resources/js/app-online-game.js ***!
-  \*****************************************/
+/*!******************************************!*\
+  !*** ./resources/js/app-offline-game.js ***!
+  \******************************************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _online_game__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./online-game */ "./resources/js/online-game.js");
+/* harmony import */ var _offline_game__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./offline-game */ "./resources/js/offline-game.js");
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
 /**
  * First we will load all of this project's JavaScript dependencies which

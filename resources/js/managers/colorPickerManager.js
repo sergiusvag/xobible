@@ -15,24 +15,31 @@ export default class ColorPickerManager {
     _playerTwoTxt = document.querySelector(".player-two");
     _picker = document.querySelector(".picker");
     _playerOneBtn = document.querySelector(".btn-start");
-    _playerTwoBtn = document.querySelector(".btn-ready");
     _playerOnePick = -1;
     _playerTwoPick = -1;
     _isReady = false;
     _readyBtnFunc = () => {};
     _hostPickedFunc = () => {};
+    additionalFunc = () => {};
+    constructor(isOnline, isHost = true) {
+        this._isOnline = isOnline;
+        if (this._isOnline) {
+            this.initOnlineSettings(isHost);
+        } else {
+            this.initOfflineSettings();
+        }
+    }
+    initOfflineSettings() {
+        this.setPlayerOnePicker();
+        this.setPlayerTwoPicker();
+    }
 
-    constructor(isHost) {
+    initOnlineSettings(isHost) {
         this.isHost = isHost;
-        this.additionalFunc = () => {};
+        this._playerTwoBtn = document.querySelector(".btn-ready");
         this.changePickForOther;
         if (isHost) {
-            this._addOptionListener(
-                this._xPickerOtions,
-                this._playerOneTxt,
-                "_playerOnePick",
-                "_playerTwoPick"
-            );
+            this.setPlayerOnePicker();
             this.changePickForOther = this._changePickForOtherFuncMaker(
                 this._oPickerOtions,
                 this._playerTwoTxt,
@@ -40,12 +47,7 @@ export default class ColorPickerManager {
             );
             this._playerTwoBtn.classList.add("d-hide");
         } else {
-            this._addOptionListener(
-                this._oPickerOtions,
-                this._playerTwoTxt,
-                "_playerTwoPick",
-                "_playerOnePick"
-            );
+            this.setPlayerTwoPicker();
             this.changePickForOther = this._changePickForOtherFuncMaker(
                 this._xPickerOtions,
                 this._playerOneTxt,
@@ -59,6 +61,22 @@ export default class ColorPickerManager {
                 this._readyBtnFunc(this._isReady);
             });
         }
+    }
+    setPlayerOnePicker() {
+        this._addOptionListener(
+            this._xPickerOtions,
+            this._playerOneTxt,
+            "_playerOnePick",
+            "_playerTwoPick"
+        );
+    }
+    setPlayerTwoPicker() {
+        this._addOptionListener(
+            this._oPickerOtions,
+            this._playerTwoTxt,
+            "_playerTwoPick",
+            "_playerOnePick"
+        );
     }
 
     setReadyBtnFunc(readyBtnFunc) {
@@ -150,10 +168,13 @@ export default class ColorPickerManager {
         };
     }
 
-    enableReadyBtn() {
+    enableBtnByPick(btnName) {
         if (this._playerOnePick !== -1 && this._playerTwoPick !== -1) {
-            this._playerTwoBtn.classList.remove("control-btn-dis");
+            this[btnName].classList.remove("control-btn-dis");
         }
+    }
+    enableReadyBtn() {
+        this.enableBtnByPick("_playerTwoBtn");
     }
     _addOptionListener(options, playerText, thisPlayerPick, otherPlayerPick) {
         for (let i = 0; i < options.length; i++) {
@@ -162,10 +183,14 @@ export default class ColorPickerManager {
                     this._changePick(options, playerText, i);
                     this.additionalFunc(i);
                     this[thisPlayerPick] = i;
-                    if (!this.isHost) {
-                        this.enableReadyBtn();
+                    if (this._isOnline) {
+                        if (!this.isHost) {
+                            this.enableReadyBtn();
+                        } else {
+                            this._hostPickedFunc();
+                        }
                     } else {
-                        this._hostPickedFunc();
+                        this.enableBtnByPick("_playerOneBtn");
                     }
                 }
             });

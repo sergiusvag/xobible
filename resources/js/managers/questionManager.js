@@ -24,9 +24,9 @@ export default class QuestionManager {
     _selected = -1;
     _questionData;
     _currentPlayer;
-    _questionAnsweredFunction;
-    _optionClickedFunction;
-    _closeResultFunction;
+    _questionAnsweredFunction = () => {};
+    _optionClickedFunction = () => {};
+    _closeResultFunction = () => {};
     constructor(colorHost, colorJoin, correctText, wrongText) {
         this._colorClassHost = `color-${colorHost}`;
         this._colorClassJoin = `color-${colorJoin}`;

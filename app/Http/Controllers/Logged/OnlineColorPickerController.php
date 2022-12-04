@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Logged;
 use App\Models\Room;
 use App\Models\GameStatus;
 use App\Events\ColorEventStart;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ColorPickerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class OnlineColorPickerController extends Controller
+class OnlineColorPickerController extends ColorPickerController
 {
     public function index(Request $request, $locale)
     {
@@ -31,17 +31,12 @@ class OnlineColorPickerController extends Controller
 
         $isHost = $room->host_name === Auth::user()->name;
         $playersBtnClass = $isHost ? ['', 'control-dis'] : ['control-dis', ''];
-
-        $data = [
-            'room_number' => $room_number,
-            'isHost' => $isHost ? 'is_host' : 'is_member',
-            'playersBtnClass' => $playersBtnClass,
-            'numOfPlayers' => 2,
-            'colors' => ["red", "green", "blue", "pink", "orange"],
-            'playerNum' => ["one", "two"],
-            'playerTitleText' => [$room->host_name, $room->join_name],
-            'playerSymbol' => ["x", "o"],
-        ];
+        
+        $data = $this->getDefaultData(true);
+        $data['room_number'] = $room_number;
+        $data['isHost'] = $isHost ? 'is_host' : 'is_member';
+        $data['playersBtnClass'] = $playersBtnClass;
+        $data['playerTitleText'] = [$room->host_name, $room->join_name];
 
         return view('logged.online-color-picker')
             ->with('data', $data)

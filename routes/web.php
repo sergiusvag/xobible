@@ -6,6 +6,8 @@ use App\Http\Controllers\Logged\SuggestionController;
 use App\Http\Controllers\Logged\OnlineRoomController;
 use App\Http\Controllers\Logged\OnlineColorPickerController;
 use App\Http\Controllers\Logged\OnlineGameController;
+use App\Http\Controllers\Offline\OfflineColorPickerController;
+use App\Http\Controllers\Offline\OfflineGameController;
 use App\Http\Controllers\WelcomeController;
 
 /*
@@ -36,16 +38,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/mistake/{locale}', [MistakeController::class, 'index']);
     Route::post('/suggestion/{locale}', [SuggestionController::class, 'store']);
     Route::get('/suggestion/{locale}', [SuggestionController::class, 'index']);
-    Route::get('/check-room/{locale}' , [OnlineRoomController::class, 'checkOnLoad']);
+    // *** Online-Game Routing ***
+    // Online Room Routing
     Route::get('/online-room/{locale}' , [OnlineRoomController::class, 'index']);
+    Route::get('/check-room/{locale}' , [OnlineRoomController::class, 'checkOnLoad']);
     Route::post('/create-room/{locale}' , [OnlineRoomController::class, 'create']);
     Route::post('/close-room/{locale}' , [OnlineRoomController::class, 'close']);
     Route::post('/join-room/{locale}' , [OnlineRoomController::class, 'join']);
     Route::post('/kick-room/{locale}' , [OnlineRoomController::class, 'kick']);
     Route::post('/exit-room/{locale}' , [OnlineRoomController::class, 'exit']);
     Route::post('/start-room/{locale}' , [OnlineRoomController::class, 'start']);
+    // Online Color Picker Routing
     Route::get('/online-color-picker/{locale}', [OnlineColorPickerController::class, 'index']);
     Route::post('/online-game-start/{locale}', [OnlineColorPickerController::class, 'start']);
+    // Online Game Routing
     Route::get('/online-game/{locale}', [OnlineGameController::class, 'index']);
     Route::get('/online-game-load/{locale}', [OnlineGameController::class, 'load']);
     Route::post('/online-game-tile-selected/{locale}', [OnlineGameController::class, 'tileSelected']);
@@ -58,6 +64,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/online-game-new-game/{locale}', [OnlineGameController::class, 'newGame']);
     Route::post('/online-game-finish-game/{locale}', [OnlineGameController::class, 'finishGame']);
 });
+// Offline Game Routing
+Route::get('/offline-color-picker/{locale}', [OfflineColorPickerController::class, 'index']);
+Route::get('/offline-game/{locale}', [OfflineGameController::class, 'index']);
+Route::get('/offline-game-load/{locale}', [OfflineGameController::class, 'load']);
 
 Route::get('/dashboard/{locale?}', function () {
     return view('dashboard');

@@ -50,8 +50,8 @@ const max_round = document.querySelector(".max_round").textContent;
 const current_round = document.querySelector(".current_round").textContent;
 const domCounter = document.querySelector(".connection-counter");
 
-let questionManager;
 let namesManager;
+let questionManager;
 let colorsManager;
 let boardManager;
 let roundManager;

@@ -32,7 +32,7 @@
                 </div>
             </div>
             <div class="attempting-connection mt-3">{{ __('Connecting...') }} <span class="connection-counter"></span></div>
-            <a href="{{ '/welcome/' . $locale }}" class="btn btn-room-back mt-3 btn-room-back-loader hide">{{ __('Back') }}</a>
+            <a href="{{ '/welcome/' . app()->getLocale() }}" class="btn btn-room-back mt-3 btn-room-back-loader hide">{{ __('Back') }}</a>
         </div>
     </div>
 </div>

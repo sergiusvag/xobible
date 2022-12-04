@@ -4,8 +4,10 @@
             {{ __('Tic Tac Toe') }}
         </h3>
         <label class="locale" hidden>{{ $locale }}</label>
+        @if($data['isOnline'])
         <label class="room_number" hidden>{{ $data['room_number'] }}</label>
         <label class="isHost" hidden>{{ $data['isHost'] }}</label>
+        @endif
         @php
             for ($i = 0; $i < $data['numOfPlayers']; $i++) {
         @endphp
@@ -27,6 +29,8 @@
             }
         @endphp
         <button type="button" class="btn btn-pos-action btn-start control-btn-dis">{{ __('Start') }}</button>
+        @if($data['isOnline'])
         <button type="button" class="btn btn-pos-action btn-ready control-btn-dis">{{ __('Ready') }}</button>
+        @endif
     </div>
 </div>

@@ -1,6 +1,5 @@
 @extends('layouts-xo.game')
 
-@auth
 @section('control_left_side')
 <div class="player-score-wrap wrap-host wrap-host-game-main">
     <label class="score-txt score-txt name-host">{{ __('Player One') }}</label>
@@ -28,9 +27,14 @@
     @endphp
         @csrf
         <label class="locale" hidden>{{ $locale }}</label>
+        @if($data['isOnline'])
         <label class="room_number" hidden>{{ $data['room_number'] }}</label>
         <label class="current_round" hidden>{{ $data['current_round'] }}</label>
         <label class="max_round" hidden>{{ $data['max_round'] }}</label>
+        @else
+        <label class="host_color" hidden>{{ $data['host_color'] }}</label>
+        <label class="join_color" hidden>{{ $data['join_color'] }}</label>
+        @endif
         @include('components.game.rules')
         @include('components.game.round')
         @include('components.game.board')
@@ -62,7 +66,10 @@
 </div>
 @endsection
 
-@endauth
 @section('control_js')
-    @vite('resources/js/app-online-game.js')
+    @if($data['isOnline'])
+        @vite('resources/js/app-online-game.js')
+    @else
+        @vite('resources/js/app-offline-game.js')
+    @endif
 @endsection

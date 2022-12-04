@@ -52,7 +52,7 @@ const startNotified = (data) => {
 const connectionEstablishedFunc = () => {
     Loader.Off();
     if (!colorPickerManager) {
-        colorPickerManager = new ColorPickerManager(isHost);
+        colorPickerManager = new ColorPickerManager(true, isHost);
         colorPickerManager.additionalFunc = (pickedColorIndex) => {
             roomChannel.whisper("colorPicked", {
                 pickedColorIndex,

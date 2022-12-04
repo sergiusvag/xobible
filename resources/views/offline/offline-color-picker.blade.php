@@ -12,5 +12,5 @@
 @endsection
 
 @section('control_js')
-    @vite('resources/js/app-online-color-picker.js')
+    @vite('resources/js/app-offline-color-picker.js')
 @endsection

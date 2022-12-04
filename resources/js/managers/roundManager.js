@@ -24,14 +24,15 @@ export default class RoundManager {
     _readyBtnFunc = () => {};
     _newGameBtnFunc = () => {};
     _finishGameBtnFunc = () => {};
-    constructor(currentPlayer) {
+    constructor(currentPlayer, isOnline = true) {
         this[`init${currentPlayer}`]();
 
         this._overFinishBtn.addEventListener("click", () => {
             this._finishGameBtnFunc();
         });
     }
-    initHost() {
+    initHost(isOnline) {
+        const addOrRemove = isOnline ? "add" : "remove";
         this._roundModalManager.continueBtn.classList.remove("control-btn-dis");
         this._roundFinishBtn.classList.remove("control-btn-dis");
         this._roundModalManager.continueBtn.addEventListener("click", (e) => {
@@ -46,7 +47,7 @@ export default class RoundManager {
         });
 
         this._overReadyBtn.classList.add("d-hide");
-        this._overNewGameBtn.classList.add("control-btn-dis");
+        this._overNewGameBtn.classList[addOrRemove]("control-btn-dis");
         this._overNewGameBtn.addEventListener("click", (e) => {
             this._newGameBtnFunc();
         });

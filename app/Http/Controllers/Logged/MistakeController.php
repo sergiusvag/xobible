@@ -14,16 +14,17 @@ class MistakeController extends Controller
     public function index($locale)
     {
         return view('logged.mistake')
-            ->with('rtlClass', $this->getRtlClass($locale));
+            ->with('rtlClass', $this->getRtlClass($locale))
+            ->with('locale', $locale);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, $locale)
     {
         $id = Auth::id();
         $question_id = $request['question_id'];
         $question = Question::find($question_id);
         $mistakesSoFar = User::find($id)->mistakes->count();
-        $backRoute = '/welcome/' . app()->getLocale() . '/mistake';
+        $backRoute = '/mistake/' . $locale;
 
         if($question === null) {
             return redirect($backRoute)
@@ -40,7 +41,8 @@ class MistakeController extends Controller
 
         return redirect($backRoute)
             ->with('rtlClass', $this->getRtlClass($locale))
-            ->with('success', __('Your mistake was successfully added!'));
+            ->with('success', __('Your mistake was successfully added!'))
+            ->with('locale', $locale);
     }
 
     public function getRtlClass ($locale) {

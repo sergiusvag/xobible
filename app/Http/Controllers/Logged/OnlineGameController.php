@@ -6,7 +6,7 @@ use App\Models\Room;
 use App\Models\Question;
 use App\Models\GameStatus;
 use App\Models\QuestionStatus;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\GameController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Events\GameTileSelected;
@@ -16,36 +16,33 @@ use App\Events\GameCloseResult;
 use App\Events\GameOver;
 use App\Events\GameNextRoundClicked;
 
-class OnlineGameController extends Controller
+class OnlineGameController extends GameController
 {
     public function createQuestionStatuses($room_number, $gameStatusId) {
         $questions = Question::All();
         $maxRound = floor($questions->count() / 9);
-        $questionsArray = $questions->toArray();;
-        shuffle($questionsArray);
+        $shuffledQuestions = $questions->shuffle();
         
         for($i = 1; $i <= $maxRound; $i++) {
             $offset = (($i * 9) - 9);
             $questionStatus = new QuestionStatus([
                 'room_number' => $room_number,
                 'round_number' => $i,
-                '0_field_question_id' => $questionsArray[$offset + 0]['id'],
-                '1_field_question_id' => $questionsArray[$offset + 1]['id'],
-                '2_field_question_id' => $questionsArray[$offset + 2]['id'],
-                '3_field_question_id' => $questionsArray[$offset + 3]['id'],
-                '4_field_question_id' => $questionsArray[$offset + 4]['id'],
-                '5_field_question_id' => $questionsArray[$offset + 5]['id'],
-                '6_field_question_id' => $questionsArray[$offset + 6]['id'],
-                '7_field_question_id' => $questionsArray[$offset + 7]['id'],
-                '8_field_question_id' => $questionsArray[$offset + 8]['id'],
+                '0_field_question_id' => $shuffledQuestions[$offset + 0]['id'],
+                '1_field_question_id' => $shuffledQuestions[$offset + 1]['id'],
+                '2_field_question_id' => $shuffledQuestions[$offset + 2]['id'],
+                '3_field_question_id' => $shuffledQuestions[$offset + 3]['id'],
+                '4_field_question_id' => $shuffledQuestions[$offset + 4]['id'],
+                '5_field_question_id' => $shuffledQuestions[$offset + 5]['id'],
+                '6_field_question_id' => $shuffledQuestions[$offset + 6]['id'],
+                '7_field_question_id' => $shuffledQuestions[$offset + 7]['id'],
+                '8_field_question_id' => $shuffledQuestions[$offset + 8]['id'],
                 'game_status_id' => $gameStatusId,
             ]);
             $questionStatus->save();
         }
-    }
 
-    public function getRtlClass ($locale) {
-        return $locale === 'he' ? 'input-rtl' : '';
+        return $maxRound;
     }
 
     public function index(Request $request, $locale)
@@ -60,12 +57,13 @@ class OnlineGameController extends Controller
         $questionStatuses = QuestionStatus::where('game_status_id', $gameStatus->id)->get();
 
         if($questionStatuses->isEmpty()){
-            $this->createQuestionStatuses($room_number, $gameStatus->id);
+            $maxRound = $this->createQuestionStatuses($room_number, $gameStatus->id);
+        } else {
+            $maxRound = $questionStatuses->count();
         }
-        $maxRound = $questionStatuses->count();
 
         return view('logged.online-game')
-            ->with('data' , ['room_number' => $room_number, 'max_round' => $maxRound, 'current_round' => $gameStatus->current_round])
+            ->with('data' , ['isOnline' => true, 'room_number' => $room_number, 'max_round' => $maxRound, 'current_round' => $gameStatus->current_round])
             ->with('rtlClass', $this->getRtlClass($locale))
             ->with('locale', $locale);
     }

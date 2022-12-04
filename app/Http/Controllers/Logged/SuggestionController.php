@@ -12,7 +12,8 @@ class SuggestionController extends Controller
     public function index($locale)
     {
         return view('logged.suggestion')
-            ->with('rtlClass', $this->getRtlClass($locale));
+            ->with('rtlClass', $this->getRtlClass($locale))
+            ->with('locale', $locale);
     }
 
     public function store(Request $request, $locale)
@@ -33,7 +34,8 @@ class SuggestionController extends Controller
 
         return redirect($backRoute)
             ->with('rtlClass', $this->getRtlClass($locale))
-            ->with('success', __('Your suggestion was successfully added!'));
+            ->with('success', __('Your suggestion was successfully added!'))
+            ->with('locale', $locale);
     }
 
     public function getRtlClass ($locale) {
