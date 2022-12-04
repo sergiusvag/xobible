@@ -37,6 +37,9 @@ class ScoreHolder {
         this._setWrong(wrong);
         this._setTotal(total);
     }
+    _initAll() {
+        this._setAll(0, 0, 0, 0);
+    }
     _addCorrect(score = 1) {
         this._add("scoreCorrect", score);
         this._add("scoreTotal", score);
@@ -77,6 +80,12 @@ class ScoreManager {
     );
     constructor() {}
 
+    initAll() {
+        this._hostScoreHolderRound._initAll();
+        this._hostScoreHolderGame._initAll();
+        this._joinScoreHolderRound._initAll();
+        this._joinScoreHolderGame._initAll();
+    }
     setAll(roundHost, gameHost, roundJoin, gameJoin) {
         this._hostScoreHolderRound._setAll(
             roundHost.correct,

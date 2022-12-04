@@ -22936,7 +22936,6 @@ var BoardManager = /*#__PURE__*/function () {
       var setTo = player === "Host" ? 1 : 2;
       this._logicalTile[index] = setTo;
       this._filledTiles++;
-      console.log(this._filledTiles);
     }
   }, {
     key: "countFilledTiles",
@@ -23182,6 +23181,868 @@ var ColorsManager = /*#__PURE__*/function () {
 
 /***/ }),
 
+/***/ "./resources/js/managers/connectionValidator.js":
+/*!******************************************************!*\
+  !*** ./resources/js/managers/connectionValidator.js ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ ConnectionValidator)
+/* harmony export */ });
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var ConnectionValidator = /*#__PURE__*/function () {
+  function ConnectionValidator(roomChannel, myKey) {
+    var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+    _classCallCheck(this, ConnectionValidator);
+
+    _defineProperty(this, "_isConnected", false);
+
+    _defineProperty(this, "_counter", 0);
+
+    _defineProperty(this, "_interval", void 0);
+
+    _defineProperty(this, "_countFunc", function () {});
+
+    _defineProperty(this, "_connectionAtemptFunc", function () {});
+
+    _defineProperty(this, "_connectionEstablishedFunc", function () {});
+
+    _defineProperty(this, "_preReconnectRequestFunc", function () {});
+
+    _defineProperty(this, "_reconnectionEstablishedFunc", function () {});
+
+    this.roomChannel = roomChannel;
+    this.myKey = myKey;
+    this.data = data;
+  }
+
+  _createClass(ConnectionValidator, [{
+    key: "setData",
+    value: function setData(data) {
+      this.data = data;
+    }
+  }, {
+    key: "_getData",
+    value: function _getData() {
+      return this.data;
+    }
+  }, {
+    key: "setCountFunc",
+    value: function setCountFunc(countFunc) {
+      this._countFunc = countFunc;
+    }
+  }, {
+    key: "setConnectionAtemptFunc",
+    value: function setConnectionAtemptFunc(connectionAtemptFunc) {
+      this._connectionAtemptFunc = connectionAtemptFunc;
+    }
+  }, {
+    key: "setConnectionEstablishedFunc",
+    value: function setConnectionEstablishedFunc(connectionEstablishedFunc) {
+      this._connectionEstablishedFunc = connectionEstablishedFunc;
+    }
+  }, {
+    key: "setReconnectionEstablishedFunc",
+    value: function setReconnectionEstablishedFunc(reconnectionEstablishedFunc) {
+      this._reconnectionEstablishedFunc = reconnectionEstablishedFunc;
+    }
+  }, {
+    key: "setPreReconnectRequestFunc",
+    value: function setPreReconnectRequestFunc(preReconnectRequestFunc) {
+      this._preReconnectRequestFunc = preReconnectRequestFunc;
+    }
+  }, {
+    key: "establishConnection",
+    value: function establishConnection() {
+      var _this = this;
+
+      this._interval = setInterval(function () {
+        _this._counter++;
+
+        _this._countFunc(_this._counter);
+
+        _this.roomChannel.whisper("requestConnect", _objectSpread({
+          key: _this.myKey
+        }, _this._getData()));
+
+        _this._connectionAtemptFunc(_this._counter);
+      }, 5000);
+
+      this._listeToRequestConnect();
+
+      this._listeToRequestReconnect();
+    }
+  }, {
+    key: "_listeToRequestConnect",
+    value: function _listeToRequestConnect() {
+      var _this2 = this;
+
+      this.roomChannel.listenForWhisper("requestConnect", function (e) {
+        if (!_this2._isConnected) {
+          if (e.key !== _this2.myKey) {
+            _this2._isConnected = true;
+
+            _this2.roomChannel.whisper("requestConnect", _objectSpread({
+              key: _this2.myKey
+            }, _this2._getData()));
+
+            clearInterval(_this2._interval);
+
+            _this2._connectionEstablishedFunc();
+          }
+        } else {
+          _this2._preReconnectRequestFunc();
+
+          _this2.roomChannel.whisper("reconnectRequest", _objectSpread({
+            key: _this2.myKey
+          }, _this2._getData()));
+        }
+      });
+    }
+  }, {
+    key: "_listeToRequestReconnect",
+    value: function _listeToRequestReconnect() {
+      var _this3 = this;
+
+      this.roomChannel.listenForWhisper("reconnectRequest", function (e) {
+        if (e.key !== _this3.myKey) {
+          _this3._isConnected = true;
+          clearInterval(_this3._interval);
+
+          _this3._reconnectionEstablishedFunc(e);
+        }
+      });
+    }
+  }]);
+
+  return ConnectionValidator;
+}();
+
+
+
+/***/ }),
+
+/***/ "./resources/js/managers/gameManager.js":
+/*!**********************************************!*\
+  !*** ./resources/js/managers/gameManager.js ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ GameManager)
+/* harmony export */ });
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var laravel_echo__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! laravel-echo */ "./node_modules/laravel-echo/dist/echo.js");
+/* harmony import */ var pusher_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
+/* harmony import */ var pusher_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(pusher_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _helper_loader__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../helper/loader */ "./resources/js/helper/loader.js");
+/* harmony import */ var _helper_translator__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../helper/translator */ "./resources/js/helper/translator.js");
+/* harmony import */ var _rulesModalManager__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./rulesModalManager */ "./resources/js/managers/rulesModalManager.js");
+/* harmony import */ var _scoreManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./scoreManager */ "./resources/js/managers/scoreManager.js");
+/* harmony import */ var _namesManager__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./namesManager */ "./resources/js/managers/namesManager.js");
+/* harmony import */ var _colorsManager__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./colorsManager */ "./resources/js/managers/colorsManager.js");
+/* harmony import */ var _boardManager__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./boardManager */ "./resources/js/managers/boardManager.js");
+/* harmony import */ var _questionManager__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./questionManager */ "./resources/js/managers/questionManager.js");
+/* harmony import */ var _roundManager__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./roundManager */ "./resources/js/managers/roundManager.js");
+/* harmony import */ var _connectionValidator__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./connectionValidator */ "./resources/js/managers/connectionValidator.js");
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return generator._invoke = function (innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; }(innerFn, self, context), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; this._invoke = function (method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); }; } function maybeInvokeDelegate(delegate, context) { var method = delegate.iterator[context.method]; if (undefined === method) { if (context.delegate = null, "throw" === context.method) { if (delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method)) return ContinueSentinel; context.method = "throw", context.arg = new TypeError("The iterator does not provide a 'throw' method"); } return ContinueSentinel; } var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) { if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; } return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, define(Gp, "constructor", GeneratorFunctionPrototype), define(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (object) { var keys = []; for (var key in object) { keys.push(key); } return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) { "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); } }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+window.axios = (axios__WEBPACK_IMPORTED_MODULE_0___default());
+window.axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
+/**
+ * Echo exposes an expressive API for subscribing to channels and listening
+ * for events that are broadcast by Laravel. Echo and event broadcasting
+ * allows your team to easily build robust real-time web applications.
+ */
+
+
+
+window.Pusher = (pusher_js__WEBPACK_IMPORTED_MODULE_2___default());
+window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_1__["default"]({
+  broadcaster: "pusher",
+  key: /* unsupported import.meta.env.VITE_PUSHER_APP_KEY */ undefined.VITE_PUSHER_APP_KEY,
+  cluster: /* unsupported import.meta.env.VITE_PUSHER_APP_CLUSTER */ undefined.VITE_PUSHER_APP_CLUSTER,
+  forceTLS: true,
+  encryption: true
+});
+
+
+
+
+
+
+
+
+
+
+
+var GameManager = /*#__PURE__*/function () {
+  function GameManager(isOnline) {
+    var _this = this;
+
+    _classCallCheck(this, GameManager);
+
+    _defineProperty(this, "locale", document.querySelector(".locale").textContent);
+
+    _defineProperty(this, "room_number", void 0);
+
+    _defineProperty(this, "max_round", void 0);
+
+    _defineProperty(this, "current_round", void 0);
+
+    _defineProperty(this, "domCounter", void 0);
+
+    _defineProperty(this, "host_color", void 0);
+
+    _defineProperty(this, "join_color", void 0);
+
+    _defineProperty(this, "namesManager", void 0);
+
+    _defineProperty(this, "colorsManager", void 0);
+
+    _defineProperty(this, "boardManager", void 0);
+
+    _defineProperty(this, "questionManager", void 0);
+
+    _defineProperty(this, "roundManager", void 0);
+
+    _defineProperty(this, "roomChannel", void 0);
+
+    _defineProperty(this, "myTurn", void 0);
+
+    _defineProperty(this, "questionStatus", void 0);
+
+    _defineProperty(this, "questions", void 0);
+
+    _defineProperty(this, "bonus", void 0);
+
+    _defineProperty(this, "isCorrect", void 0);
+
+    _defineProperty(this, "selectedIndex", void 0);
+
+    _defineProperty(this, "thisTurnPlayer", void 0);
+
+    _defineProperty(this, "currentPlayer", void 0);
+
+    _defineProperty(this, "otherPlayer", void 0);
+
+    _defineProperty(this, "connectionValidator", void 0);
+
+    _defineProperty(this, "gameStatus", void 0);
+
+    _defineProperty(this, "isHost", void 0);
+
+    _defineProperty(this, "allRoundsQuestions", void 0);
+
+    _defineProperty(this, "isOnline", void 0);
+
+    _defineProperty(this, "isMyTurn", function () {});
+
+    _defineProperty(this, "setInQuestion", function (index) {
+      _this.boardManager.setSelectedTile(index);
+
+      _this.showQuestion(index);
+    });
+
+    _defineProperty(this, "setInResult", function (index, isCorrect) {
+      var player = _this.myTurn ? _this.currentPlayer : _this.otherPlayer;
+
+      _this.boardManager.setSelectedTile(index);
+
+      _this.questionManager.setData(_this.questions[index], player, _this.isMyTurn.bind(_this));
+
+      _this.questionManager.setQuestionAnswered(isCorrect);
+    });
+
+    _defineProperty(this, "initConnectionValidator", function () {
+      _this.connectionValidator.setCountFunc(_this.connectionCountFunc.bind(_this));
+
+      _this.connectionValidator.setConnectionAtemptFunc(_this.connectionAtemptFunc.bind(_this));
+
+      _this.connectionValidator.setConnectionEstablishedFunc(_this.connectionEstablishedFunc.bind(_this));
+
+      _this.connectionValidator.setReconnectionEstablishedFunc(_this.connectionEstablishedFunc.bind(_this));
+
+      _this.connectionValidator.establishConnection();
+    });
+
+    this.isOnline = isOnline;
+
+    if (isOnline) {
+      this.initOnlineInfo();
+      this.onlineOnLoad();
+    } else {
+      this.initOfflineInfo();
+      this.offlineOnLoad();
+    }
+  }
+
+  _createClass(GameManager, [{
+    key: "initOfflineInfo",
+    value: function initOfflineInfo() {
+      this.host_color = document.querySelector(".host_color").textContent;
+      this.join_color = document.querySelector(".join_color").textContent;
+      this.currentPlayer = "Host";
+      this.otherPlayer = "Join";
+
+      this.isMyTurn = function () {
+        return true;
+      };
+    }
+  }, {
+    key: "initOnlineInfo",
+    value: function initOnlineInfo() {
+      var _this2 = this;
+
+      this.room_number = document.querySelector(".room_number").textContent;
+      this.max_round = document.querySelector(".max_round").textContent;
+      this.current_round = document.querySelector(".current_round").textContent;
+      this.domCounter = document.querySelector(".connection-counter");
+
+      this.isMyTurn = function () {
+        return _this2.myTurn;
+      };
+    }
+  }, {
+    key: "onLoad",
+    value: function () {
+      var _onLoad = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(beforeRequestFunc, requestLink, thenRequestFunc) {
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
+                _context.next = 3;
+                return (0,_helper_translator__WEBPACK_IMPORTED_MODULE_4__.initLang)(this.locale);
+
+              case 3:
+                beforeRequestFunc();
+                window.axios.get(requestLink).then(thenRequestFunc);
+
+              case 5:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function onLoad(_x, _x2, _x3) {
+        return _onLoad.apply(this, arguments);
+      }
+
+      return onLoad;
+    }()
+  }, {
+    key: "offlineOnLoad",
+    value: function offlineOnLoad() {
+      this.onLoad(function () {}, "/offline-game-load/".concat(this.locale), this.initOffline.bind(this));
+    }
+  }, {
+    key: "onlineOnLoad",
+    value: function onlineOnLoad() {
+      var _this3 = this;
+
+      this.onLoad(function () {
+        _this3.roomChannel = window.Echo["private"]("room.".concat(_this3.room_number));
+      }, "/online-game-load/".concat(this.locale, "?room_number=").concat(this.room_number), this.initOnline.bind(this));
+    }
+  }, {
+    key: "initOffline",
+    value: function initOffline(resp) {
+      var _this4 = this;
+
+      this.allRoundsQuestions = resp.data.questions;
+      this.current_round = 1;
+      this.questions = this.allRoundsQuestions[this.current_round];
+      this.max_round = resp.data.maxRound;
+      this.myTurn = true;
+      this.setManagers(true);
+      _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].Off();
+      _scoreManager__WEBPACK_IMPORTED_MODULE_6__["default"].initAll();
+      this.boardManager.setTileFunction(function (clickedTile) {
+        _this4.questionManager.start(_this4.questions[clickedTile.dataset.questionIndex], _this4.currentPlayer, _this4.isMyTurn.bind(_this4));
+      });
+      this.setQuestionClicks();
+      this.setRoundClicks();
+    }
+  }, {
+    key: "initOnline",
+    value: function initOnline(resp) {
+      var _this5 = this;
+
+      this.gameStatus = resp.data.game_status;
+      this.questionStatus = resp.data.question_status;
+      this.questions = resp.data.questions;
+      this.isHost = resp.data["i_am_upper"] === "Host";
+      this.otherPlayer = this.isHost ? "Join" : "Host";
+      this.isCorrect = this.gameStatus.result === "is_correct";
+      this.myTurn = resp.data["i_am"] === this.gameStatus.current_player;
+      this.currentPlayer = resp.data["i_am_upper"];
+      this.setManagers();
+      this.setScoreManager();
+      this.boardManager.setBoard(this.questionStatus, this.isMyTurn.bind(this));
+      this.boardManager.setTileFunction(function (clickedTile) {
+        window.axios.post("/online-game-tile-selected/".concat(_this5.locale), {
+          room_number: _this5.room_number,
+          index: clickedTile.dataset.questionIndex
+        });
+      });
+      this.setQuestionClicks();
+      this.setChannelListeners();
+      this.setRoundClicks();
+      var index = this.questionStatus.selected_field.charAt(0) * 1;
+
+      switch (this.gameStatus.status) {
+        case "in_round":
+          this.setInRound();
+          break;
+
+        case "in_question":
+          this.setInQuestion(index);
+          break;
+
+        case "in_result":
+          this.setInResult(index, this.isCorrect, this.currentPlayer, this.otherPlayer);
+          break;
+
+        case "in_over":
+          this.setInOver();
+          break;
+      }
+
+      this.connectionValidator = new _connectionValidator__WEBPACK_IMPORTED_MODULE_12__["default"](this.roomChannel, this.currentPlayer);
+      this.initConnectionValidator();
+    }
+  }, {
+    key: "setManagers",
+    value: function setManagers() {
+      var hostColor, joinColor;
+
+      if (this.isOnline) {
+        hostColor = this.gameStatus.host_color;
+        joinColor = this.gameStatus.join_color;
+        this.namesManager = new _namesManager__WEBPACK_IMPORTED_MODULE_7__["default"](this.gameStatus.host_name, this.gameStatus.join_name);
+      } else {
+        hostColor = this.host_color;
+        joinColor = this.join_color;
+      }
+
+      this.colorsManager = new _colorsManager__WEBPACK_IMPORTED_MODULE_8__["default"](hostColor, joinColor, this.currentPlayer, this.otherPlayer, this.myTurn);
+      this.boardManager = new _boardManager__WEBPACK_IMPORTED_MODULE_9__["default"](hostColor, joinColor);
+      this.questionManager = new _questionManager__WEBPACK_IMPORTED_MODULE_10__["default"](hostColor, joinColor, (0,_helper_translator__WEBPACK_IMPORTED_MODULE_4__.__)("Correct"), (0,_helper_translator__WEBPACK_IMPORTED_MODULE_4__.__)("Wrong"));
+      this.roundManager = new _roundManager__WEBPACK_IMPORTED_MODULE_11__["default"](this.currentPlayer, this.isOnline);
+    }
+  }, {
+    key: "setScoreManager",
+    value: function setScoreManager() {
+      _scoreManager__WEBPACK_IMPORTED_MODULE_6__["default"].setAll({
+        correct: this.gameStatus.host_current_score,
+        bonus: this.gameStatus.host_current_bonus_score,
+        wrong: this.gameStatus.host_current_wrong_score,
+        total: this.gameStatus.host_current_total_score
+      }, {
+        correct: this.gameStatus.host_score,
+        bonus: this.gameStatus.host_bonus_score,
+        wrong: this.gameStatus.host_wrong_score,
+        total: this.gameStatus.host_total_score
+      }, {
+        correct: this.gameStatus.join_current_score,
+        bonus: this.gameStatus.join_current_bonus_score,
+        wrong: this.gameStatus.join_current_wrong_score,
+        total: this.gameStatus.join_current_total_score
+      }, {
+        correct: this.gameStatus.join_score,
+        bonus: this.gameStatus.join_bonus_score,
+        wrong: this.gameStatus.join_wrong_score,
+        total: this.gameStatus.join_total_score
+      });
+    }
+  }, {
+    key: "showQuestion",
+    value: function showQuestion(index) {
+      var player = this.myTurn ? this.getCurrentPlayer() : this.getOtherPlayer();
+      console.log(this.currentPlayer, this.otherPlayer);
+      this.questionManager.start(this.questions[index], player, this.isMyTurn.bind(this));
+    }
+  }, {
+    key: "setChannelListeners",
+    value: function setChannelListeners() {
+      var _this6 = this;
+
+      this.roomChannel.listen("GameTileSelected", function (e) {
+        _this6.showQuestion(e.index);
+      });
+      this.roomChannel.listen("GameOptionSelected", function (e) {
+        _this6.questionManager.switchSelected(e.index);
+      });
+      this.roomChannel.listen("GameQuestionAnswered", function (e) {
+        _this6.questionManager.questionAnswered(e.is_correct);
+      });
+      this.roomChannel.listen("GameCloseResult", function (e) {
+        _this6.bonus = e.bonus;
+        _this6.isCorrect = e.is_correct;
+        _this6.selectedIndex = e.index;
+        _this6.thisTurnPlayer = _this6.otherPlayer;
+
+        _this6.gameClosedFunc();
+
+        if (e.is_all_full) {
+          _this6.setInRound(_this6.currentPlayer);
+        }
+      });
+      this.roomChannel.listen("GameOver", function (e) {
+        _this6.roundManager.showOver();
+      });
+      this.roomChannel.listen("GameNextRoundClicked", function (e) {
+        _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
+
+        _this6.roundManager.nextRound();
+
+        window.axios.post("/online-game-next-round-join/".concat(_this6.locale), {
+          room_number: _this6.room_number
+        }).then(function (resp) {
+          _this6.prepareBoard(resp.data);
+
+          _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].Off();
+        });
+      });
+      this.roomChannel.listenForWhisper("readyBtnClicked", function (e) {
+        _this6.roundManager.switchStartBtn(e.isReady);
+      });
+      this.roomChannel.listenForWhisper("newGamePreparing", function () {
+        _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
+      });
+      this.roomChannel.listenForWhisper("newGameReady", function () {
+        window.location.href = "/online-game/".concat(_this6.locale, "?room_number=").concat(_this6.room_number);
+      });
+      this.roomChannel.listenForWhisper("finishGamePreparing", function () {
+        _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
+      });
+      this.roomChannel.listenForWhisper("finishGameReady", function () {
+        window.location.href = "/welcome/".concat(_this6.locale);
+      });
+    }
+  }, {
+    key: "optionClicked",
+    value: function optionClicked(index) {
+      this.questionManager.enableAnswerButton();
+      this.questionManager.switchSelected(index);
+
+      if (this.isOnline) {
+        window.axios.post("/online-game-option-selected/".concat(this.locale), {
+          room_number: this.room_number,
+          index: index
+        });
+      }
+    }
+  }, {
+    key: "questionAnsweredClicked",
+    value: function questionAnsweredClicked(getIsCorrect, getIndex) {
+      this.isCorrect = getIsCorrect();
+      this.questionManager.questionAnswered(this.isCorrect);
+
+      if (this.isOnline) {
+        var index = getIndex();
+        window.axios.post("/online-game-question-answered/".concat(this.locale), {
+          room_number: this.room_number,
+          is_correct: this.isCorrect,
+          index: index
+        });
+      }
+    }
+  }, {
+    key: "closeResultClicked",
+    value: function closeResultClicked() {
+      var _this7 = this;
+
+      var filledTiles = this.boardManager.countFilledTiles();
+      var isAllFull = false;
+      this.selectedIndex = this.boardManager.getSelectedTile();
+      this.bonus = 0;
+
+      if (this.isCorrect) {
+        this.bonus = this.boardManager.calculateBonus(this.currentPlayer, this.selectedIndex);
+        filledTiles++;
+      }
+
+      isAllFull = filledTiles === 9;
+      this.thisTurnPlayer = this.currentPlayer;
+      this.gameClosedFunc();
+
+      if (this.isOnline) {
+        window.axios.post("/online-game-close-result/".concat(this.locale), {
+          room_number: this.room_number,
+          is_correct: this.isCorrect,
+          index: this.selectedIndex,
+          bonus: this.bonus,
+          is_all_full: isAllFull
+        }).then(function () {
+          if (isAllFull) {
+            _this7.setInRound(_this7.currentPlayer);
+          }
+        });
+      } else {
+        if (isAllFull) {
+          this.setInRound(this.currentPlayer);
+        }
+      }
+    }
+  }, {
+    key: "overFunction",
+    value: function overFunction() {
+      window.axios.post("/online-game-over/".concat(this.locale), {
+        room_number: this.room_number
+      });
+    }
+  }, {
+    key: "nextRoundClickedFunction",
+    value: function nextRoundClickedFunction() {
+      var _this8 = this;
+
+      this.roundManager.nextRound();
+
+      if (this.isOnline) {
+        _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
+        window.axios.post("/online-game-next-round/".concat(this.locale), {
+          room_number: this.room_number
+        }).then(function (resp) {
+          _this8.prepareBoard(resp.data);
+
+          _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].Off();
+        });
+      } else {
+        this.prepareBoardOffline();
+      }
+    }
+  }, {
+    key: "readyBtnFunction",
+    value: function readyBtnFunction(isReady) {
+      this.roomChannel.whisper("readyBtnClicked", {
+        isReady: isReady
+      });
+    }
+  }, {
+    key: "newGameBtnFunction",
+    value: function newGameBtnFunction() {
+      var _this9 = this;
+
+      _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
+
+      if (this.isOnline) {
+        this.roomChannel.whisper("newGamePreparing", {});
+        window.axios.post("/online-game-new-game/".concat(this.locale), {
+          room_number: this.room_number
+        }).then(function () {
+          _this9.roomChannel.whisper("newGameReady", {});
+
+          window.location.href = "/online-game/".concat(_this9.locale, "?room_number=").concat(_this9.room_number);
+        });
+      } else {
+        window.location.href = "/offline-game/".concat(this.locale, "?host_color=").concat(this.host_color, "&join_color=").concat(this.join_color);
+      }
+    }
+  }, {
+    key: "finishGameBtnFunction",
+    value: function finishGameBtnFunction() {
+      var _this10 = this;
+
+      _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
+
+      if (this.isOnline) {
+        this.roomChannel.whisper("finishGamePreparing", {});
+        window.axios.post("/online-game-finish-game/".concat(this.locale), {
+          room_number: this.room_number
+        }).then(function () {
+          _this10.roomChannel.whisper("finishGameReady", {});
+
+          window.location.href = "/welcome/".concat(_this10.locale);
+        });
+      } else {
+        window.location.href = "/welcome/".concat(this.locale);
+      }
+    }
+  }, {
+    key: "setInRound",
+    value: function setInRound() {
+      this.roundManager.showRoundEnd(this.current_round, this.current_round === this.max_round);
+    }
+  }, {
+    key: "setInOver",
+    value: function setInOver() {
+      this.roundManager.showOver();
+    }
+  }, {
+    key: "get_isCorrect",
+    value: function get_isCorrect() {
+      return this.isCorrect;
+    }
+  }, {
+    key: "get_index",
+    value: function get_index() {
+      return this.selectedIndex;
+    }
+  }, {
+    key: "get_bonus",
+    value: function get_bonus() {
+      return this.bonus;
+    }
+  }, {
+    key: "get_thisTurnPlayer",
+    value: function get_thisTurnPlayer() {
+      return this.thisTurnPlayer;
+    }
+  }, {
+    key: "getCurrentPlayer",
+    value: function getCurrentPlayer() {
+      return this.currentPlayer;
+    }
+  }, {
+    key: "getOtherPlayer",
+    value: function getOtherPlayer() {
+      return this.otherPlayer;
+    }
+  }, {
+    key: "switchPlayersOffline",
+    value: function switchPlayersOffline() {
+      var tempPlayer = this.currentPlayer;
+      this.currentPlayer = this.otherPlayer;
+      this.otherPlayer = tempPlayer;
+    }
+  }, {
+    key: "afterCloseFunc",
+    value: function afterCloseFunc() {
+      var curIsCorrect = this.get_isCorrect();
+      var curIndex = this.get_index();
+      var curBonus = this.get_bonus();
+      var curThisTurnPlayer = this.get_thisTurnPlayer();
+      _scoreManager__WEBPACK_IMPORTED_MODULE_6__["default"].addScore(curIsCorrect, curThisTurnPlayer);
+
+      if (curIsCorrect) {
+        this.boardManager["selected".concat(curThisTurnPlayer)](curIndex);
+        _scoreManager__WEBPACK_IMPORTED_MODULE_6__["default"]["addBonus".concat(curThisTurnPlayer)](curBonus);
+      }
+
+      this.boardManager.toggleFreeTiles();
+      this.myTurn = !this.myTurn;
+      this.colorsManager.toggleColors();
+
+      if (!this.isOnline) {
+        this.switchPlayersOffline();
+      }
+    }
+  }, {
+    key: "gameClosedFunc",
+    value: function gameClosedFunc() {
+      this.questionManager.closeResult();
+    }
+  }, {
+    key: "setQuestionClicks",
+    value: function setQuestionClicks() {
+      this.questionManager.setOptionClickedFunction(this.optionClicked.bind(this));
+      this.questionManager.setQuestionAnsweredFunction(this.questionAnsweredClicked.bind(this));
+      this.questionManager.setCloseResultFunction(this.closeResultClicked.bind(this));
+      this.questionManager.setAfterCloseFunction(this.afterCloseFunc.bind(this));
+    }
+  }, {
+    key: "setRoundClicks",
+    value: function setRoundClicks() {
+      this.roundManager.setNextRoundFunction(this.nextRoundClickedFunction.bind(this));
+      this.roundManager.setNewGameBtnFunction(this.newGameBtnFunction.bind(this));
+      this.roundManager.setFinishGameBtnFunction(this.finishGameBtnFunction.bind(this));
+
+      if (this.isOnline) {
+        this.roundManager.setOverFunction(this.overFunction.bind(this));
+        this.roundManager.setReadyBtnFunction(this.readyBtnFunction.bind(this));
+      }
+    }
+  }, {
+    key: "connectionCountFunc",
+    value: function connectionCountFunc(counter) {
+      this.domCounter.textContent = counter;
+    }
+  }, {
+    key: "connectionAtemptFunc",
+    value: function connectionAtemptFunc(counter) {
+      var backBtn = document.querySelector(".btn-room-back-loader");
+      var isBackOn = false;
+
+      if (!isBackOn && counter >= 2) {
+        backBtn.classList.add("show-loader");
+
+        backBtn.onanimationend = function () {
+          backBtn.style.opacity = 1;
+        };
+
+        isBackOn = true;
+      }
+    }
+  }, {
+    key: "connectionEstablishedFunc",
+    value: function connectionEstablishedFunc() {
+      this.domCounter.textContent = "";
+      _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].Off();
+    }
+  }, {
+    key: "prepareBoard",
+    value: function prepareBoard(data) {
+      this.gameStatus = data.game_status;
+      this.questionStatus = data.question_status;
+      this.questions = data.questions;
+      this.setScoreManager(this.gameStatus);
+      this.boardManager.resetBoard();
+      this.boardManager.setBoard(this.questionStatus, this.isMyTurn.bind(this));
+    }
+  }, {
+    key: "prepareBoardOffline",
+    value: function prepareBoardOffline() {
+      this.current_round++;
+      this.questions = this.allRoundsQuestions[this.current_round];
+      _scoreManager__WEBPACK_IMPORTED_MODULE_6__["default"].resetCurrectRound();
+      this.boardManager.resetBoard();
+    }
+  }]);
+
+  return GameManager;
+}();
+
+
+
+/***/ }),
+
 /***/ "./resources/js/managers/modalManager.js":
 /*!***********************************************!*\
   !*** ./resources/js/managers/modalManager.js ***!
@@ -23258,6 +24119,54 @@ var ModalManager = /*#__PURE__*/function () {
   }]);
 
   return ModalManager;
+}();
+
+
+
+/***/ }),
+
+/***/ "./resources/js/managers/namesManager.js":
+/*!***********************************************!*\
+  !*** ./resources/js/managers/namesManager.js ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ NamesManager)
+/* harmony export */ });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var NamesManager = /*#__PURE__*/function () {
+  function NamesManager(nameHost, nameJoin) {
+    _classCallCheck(this, NamesManager);
+
+    _defineProperty(this, "_nameHost", document.querySelectorAll(".name-host"));
+
+    _defineProperty(this, "_nameJoin", document.querySelectorAll(".name-join"));
+
+    this._setName("_nameHost", nameHost);
+
+    this._setName("_nameJoin", nameJoin);
+  }
+
+  _createClass(NamesManager, [{
+    key: "_setName",
+    value: function _setName(player, name) {
+      this[player].forEach(function (e) {
+        e.textContent = name;
+      });
+    }
+  }]);
+
+  return NamesManager;
 }();
 
 
@@ -23568,6 +24477,8 @@ var RoundManager = /*#__PURE__*/function () {
 
     _defineProperty(this, "_isReady", false);
 
+    _defineProperty(this, "_isOnline", false);
+
     _defineProperty(this, "_overFunction", function () {});
 
     _defineProperty(this, "_nextRoundFunc", function () {});
@@ -23578,6 +24489,7 @@ var RoundManager = /*#__PURE__*/function () {
 
     _defineProperty(this, "_finishGameBtnFunc", function () {});
 
+    this._isOnline = isOnline;
     this["init".concat(currentPlayer)]();
 
     this._overFinishBtn.addEventListener("click", function () {
@@ -23587,14 +24499,14 @@ var RoundManager = /*#__PURE__*/function () {
 
   _createClass(RoundManager, [{
     key: "initHost",
-    value: function initHost(isOnline) {
+    value: function initHost() {
       var _this2 = this;
 
-      var addOrRemove = isOnline ? "add" : "remove";
+      var addOrRemove = this._isOnline ? "add" : "remove";
 
-      this._roundModalManager.continueBtn.classList.remove("control-btn-dis");
+      this._roundModalManager.continueBtn.classList.remove("d-hide");
 
-      this._roundFinishBtn.classList.remove("control-btn-dis");
+      this._roundFinishBtn.classList.remove("d-hide");
 
       this._roundModalManager.continueBtn.addEventListener("click", function (e) {
         if (_this2._isFinal) {
@@ -23621,9 +24533,9 @@ var RoundManager = /*#__PURE__*/function () {
     value: function initJoin() {
       var _this3 = this;
 
-      this._roundModalManager.continueBtn.classList.add("control-btn-dis");
+      this._roundModalManager.continueBtn.classList.add("d-hide");
 
-      this._roundFinishBtn.classList.add("control-btn-dis");
+      this._roundFinishBtn.classList.add("d-hide");
 
       this._overNewGameBtn.classList.add("d-hide");
 
@@ -23911,6 +24823,11 @@ var ScoreHolder = /*#__PURE__*/function () {
       this._setTotal(total);
     }
   }, {
+    key: "_initAll",
+    value: function _initAll() {
+      this._setAll(0, 0, 0, 0);
+    }
+  }, {
     key: "_addCorrect",
     value: function _addCorrect() {
       var score = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
@@ -23952,6 +24869,17 @@ var ScoreManager = /*#__PURE__*/function () {
   }
 
   _createClass(ScoreManager, [{
+    key: "initAll",
+    value: function initAll() {
+      this._hostScoreHolderRound._initAll();
+
+      this._hostScoreHolderGame._initAll();
+
+      this._joinScoreHolderRound._initAll();
+
+      this._joinScoreHolderGame._initAll();
+    }
+  }, {
     key: "setAll",
     value: function setAll(roundHost, gameHost, roundJoin, gameJoin) {
       this._hostScoreHolderRound._setAll(roundHost.correct, roundHost.bonus, roundHost.wrong, roundHost.total);
@@ -24032,284 +24960,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var bootstrap__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bootstrap */ "./node_modules/bootstrap/dist/js/bootstrap.esm.js");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var laravel_echo__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! laravel-echo */ "./node_modules/laravel-echo/dist/echo.js");
-/* harmony import */ var pusher_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
-/* harmony import */ var pusher_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(pusher_js__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _helper_loader__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./helper/loader */ "./resources/js/helper/loader.js");
-/* harmony import */ var _helper_translator__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./helper/translator */ "./resources/js/helper/translator.js");
-/* harmony import */ var _managers_rulesModalManager__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./managers/rulesModalManager */ "./resources/js/managers/rulesModalManager.js");
-/* harmony import */ var _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./managers/scoreManager */ "./resources/js/managers/scoreManager.js");
-/* harmony import */ var _managers_colorsManager__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./managers/colorsManager */ "./resources/js/managers/colorsManager.js");
-/* harmony import */ var _managers_boardManager__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./managers/boardManager */ "./resources/js/managers/boardManager.js");
-/* harmony import */ var _managers_questionManager__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./managers/questionManager */ "./resources/js/managers/questionManager.js");
-/* harmony import */ var _managers_roundManager__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./managers/roundManager */ "./resources/js/managers/roundManager.js");
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-
-function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return generator._invoke = function (innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; }(innerFn, self, context), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; this._invoke = function (method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); }; } function maybeInvokeDelegate(delegate, context) { var method = delegate.iterator[context.method]; if (undefined === method) { if (context.delegate = null, "throw" === context.method) { if (delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method)) return ContinueSentinel; context.method = "throw", context.arg = new TypeError("The iterator does not provide a 'throw' method"); } return ContinueSentinel; } var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) { if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; } return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, define(Gp, "constructor", GeneratorFunctionPrototype), define(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (object) { var keys = []; for (var key in object) { keys.push(key); } return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) { "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); } }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
-
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
+/* harmony import */ var _managers_gameManager__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./managers/gameManager */ "./resources/js/managers/gameManager.js");
 
 window._ = (lodash__WEBPACK_IMPORTED_MODULE_0___default());
 
-/**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
- */
 
-
-window.axios = (axios__WEBPACK_IMPORTED_MODULE_2___default());
-window.axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
-/**
- * Echo exposes an expressive API for subscribing to channels and listening
- * for events that are broadcast by Laravel. Echo and event broadcasting
- * allows your team to easily build robust real-time web applications.
- */
-
-
-
-window.Pusher = (pusher_js__WEBPACK_IMPORTED_MODULE_4___default());
-window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_3__["default"]({
-  broadcaster: "pusher",
-  key: /* unsupported import.meta.env.VITE_PUSHER_APP_KEY */ undefined.VITE_PUSHER_APP_KEY,
-  cluster: /* unsupported import.meta.env.VITE_PUSHER_APP_CLUSTER */ undefined.VITE_PUSHER_APP_CLUSTER,
-  forceTLS: true,
-  encryption: true
-});
-
-
-
-
-
-
-
-
-var locale = document.querySelector(".locale").textContent;
-var host_color = document.querySelector(".host_color").textContent;
-var join_color = document.querySelector(".join_color").textContent;
-var current_round;
-var questionManager;
-var colorsManager;
-var boardManager;
-var roundManager;
-var myTurn;
-var questions;
-var bonus;
-var isCorrect;
-var selectedIndex;
-var thisTurnPlayer;
-var currentPlayer = "Host";
-var otherPlayer = "Join";
-var allRoundsQuestions;
-var max_round;
-
-var isMyTurn = function isMyTurn() {
-  return true;
-};
-
-var setManagers = function setManagers(isMyTurn) {
-  colorsManager = new _managers_colorsManager__WEBPACK_IMPORTED_MODULE_9__["default"](host_color, join_color, "Host", "Join", isMyTurn);
-  boardManager = new _managers_boardManager__WEBPACK_IMPORTED_MODULE_10__["default"](host_color, join_color);
-  questionManager = new _managers_questionManager__WEBPACK_IMPORTED_MODULE_11__["default"](host_color, join_color, (0,_helper_translator__WEBPACK_IMPORTED_MODULE_6__.__)("Correct"), (0,_helper_translator__WEBPACK_IMPORTED_MODULE_6__.__)("Wrong"));
-  roundManager = new _managers_roundManager__WEBPACK_IMPORTED_MODULE_12__["default"]("Host", false);
-};
-
-var setScoreManager = function setScoreManager() {
-  _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__["default"].setAll({
-    correct: 0,
-    bonus: 0,
-    wrong: 0,
-    total: 0
-  }, {
-    correct: 0,
-    bonus: 0,
-    wrong: 0,
-    total: 0
-  }, {
-    correct: 0,
-    bonus: 0,
-    wrong: 0,
-    total: 0
-  }, {
-    correct: 0,
-    bonus: 0,
-    wrong: 0,
-    total: 0
-  });
-};
-
-var showQuestion = function showQuestion(index, currentPlayer, otherPlayer) {
-  questionManager.start(questions[index], currentPlayer, isMyTurn);
-};
-
-var optionClicked = function optionClicked(index) {
-  questionManager.enableAnswerButton();
-  questionManager.switchSelected(index);
-};
-
-var questionAnsweredClicked = function questionAnsweredClicked(getIsCorrect, getIndex) {
-  isCorrect = getIsCorrect();
-  questionManager.questionAnswered(isCorrect);
-};
-
-var closeResultClicked = function closeResultClicked() {
-  var filledTiles = boardManager.countFilledTiles();
-  var isAllFull = false;
-  selectedIndex = boardManager.getSelectedTile();
-  bonus = 0;
-
-  if (isCorrect) {
-    bonus = boardManager.calculateBonus(currentPlayer, selectedIndex);
-    filledTiles++;
-  }
-
-  isAllFull = filledTiles === 9;
-  thisTurnPlayer = currentPlayer;
-  gameClosedFunc();
-
-  if (isAllFull) {
-    setInRound(currentPlayer);
-  }
-};
-
-var nextRoundClickedFunction = function nextRoundClickedFunction() {
-  roundManager.nextRound();
-  _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
-  prepareBoard();
-  _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].Off();
-};
-
-var newGameBtnFunction = function newGameBtnFunction() {
-  _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
-  window.location.href = "/offline-game/".concat(locale, "?host_color=").concat(host_color, "&join_color=").concat(join_color);
-};
-
-var finishGameBtnFunction = function finishGameBtnFunction() {
-  _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
-  window.location.href = "/welcome/".concat(locale);
-};
-
-var setInRound = function setInRound() {
-  roundManager.showRoundEnd(current_round, current_round === max_round);
-};
-
-var get_isCorrect = function get_isCorrect() {
-  return isCorrect;
-};
-
-var get_index = function get_index() {
-  return selectedIndex;
-};
-
-var get_bonus = function get_bonus() {
-  return bonus;
-};
-
-var get_thisTurnPlayer = function get_thisTurnPlayer() {
-  return thisTurnPlayer;
-};
-
-var afterCloseFunc = function afterCloseFunc() {
-  var curIsCorrect = get_isCorrect();
-  var curIndex = get_index();
-  var curBonus = get_bonus();
-  var curThisTurnPlayer = get_thisTurnPlayer();
-  var tempPlayer = currentPlayer;
-  _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__["default"].addScore(curIsCorrect, curThisTurnPlayer);
-
-  if (curIsCorrect) {
-    boardManager["selected".concat(curThisTurnPlayer)](curIndex);
-    _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__["default"]["addBonus".concat(curThisTurnPlayer)](curBonus);
-  }
-
-  boardManager.toggleFreeTiles();
-  myTurn = !myTurn;
-  colorsManager.toggleColors();
-  currentPlayer = otherPlayer;
-  otherPlayer = tempPlayer;
-};
-
-var gameClosedFunc = function gameClosedFunc() {
-  questionManager.closeResult();
-};
-
-var setQuestionClicks = function setQuestionClicks() {
-  questionManager.setOptionClickedFunction(optionClicked);
-  questionManager.setQuestionAnsweredFunction(questionAnsweredClicked);
-  questionManager.setCloseResultFunction(closeResultClicked);
-  questionManager.setAfterCloseFunction(afterCloseFunc);
-};
-
-var setRoundClicks = function setRoundClicks() {
-  roundManager.setNextRoundFunction(nextRoundClickedFunction);
-  roundManager.setNewGameBtnFunction(newGameBtnFunction);
-  roundManager.setFinishGameBtnFunction(finishGameBtnFunction);
-};
-
-var prepareBoard = function prepareBoard() {
-  current_round++;
-  questions = allRoundsQuestions[current_round];
-  _managers_scoreManager__WEBPACK_IMPORTED_MODULE_8__["default"].resetCurrectRound();
-  boardManager.resetBoard();
-};
-
-var getCurrentPlayer = function getCurrentPlayer() {
-  return currentPlayer;
-};
-
-var getOtherPlayer = function getOtherPlayer() {
-  return otherPlayer;
-};
-
-var onLoad = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-    return _regeneratorRuntime().wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].On();
-            _context.next = 3;
-            return (0,_helper_translator__WEBPACK_IMPORTED_MODULE_6__.initLang)(locale);
-
-          case 3:
-            window.axios.get("/offline-game-load/".concat(locale)).then(function (resp) {
-              allRoundsQuestions = resp.data.questions;
-              current_round = 1;
-              questions = allRoundsQuestions[current_round];
-              max_round = resp.data.maxRound;
-              myTurn = true;
-              setManagers(true);
-              _helper_loader__WEBPACK_IMPORTED_MODULE_5__["default"].Off();
-              setScoreManager();
-              boardManager.setTileFunction(function (clickedTile) {
-                var index = clickedTile.dataset.questionIndex;
-                var currentPlayer = getCurrentPlayer();
-                var otherPlayer = getOtherPlayer();
-                showQuestion(index, currentPlayer, otherPlayer);
-              });
-              setQuestionClicks();
-              setRoundClicks();
-            });
-
-          case 4:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee);
-  }));
-
-  return function onLoad() {
-    return _ref.apply(this, arguments);
-  };
-}();
-
-onLoad();
+var gameManager = new _managers_gameManager__WEBPACK_IMPORTED_MODULE_2__["default"](false);
 
 /***/ }),
 

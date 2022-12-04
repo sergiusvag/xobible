@@ -19,22 +19,24 @@ export default class RoundManager {
     _roundNumber = document.querySelector(".round-number");
     _isFinal = false;
     _isReady = false;
+    _isOnline = false;
     _overFunction = () => {};
     _nextRoundFunc = () => {};
     _readyBtnFunc = () => {};
     _newGameBtnFunc = () => {};
     _finishGameBtnFunc = () => {};
     constructor(currentPlayer, isOnline = true) {
+        this._isOnline = isOnline;
         this[`init${currentPlayer}`]();
 
         this._overFinishBtn.addEventListener("click", () => {
             this._finishGameBtnFunc();
         });
     }
-    initHost(isOnline) {
-        const addOrRemove = isOnline ? "add" : "remove";
-        this._roundModalManager.continueBtn.classList.remove("control-btn-dis");
-        this._roundFinishBtn.classList.remove("control-btn-dis");
+    initHost() {
+        const addOrRemove = this._isOnline ? "add" : "remove";
+        this._roundModalManager.continueBtn.classList.remove("d-hide");
+        this._roundFinishBtn.classList.remove("d-hide");
         this._roundModalManager.continueBtn.addEventListener("click", (e) => {
             if (this._isFinal) {
                 this._showOver();
@@ -53,8 +55,8 @@ export default class RoundManager {
         });
     }
     initJoin() {
-        this._roundModalManager.continueBtn.classList.add("control-btn-dis");
-        this._roundFinishBtn.classList.add("control-btn-dis");
+        this._roundModalManager.continueBtn.classList.add("d-hide");
+        this._roundFinishBtn.classList.add("d-hide");
         this._overNewGameBtn.classList.add("d-hide");
         this._overReadyBtn.addEventListener("click", (e) => {
             this._isReady = !this._isReady;
