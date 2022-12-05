@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Logged;
 
 use App\Models\Suggestion;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class SuggestionController extends Controller
+class SuggestionController extends BaseController
 {
     public function index($locale)
     {
@@ -36,9 +36,5 @@ class SuggestionController extends Controller
             ->with('rtlClass', $this->getRtlClass($locale))
             ->with('success', __('Your suggestion was successfully added!'))
             ->with('locale', $locale);
-    }
-
-    public function getRtlClass ($locale) {
-        return $locale === 'he' ? 'input-rtl' : '';
     }
 }

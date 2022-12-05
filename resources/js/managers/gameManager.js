@@ -64,13 +64,24 @@ export default class GameManager {
     allRoundsQuestions;
     isOnline;
     isMyTurn = () => {};
+    setManagersInnerFunc = () => {};
+    optionClickedInnerFunc = () => {};
+    questionAnsweredClickedInnerFunc = () => {};
+    closeResultClickedInnerFunc = () => {};
+    nextRoundClickedInnerFunc = () => {};
+    newGameBtnInnerFunc = () => {};
+    finishGameBtnInnerFunc = () => {};
+    setRoundClicksInnerFunc = () => {};
+    afterCloseInnerFunc = () => {};
     constructor(isOnline) {
         this.isOnline = isOnline;
         if (isOnline) {
             this.initOnlineInfo();
+            this.initOnlineFunctions();
             this.onlineOnLoad();
         } else {
             this.initOfflineInfo();
+            this.initOfflineFunctions();
             this.offlineOnLoad();
         }
     }
@@ -92,6 +103,110 @@ export default class GameManager {
         this.domCounter = document.querySelector(".connection-counter");
         this.isMyTurn = () => {
             return this.myTurn;
+        };
+    }
+    initOnlineFunctions() {
+        this.setManagersInnerFunc = () => {
+            const hostColor = this.gameStatus.host_color;
+            const joinColor = this.gameStatus.join_color;
+            this.namesManager = new NamesManager(
+                this.gameStatus.host_name,
+                this.gameStatus.join_name
+            );
+
+            return { hostColor, joinColor };
+        };
+        this.optionClickedInnerFunc = (index) => {
+            window.axios.post(`/online-game-option-selected/${this.locale}`, {
+                room_number: this.room_number,
+                index: index,
+            });
+        };
+        this.questionAnsweredClickedInnerFunc = (getIndex) => {
+            const index = getIndex();
+            window.axios.post(`/online-game-question-answered/${this.locale}`, {
+                room_number: this.room_number,
+                is_correct: this.isCorrect,
+                index: index,
+            });
+        };
+        this.closeResultClickedInnerFunc = (isAllFull) => {
+            window.axios
+                .post(`/online-game-close-result/${this.locale}`, {
+                    room_number: this.room_number,
+                    is_correct: this.isCorrect,
+                    index: this.selectedIndex,
+                    bonus: this.bonus,
+                    is_all_full: isAllFull,
+                })
+                .then(() => {
+                    if (isAllFull) {
+                        this.setInRound(this.currentPlayer);
+                    }
+                });
+        };
+        this.nextRoundClickedInnerFunc = () => {
+            Loader.On();
+            window.axios
+                .post(`/online-game-next-round/${this.locale}`, {
+                    room_number: this.room_number,
+                })
+                .then((resp) => {
+                    this.prepareBoard(resp.data);
+                    Loader.Off();
+                });
+        };
+        this.newGameBtnInnerFunc = () => {
+            this.roomChannel.whisper("newGamePreparing", {});
+            window.axios
+                .post(`/online-game-new-game/${this.locale}`, {
+                    room_number: this.room_number,
+                })
+                .then(() => {
+                    this.roomChannel.whisper("newGameReady", {});
+                    window.location.href = `/online-game/${this.locale}?room_number=${this.room_number}`;
+                });
+        };
+        this.finishGameBtnInnerFunc = () => {
+            this.roomChannel.whisper("finishGamePreparing", {});
+            window.axios
+                .post(`/online-game-finish-game/${this.locale}`, {
+                    room_number: this.room_number,
+                })
+                .then(() => {
+                    this.roomChannel.whisper("finishGameReady", {});
+                    window.location.href = `/welcome/${this.locale}`;
+                });
+        };
+        this.setRoundClicksInnerFunc = () => {
+            this.roundManager.setOverFunction(this.overFunction.bind(this));
+            this.roundManager.setReadyBtnFunction(
+                this.readyBtnFunction.bind(this)
+            );
+        };
+    }
+    initOfflineFunctions() {
+        this.setManagersInnerFunc = () => {
+            const hostColor = this.host_color;
+            const joinColor = this.join_color;
+            return { hostColor, joinColor };
+        };
+        this.closeResultClickedInnerFunc = (isAllFull) => {
+            if (isAllFull) {
+                this.setInRound(this.currentPlayer);
+            }
+        };
+        this.nextRoundClickedInnerFunc = () => {
+            this.prepareBoardOffline();
+        };
+        this.newGameBtnInnerFunc = () => {
+            window.location.href = `/offline-game/${this.locale}?host_color=${this.host_color}&join_color=${this.join_color}`;
+        };
+        this.finishGameBtnInnerFunc = () => {
+            window.location.href = `/welcome/${this.locale}`;
+        };
+        this.afterCloseInnerFunc = () => {
+            this.switchPlayersOffline();
         };
     }
     async onLoad(beforeRequestFunc, requestLink, thenRequestFunc) {
@@ -150,6 +265,7 @@ export default class GameManager {
         this.isCorrect = this.gameStatus.result === "is_correct";
         this.myTurn = resp.data["i_am"] === this.gameStatus.current_player;
         this.currentPlayer = resp.data["i_am_upper"];
+        const index = this.questionStatus.selected_field.charAt(0) * 1;
 
         this.setManagers();
         this.setScoreManager();
@@ -168,7 +284,6 @@ export default class GameManager {
         this.setChannelListeners();
         this.setRoundClicks();
 
-        const index = this.questionStatus.selected_field.charAt(0) * 1;
         switch (this.gameStatus.status) {
             case "in_round":
                 this.setInRound();
@@ -196,18 +311,7 @@ export default class GameManager {
     }
 
     setManagers() {
-        let hostColor, joinColor;
-        if (this.isOnline) {
-            hostColor = this.gameStatus.host_color;
-            joinColor = this.gameStatus.join_color;
-            this.namesManager = new NamesManager(
-                this.gameStatus.host_name,
-                this.gameStatus.join_name
-            );
-        } else {
-            hostColor = this.host_color;
-            joinColor = this.join_color;
-        }
+        let { hostColor, joinColor } = this.setManagersInnerFunc();
         this.colorsManager = new ColorsManager(
             hostColor,
             joinColor,
@@ -258,7 +362,6 @@ export default class GameManager {
         const player = this.myTurn
             ? this.getCurrentPlayer()
             : this.getOtherPlayer();
-        console.log(this.currentPlayer, this.otherPlayer);
         this.questionManager.start(
             this.questions[index],
             player,
@@ -301,7 +404,6 @@ export default class GameManager {
                     Loader.Off();
                 });
         });
-
         this.roomChannel.listenForWhisper("readyBtnClicked", (e) => {
             this.roundManager.switchStartBtn(e.isReady);
         });
@@ -318,29 +420,15 @@ export default class GameManager {
             window.location.href = `/welcome/${this.locale}`;
         });
     }
-
     optionClicked(index) {
         this.questionManager.enableAnswerButton();
         this.questionManager.switchSelected(index);
-        if (this.isOnline) {
-            window.axios.post(`/online-game-option-selected/${this.locale}`, {
-                room_number: this.room_number,
-                index: index,
-            });
-        }
+        this.optionClickedInnerFunc(index);
     }
-
     questionAnsweredClicked(getIsCorrect, getIndex) {
         this.isCorrect = getIsCorrect();
         this.questionManager.questionAnswered(this.isCorrect);
-        if (this.isOnline) {
-            const index = getIndex();
-            window.axios.post(`/online-game-question-answered/${this.locale}`, {
-                room_number: this.room_number,
-                is_correct: this.isCorrect,
-                index: index,
-            });
-        }
+        this.questionAnsweredClickedInnerFunc(getIndex);
     }
     closeResultClicked() {
         let filledTiles = this.boardManager.countFilledTiles();
@@ -357,25 +445,7 @@ export default class GameManager {
         isAllFull = filledTiles === 9;
         this.thisTurnPlayer = this.currentPlayer;
         this.gameClosedFunc();
-        if (this.isOnline) {
-            window.axios
-                .post(`/online-game-close-result/${this.locale}`, {
-                    room_number: this.room_number,
-                    is_correct: this.isCorrect,
-                    index: this.selectedIndex,
-                    bonus: this.bonus,
-                    is_all_full: isAllFull,
-                })
-                .then(() => {
-                    if (isAllFull) {
-                        this.setInRound(this.currentPlayer);
-                    }
-                });
-        } else {
-            if (isAllFull) {
-                this.setInRound(this.currentPlayer);
-            }
-        }
+        this.closeResultClickedInnerFunc(isAllFull);
     }
     overFunction() {
         window.axios.post(`/online-game-over/${this.locale}`, {
@@ -384,19 +454,7 @@ export default class GameManager {
     }
     nextRoundClickedFunction() {
         this.roundManager.nextRound();
-        if (this.isOnline) {
-            Loader.On();
-            window.axios
-                .post(`/online-game-next-round/${this.locale}`, {
-                    room_number: this.room_number,
-                })
-                .then((resp) => {
-                    this.prepareBoard(resp.data);
-                    Loader.Off();
-                });
-        } else {
-            this.prepareBoardOffline();
-        }
+        this.nextRoundClickedInnerFunc();
     }
     readyBtnFunction(isReady) {
         this.roomChannel.whisper("readyBtnClicked", {
@@ -405,36 +463,11 @@ export default class GameManager {
     }
     newGameBtnFunction() {
         Loader.On();
-        if (this.isOnline) {
-            this.roomChannel.whisper("newGamePreparing", {});
-            window.axios
-                .post(`/online-game-new-game/${this.locale}`, {
-                    room_number: this.room_number,
-                })
-                .then(() => {
-                    this.roomChannel.whisper("newGameReady", {});
-                    window.location.href = `/online-game/${this.locale}?room_number=${this.room_number}`;
-                });
-        } else {
-            window.location.href = `/offline-game/${this.locale}?host_color=${this.host_color}&join_color=${this.join_color}`;
-        }
+        this.newGameBtnInnerFunc();
     }
-
     finishGameBtnFunction() {
         Loader.On();
-        if (this.isOnline) {
-            this.roomChannel.whisper("finishGamePreparing", {});
-            window.axios
-                .post(`/online-game-finish-game/${this.locale}`, {
-                    room_number: this.room_number,
-                })
-                .then(() => {
-                    this.roomChannel.whisper("finishGameReady", {});
-                    window.location.href = `/welcome/${this.locale}`;
-                });
-        } else {
-            window.location.href = `/welcome/${this.locale}`;
-        }
+        this.finishGameBtnInnerFunc();
     }
     setInQuestion = (index) => {
         this.boardManager.setSelectedTile(index);
@@ -459,7 +492,6 @@ export default class GameManager {
     setInOver() {
         this.roundManager.showOver();
     }
-
     get_isCorrect() {
         return this.isCorrect;
     }
@@ -472,7 +504,6 @@ export default class GameManager {
     get_thisTurnPlayer() {
         return this.thisTurnPlayer;
     }
-
     getCurrentPlayer() {
         return this.currentPlayer;
     }
@@ -484,7 +515,6 @@ export default class GameManager {
         this.currentPlayer = this.otherPlayer;
         this.otherPlayer = tempPlayer;
     }
-
     afterCloseFunc() {
         const curIsCorrect = this.get_isCorrect();
         const curIndex = this.get_index();
@@ -498,9 +528,7 @@ export default class GameManager {
         this.boardManager.toggleFreeTiles();
         this.myTurn = !this.myTurn;
         this.colorsManager.toggleColors();
-        if (!this.isOnline) {
-            this.switchPlayersOffline();
-        }
+        this.afterCloseInnerFunc();
     }
     gameClosedFunc() {
         this.questionManager.closeResult();
@@ -530,12 +558,7 @@ export default class GameManager {
         this.roundManager.setFinishGameBtnFunction(
             this.finishGameBtnFunction.bind(this)
         );
-        if (this.isOnline) {
-            this.roundManager.setOverFunction(this.overFunction.bind(this));
-            this.roundManager.setReadyBtnFunction(
-                this.readyBtnFunction.bind(this)
-            );
-        }
+        this.setRoundClicksInnerFunc();
     }
     connectionCountFunc(counter) {
         this.domCounter.textContent = counter;

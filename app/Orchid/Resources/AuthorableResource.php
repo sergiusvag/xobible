@@ -11,23 +11,14 @@ use Orchid\Screen\Sight;
 // Extand this class only if you have an author_id in your model
 abstract class AuthorableResource extends Resource
 {
-    // public static function useLocaleArr($method, $arr) {
-    //     $localeArr = self::localeArr();
-
-    //     foreach($localeArr['Other'] as $langName => $locale) {
-    //         $arr = $method($langName, $locale, $arr);
-    //     }
-    //     return $arr;
-    // }
     public static function localeArr()
     {
-        $localeArr =  ['English' => 'En'];
+        $localeArr =  [];
 
         foreach(config('app.available_locales') as $langName => $locale) {
-            if($langName !== 'English') {
-                $localeArr['Other'][$langName] = ucfirst($locale);
-            }
+            $localeArr[$langName] = ucfirst($locale);
         }
+
         return $localeArr;
     }
 

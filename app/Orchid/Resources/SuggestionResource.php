@@ -139,13 +139,13 @@ class SuggestionResource extends AuthorableResource
         
         if($fields["addToQuestionsLocale"] !== 'none')
         {
-            $allFieldsSetEn = true;
+            $allFieldsSet = true;
             foreach ($fieldsForModel as $key => $value) {
                 if(empty($value)) {
-                    $allFieldsSetEn = false;
+                    $allFieldsSet = false;
                 }
             }
-            $fieldsForModel['confirmed'] = $allFieldsSetEn;
+            $fieldsForModel['confirmed'] = $allFieldsSet;
         }
 
         return [
@@ -167,8 +167,8 @@ class SuggestionResource extends AuthorableResource
             }
 
             $localeArrCustom = parent::localeArr();
-            $question = $this::localeQuestionSave(Question::class, $fieldsToFill['En'], null, $fields['author_id']);
-            foreach($localeArrCustom['Other'] as $locale) {
+            $question = Question::create(['author_id' => $fields['author_id']]);
+            foreach($localeArrCustom as $locale) {
                 $this::localeQuestionSave('App\Models\Question'.$locale, $fieldsToFill[$locale], $question->id, $fields['author_id']);
             }
 
@@ -179,9 +179,7 @@ class SuggestionResource extends AuthorableResource
     }
 
     public function localeQuestionSave($localeQuestionClass, $fields, $question_id, $author_id){
-        if($question_id !== null) {
-            $fields['question_id'] = $question_id;
-        }
+        $fields['question_id'] = $question_id;
         $fields['author_id'] = $author_id;
         $question = new $localeQuestionClass;
         $question->forceFill($fields)->save();

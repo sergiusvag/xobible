@@ -25,21 +25,13 @@ class QuestionsEnSaveToJsonSeeder extends Seeder
         foreach($questions as $question) {
             array_push($dataToEncode, [
                 'question' => $question['question'],
-                'answers' => [$question['option_1'], $question['option_2'], $question['option_3'], $question['option_4']],
-                'correctAnswer' => $question['question'],
-                'origin' => $question['location'],
+                'options' => [$question['option_1'], $question['option_2'], $question['option_3'], $question['option_4']],
+                'answer' => $question['answer'],
+                'location' => $question['location'],
             ]);
         }
 
         $questionsEn = json_encode($dataToEncode, JSON_UNESCAPED_UNICODE);
         Storage::disk('public')->put('json/questionsEn.json', $questionsEn);
     }
-
-    
-//   {
-//     "question": "Из какого племени Павел?",
-//     "answers": ["Из Дана", "Из Вениамина", "Из Иуды", "Из Ефрема"],
-//     "correctAnswer": "Из Вениамина",
-//     "origin": "Филиппийцам 3:5"
-//   },
 }

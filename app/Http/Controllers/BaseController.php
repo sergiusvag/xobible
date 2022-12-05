@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class GameController extends Controller
+class BaseController extends Controller
 {
     public function getRtlClass ($locale) {
         return $locale === 'he' ? 'input-rtl' : '';

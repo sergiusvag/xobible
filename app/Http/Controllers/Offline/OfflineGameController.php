@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Offline;
 
 use App\Models\Question;
-use App\Http\Controllers\GameController;
+use App\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class OfflineGameController extends GameController 
+class OfflineGameController extends BaseController 
 {
     public function createQuestionsForRounds($locale) {
         $questionsForRounds = [];
@@ -17,20 +17,10 @@ class OfflineGameController extends GameController
 
         for($i = 1; $i <= $maxRound; $i++) {
             $offset = (($i * 9) - 9);
-            $temp = [];
-            $quest = $shuffledQuestions[0];
-            if($locale !== 'en'){
-                $upLocale = ucfirst($locale);
-                for($j = 0; $j < 9; $j++) {
-                    $temp[$j] = $shuffledQuestions[$offset + $j]['question' . $upLocale];
-                }
-            } else {
-                for($j = 0; $j < 9; $j++) {
-                    $temp[$j] = $shuffledQuestions[$offset + $j];
-                }
+            $upLocale = ucfirst($locale);
+            for($j = 0; $j < 9; $j++) {
+                $questionsForRounds[$j] = $shuffledQuestions[$offset + $j]['question' . $upLocale];
             }
-
-            $questionsForRounds[$i] = $temp;
         }
 
         return $questionsForRounds;

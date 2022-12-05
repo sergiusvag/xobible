@@ -8,16 +8,11 @@ use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
 
-class QuestionRu extends Model
+class QuestionEn extends Model
 {
     use HasFactory, AsSource, Filterable, Attachable;
     
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'questions_ru';
+    protected $table = 'questions_en';
 
     protected $fillable = [
         'question',
@@ -31,7 +26,7 @@ class QuestionRu extends Model
         'author_id',
         'question_id'
     ];
-    
+
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');

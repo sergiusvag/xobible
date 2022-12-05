@@ -4,6 +4,7 @@ namespace App\Orchid\Resources;
 
 use App\Orchid\Resources\AuthorableResource;
 use App\Models\Question;
+use App\Models\QuestionEn;
 use App\Models\QuestionRu;
 use App\Models\QuestionHe;
 use App\Models\User;
@@ -47,9 +48,7 @@ class QuestionResource extends AuthorableResource
 
         $fields = array_merge($fields,[Input::make('author_id')->type('hidden')]);;
 
-        $fields = $this::createAndMergeLocaleQuestionsFields($fields, $question, 'En');
-
-        foreach($localeArr['Other'] as $langName => $locale) {
+        foreach($localeArr as $langName => $locale) {
             $fields = isset($question) ? $this::createAndMergeLocaleQuestionsFields($fields, $question['question' . $locale], $locale)
                                     : $this::createAndMergeLocaleQuestionsFields($fields, null, $locale);
         }
@@ -140,9 +139,9 @@ class QuestionResource extends AuthorableResource
             TD::make('question', __('Question'))
                 ->render(function ($question) {
                     $localeArr = parent::localeArr();
-                    $questionString = 'En: ' . $question->question;
+                    $questionString = '';
 
-                    foreach($localeArr["Other"] as $langName => $locale) {
+                    foreach($localeArr as $langName => $locale) {
                         $questionString = $questionString . '<br>'
                                          . $locale . ': ' . $question['question' . $locale]->question;
                     }
@@ -153,10 +152,9 @@ class QuestionResource extends AuthorableResource
             TD::make('translated', __('Translation Status'))
                 ->render(function ($question) {
                     $localeArr = parent::localeArr();
-                    $isConfirmed = $question->confirmed ? __('Translated') : __('Not Translated');
-                    $confirmedString = 'En: ' . $isConfirmed;
+                    $confirmedString = '';
 
-                    foreach($localeArr["Other"] as $langName => $locale) {
+                    foreach($localeArr as $langName => $locale) {
                         $isConfirmed = $question['question' . $locale]->confirmed ? __('Translated') : __('Not Translated');
                         $confirmedString = $confirmedString . '<br>'
                                         . $locale . ': ' . $isConfirmed;
@@ -182,15 +180,13 @@ class QuestionResource extends AuthorableResource
 
         $id = request()->route('id');
         $question = $this::$model::find($id);
-        $questionRu = $question['questionRu'];
         $mistakes = $question->mistakes;
         $sightFields = [
             Sight::make('id', 'id : '),
             Sight::make('author_id', __('Author') . ' : ')->render(function($question) { return $question->author->name;}),
         ];
 
-        $sightFields = $this::createAndMergeLangSight($question, $sightFields, __('English'));
-        foreach($localeArr['Other'] as $langName => $locale) {
+        foreach($localeArr as $langName => $locale) {
             $sightFields = $this::createAndMergeLangSight($question['question' . $locale], $sightFields, __($langName));
         }
 
@@ -250,8 +246,8 @@ class QuestionResource extends AuthorableResource
         }
         
         $localeArr = parent::localeArr();
-        $allFields = ['En' => $this::extractFields($fields, 'En')];
-        foreach($localeArr['Other'] as $langName => $locale) {
+        $allFields = ['author_id' => $fields["author_id"]];
+        foreach($localeArr as $langName => $locale) {
             $allFields[$locale] = $this::extractFields($fields, $locale);
         }
         return [
@@ -261,10 +257,9 @@ class QuestionResource extends AuthorableResource
     }
 
     public function CustomSave(ResourceRequest $request, Model $model, Array $fields, Array $noneModelFields) {
-        $model->forceFill($fields['En'])->save();
-        
         $localeArr = parent::localeArr();
-        foreach($localeArr['Other'] as $langName => $locale) {
+        $questionNew = $model->forceFill(['author_id' => $fields["author_id"]])->save();
+        foreach($localeArr as $langName => $locale) {
             $fields[$locale]['question_id'] = $model->id;
             
             if($model['question'.$locale]) {
@@ -280,7 +275,7 @@ class QuestionResource extends AuthorableResource
     public function onDelete(Model $model) {
         $localeArr = parent::localeArr();
 
-        foreach($localeArr['Other'] as $locale) {
+        foreach($localeArr as $locale) {
             $model['question'.$locale]->delete();
         }
         $model->delete();

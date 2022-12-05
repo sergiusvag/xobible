@@ -67,6 +67,7 @@ class MistakeResource extends AuthorableResource
     {
         $id = request()->route('id');
         $mistake = $this::$model::find($id);
+        $localeArr = parent::localeArr();
 
         $sightFields = [
             Sight::make('id', 'id : '),
@@ -81,9 +82,9 @@ class MistakeResource extends AuthorableResource
                     return '<a style="color:blue" href="/admin/crud/edit/question-resources/'.$mistake->question->id.'">'.$linkToQuestion.'</a>';
                 }),
         ];
-        $sightFields = $this::createAndMergeLangSight($mistake->question, $sightFields, __('English'));
-        $sightFields = $this::createAndMergeLangSight($mistake->question['questionRu'], $sightFields, __('Russian'));
-        $sightFields = $this::createAndMergeLangSight($mistake->question['questionHe'], $sightFields, __('Hebrew'));
+        foreach($localeArr as $langName => $locale) {
+            $sightFields = $this::createAndMergeLangSight($mistake->question['question' . $locale], $sightFields, __($langName));
+        }
 
         return $sightFields;
     }

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
-use App\models\Question;
 
 class QuestionHe extends Model
 {
@@ -32,11 +31,6 @@ class QuestionHe extends Model
         'author_id',
         'question_id'
     ];
-
-    public function questionEn()
-    {
-        return $this->belongsTo(Question::class);
-    }
 
     public function author()
     {

@@ -23471,6 +23471,24 @@ var GameManager = /*#__PURE__*/function () {
 
     _defineProperty(this, "isMyTurn", function () {});
 
+    _defineProperty(this, "setManagersInnerFunc", function () {});
+
+    _defineProperty(this, "optionClickedInnerFunc", function () {});
+
+    _defineProperty(this, "questionAnsweredClickedInnerFunc", function () {});
+
+    _defineProperty(this, "closeResultClickedInnerFunc", function () {});
+
+    _defineProperty(this, "nextRoundClickedInnerFunc", function () {});
+
+    _defineProperty(this, "newGameBtnInnerFunc", function () {});
+
+    _defineProperty(this, "finishGameBtnInnerFunc", function () {});
+
+    _defineProperty(this, "setRoundClicksInnerFunc", function () {});
+
+    _defineProperty(this, "afterCloseInnerFunc", function () {});
+
     _defineProperty(this, "setInQuestion", function (index) {
       _this.boardManager.setSelectedTile(index);
 
@@ -23503,9 +23521,11 @@ var GameManager = /*#__PURE__*/function () {
 
     if (isOnline) {
       this.initOnlineInfo();
+      this.initOnlineFunctions();
       this.onlineOnLoad();
     } else {
       this.initOfflineInfo();
+      this.initOfflineFunctions();
       this.offlineOnLoad();
     }
   }
@@ -23534,6 +23554,128 @@ var GameManager = /*#__PURE__*/function () {
 
       this.isMyTurn = function () {
         return _this2.myTurn;
+      };
+    }
+  }, {
+    key: "initOnlineFunctions",
+    value: function initOnlineFunctions() {
+      var _this3 = this;
+
+      this.setManagersInnerFunc = function () {
+        var hostColor = _this3.gameStatus.host_color;
+        var joinColor = _this3.gameStatus.join_color;
+        _this3.namesManager = new _namesManager__WEBPACK_IMPORTED_MODULE_7__["default"](_this3.gameStatus.host_name, _this3.gameStatus.join_name);
+        return {
+          hostColor: hostColor,
+          joinColor: joinColor
+        };
+      };
+
+      this.optionClickedInnerFunc = function (index) {
+        window.axios.post("/online-game-option-selected/".concat(_this3.locale), {
+          room_number: _this3.room_number,
+          index: index
+        });
+      };
+
+      this.questionAnsweredClickedInnerFunc = function (getIndex) {
+        var index = getIndex();
+        window.axios.post("/online-game-question-answered/".concat(_this3.locale), {
+          room_number: _this3.room_number,
+          is_correct: _this3.isCorrect,
+          index: index
+        });
+      };
+
+      this.closeResultClickedInnerFunc = function (isAllFull) {
+        window.axios.post("/online-game-close-result/".concat(_this3.locale), {
+          room_number: _this3.room_number,
+          is_correct: _this3.isCorrect,
+          index: _this3.selectedIndex,
+          bonus: _this3.bonus,
+          is_all_full: isAllFull
+        }).then(function () {
+          if (isAllFull) {
+            _this3.setInRound(_this3.currentPlayer);
+          }
+        });
+      };
+
+      this.nextRoundClickedInnerFunc = function () {
+        _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
+        window.axios.post("/online-game-next-round/".concat(_this3.locale), {
+          room_number: _this3.room_number
+        }).then(function (resp) {
+          _this3.prepareBoard(resp.data);
+
+          _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].Off();
+        });
+      };
+
+      this.newGameBtnInnerFunc = function () {
+        _this3.roomChannel.whisper("newGamePreparing", {});
+
+        window.axios.post("/online-game-new-game/".concat(_this3.locale), {
+          room_number: _this3.room_number
+        }).then(function () {
+          _this3.roomChannel.whisper("newGameReady", {});
+
+          window.location.href = "/online-game/".concat(_this3.locale, "?room_number=").concat(_this3.room_number);
+        });
+      };
+
+      this.finishGameBtnInnerFunc = function () {
+        _this3.roomChannel.whisper("finishGamePreparing", {});
+
+        window.axios.post("/online-game-finish-game/".concat(_this3.locale), {
+          room_number: _this3.room_number
+        }).then(function () {
+          _this3.roomChannel.whisper("finishGameReady", {});
+
+          window.location.href = "/welcome/".concat(_this3.locale);
+        });
+      };
+
+      this.setRoundClicksInnerFunc = function () {
+        _this3.roundManager.setOverFunction(_this3.overFunction.bind(_this3));
+
+        _this3.roundManager.setReadyBtnFunction(_this3.readyBtnFunction.bind(_this3));
+      };
+    }
+  }, {
+    key: "initOfflineFunctions",
+    value: function initOfflineFunctions() {
+      var _this4 = this;
+
+      this.setManagersInnerFunc = function () {
+        var hostColor = _this4.host_color;
+        var joinColor = _this4.join_color;
+        return {
+          hostColor: hostColor,
+          joinColor: joinColor
+        };
+      };
+
+      this.closeResultClickedInnerFunc = function (isAllFull) {
+        if (isAllFull) {
+          _this4.setInRound(_this4.currentPlayer);
+        }
+      };
+
+      this.nextRoundClickedInnerFunc = function () {
+        _this4.prepareBoardOffline();
+      };
+
+      this.newGameBtnInnerFunc = function () {
+        window.location.href = "/offline-game/".concat(_this4.locale, "?host_color=").concat(_this4.host_color, "&join_color=").concat(_this4.join_color);
+      };
+
+      this.finishGameBtnInnerFunc = function () {
+        window.location.href = "/welcome/".concat(_this4.locale);
+      };
+
+      this.afterCloseInnerFunc = function () {
+        _this4.switchPlayersOffline();
       };
     }
   }, {
@@ -23574,16 +23716,16 @@ var GameManager = /*#__PURE__*/function () {
   }, {
     key: "onlineOnLoad",
     value: function onlineOnLoad() {
-      var _this3 = this;
+      var _this5 = this;
 
       this.onLoad(function () {
-        _this3.roomChannel = window.Echo["private"]("room.".concat(_this3.room_number));
+        _this5.roomChannel = window.Echo["private"]("room.".concat(_this5.room_number));
       }, "/online-game-load/".concat(this.locale, "?room_number=").concat(this.room_number), this.initOnline.bind(this));
     }
   }, {
     key: "initOffline",
     value: function initOffline(resp) {
-      var _this4 = this;
+      var _this6 = this;
 
       this.allRoundsQuestions = resp.data.questions;
       this.current_round = 1;
@@ -23594,7 +23736,7 @@ var GameManager = /*#__PURE__*/function () {
       _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].Off();
       _scoreManager__WEBPACK_IMPORTED_MODULE_6__["default"].initAll();
       this.boardManager.setTileFunction(function (clickedTile) {
-        _this4.questionManager.start(_this4.questions[clickedTile.dataset.questionIndex], _this4.currentPlayer, _this4.isMyTurn.bind(_this4));
+        _this6.questionManager.start(_this6.questions[clickedTile.dataset.questionIndex], _this6.currentPlayer, _this6.isMyTurn.bind(_this6));
       });
       this.setQuestionClicks();
       this.setRoundClicks();
@@ -23602,7 +23744,7 @@ var GameManager = /*#__PURE__*/function () {
   }, {
     key: "initOnline",
     value: function initOnline(resp) {
-      var _this5 = this;
+      var _this7 = this;
 
       this.gameStatus = resp.data.game_status;
       this.questionStatus = resp.data.question_status;
@@ -23612,19 +23754,19 @@ var GameManager = /*#__PURE__*/function () {
       this.isCorrect = this.gameStatus.result === "is_correct";
       this.myTurn = resp.data["i_am"] === this.gameStatus.current_player;
       this.currentPlayer = resp.data["i_am_upper"];
+      var index = this.questionStatus.selected_field.charAt(0) * 1;
       this.setManagers();
       this.setScoreManager();
       this.boardManager.setBoard(this.questionStatus, this.isMyTurn.bind(this));
       this.boardManager.setTileFunction(function (clickedTile) {
-        window.axios.post("/online-game-tile-selected/".concat(_this5.locale), {
-          room_number: _this5.room_number,
+        window.axios.post("/online-game-tile-selected/".concat(_this7.locale), {
+          room_number: _this7.room_number,
           index: clickedTile.dataset.questionIndex
         });
       });
       this.setQuestionClicks();
       this.setChannelListeners();
       this.setRoundClicks();
-      var index = this.questionStatus.selected_field.charAt(0) * 1;
 
       switch (this.gameStatus.status) {
         case "in_round":
@@ -23650,16 +23792,9 @@ var GameManager = /*#__PURE__*/function () {
   }, {
     key: "setManagers",
     value: function setManagers() {
-      var hostColor, joinColor;
-
-      if (this.isOnline) {
-        hostColor = this.gameStatus.host_color;
-        joinColor = this.gameStatus.join_color;
-        this.namesManager = new _namesManager__WEBPACK_IMPORTED_MODULE_7__["default"](this.gameStatus.host_name, this.gameStatus.join_name);
-      } else {
-        hostColor = this.host_color;
-        joinColor = this.join_color;
-      }
+      var _this$setManagersInne = this.setManagersInnerFunc(),
+          hostColor = _this$setManagersInne.hostColor,
+          joinColor = _this$setManagersInne.joinColor;
 
       this.colorsManager = new _colorsManager__WEBPACK_IMPORTED_MODULE_8__["default"](hostColor, joinColor, this.currentPlayer, this.otherPlayer, this.myTurn);
       this.boardManager = new _boardManager__WEBPACK_IMPORTED_MODULE_9__["default"](hostColor, joinColor);
@@ -23695,65 +23830,64 @@ var GameManager = /*#__PURE__*/function () {
     key: "showQuestion",
     value: function showQuestion(index) {
       var player = this.myTurn ? this.getCurrentPlayer() : this.getOtherPlayer();
-      console.log(this.currentPlayer, this.otherPlayer);
       this.questionManager.start(this.questions[index], player, this.isMyTurn.bind(this));
     }
   }, {
     key: "setChannelListeners",
     value: function setChannelListeners() {
-      var _this6 = this;
+      var _this8 = this;
 
       this.roomChannel.listen("GameTileSelected", function (e) {
-        _this6.showQuestion(e.index);
+        _this8.showQuestion(e.index);
       });
       this.roomChannel.listen("GameOptionSelected", function (e) {
-        _this6.questionManager.switchSelected(e.index);
+        _this8.questionManager.switchSelected(e.index);
       });
       this.roomChannel.listen("GameQuestionAnswered", function (e) {
-        _this6.questionManager.questionAnswered(e.is_correct);
+        _this8.questionManager.questionAnswered(e.is_correct);
       });
       this.roomChannel.listen("GameCloseResult", function (e) {
-        _this6.bonus = e.bonus;
-        _this6.isCorrect = e.is_correct;
-        _this6.selectedIndex = e.index;
-        _this6.thisTurnPlayer = _this6.otherPlayer;
+        _this8.bonus = e.bonus;
+        _this8.isCorrect = e.is_correct;
+        _this8.selectedIndex = e.index;
+        _this8.thisTurnPlayer = _this8.otherPlayer;
 
-        _this6.gameClosedFunc();
+        _this8.gameClosedFunc();
 
         if (e.is_all_full) {
-          _this6.setInRound(_this6.currentPlayer);
+          _this8.setInRound(_this8.currentPlayer);
         }
       });
       this.roomChannel.listen("GameOver", function (e) {
-        _this6.roundManager.showOver();
+        _this8.roundManager.showOver();
       });
       this.roomChannel.listen("GameNextRoundClicked", function (e) {
         _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
 
-        _this6.roundManager.nextRound();
+        _this8.roundManager.nextRound();
 
-        window.axios.post("/online-game-next-round-join/".concat(_this6.locale), {
-          room_number: _this6.room_number
+        window.axios.post("/online-game-next-round-join/".concat(_this8.locale), {
+          room_number: _this8.room_number
         }).then(function (resp) {
-          _this6.prepareBoard(resp.data);
+          _this8.prepareBoard(resp.data);
 
           _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].Off();
         });
       });
       this.roomChannel.listenForWhisper("readyBtnClicked", function (e) {
-        _this6.roundManager.switchStartBtn(e.isReady);
+        _this8.roundManager.switchStartBtn(e.isReady);
       });
       this.roomChannel.listenForWhisper("newGamePreparing", function () {
         _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
       });
       this.roomChannel.listenForWhisper("newGameReady", function () {
-        window.location.href = "/online-game/".concat(_this6.locale, "?room_number=").concat(_this6.room_number);
+        window.location.href = "/online-game/".concat(_this8.locale, "?room_number=").concat(_this8.room_number);
       });
       this.roomChannel.listenForWhisper("finishGamePreparing", function () {
         _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
       });
       this.roomChannel.listenForWhisper("finishGameReady", function () {
-        window.location.href = "/welcome/".concat(_this6.locale);
+        window.location.href = "/welcome/".concat(_this8.locale);
       });
     }
   }, {
@@ -23761,34 +23895,18 @@ var GameManager = /*#__PURE__*/function () {
     value: function optionClicked(index) {
       this.questionManager.enableAnswerButton();
       this.questionManager.switchSelected(index);
-
-      if (this.isOnline) {
-        window.axios.post("/online-game-option-selected/".concat(this.locale), {
-          room_number: this.room_number,
-          index: index
-        });
-      }
+      this.optionClickedInnerFunc(index);
     }
   }, {
     key: "questionAnsweredClicked",
     value: function questionAnsweredClicked(getIsCorrect, getIndex) {
       this.isCorrect = getIsCorrect();
       this.questionManager.questionAnswered(this.isCorrect);
-
-      if (this.isOnline) {
-        var index = getIndex();
-        window.axios.post("/online-game-question-answered/".concat(this.locale), {
-          room_number: this.room_number,
-          is_correct: this.isCorrect,
-          index: index
-        });
-      }
+      this.questionAnsweredClickedInnerFunc(getIndex);
     }
   }, {
     key: "closeResultClicked",
     value: function closeResultClicked() {
-      var _this7 = this;
-
       var filledTiles = this.boardManager.countFilledTiles();
       var isAllFull = false;
       this.selectedIndex = this.boardManager.getSelectedTile();
@@ -23802,24 +23920,7 @@ var GameManager = /*#__PURE__*/function () {
       isAllFull = filledTiles === 9;
       this.thisTurnPlayer = this.currentPlayer;
       this.gameClosedFunc();
-
-      if (this.isOnline) {
-        window.axios.post("/online-game-close-result/".concat(this.locale), {
-          room_number: this.room_number,
-          is_correct: this.isCorrect,
-          index: this.selectedIndex,
-          bonus: this.bonus,
-          is_all_full: isAllFull
-        }).then(function () {
-          if (isAllFull) {
-            _this7.setInRound(_this7.currentPlayer);
-          }
-        });
-      } else {
-        if (isAllFull) {
-          this.setInRound(this.currentPlayer);
-        }
-      }
+      this.closeResultClickedInnerFunc(isAllFull);
     }
   }, {
     key: "overFunction",
@@ -23831,22 +23932,8 @@ var GameManager = /*#__PURE__*/function () {
   }, {
     key: "nextRoundClickedFunction",
     value: function nextRoundClickedFunction() {
-      var _this8 = this;
-
       this.roundManager.nextRound();
-
-      if (this.isOnline) {
-        _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
-        window.axios.post("/online-game-next-round/".concat(this.locale), {
-          room_number: this.room_number
-        }).then(function (resp) {
-          _this8.prepareBoard(resp.data);
-
-          _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].Off();
-        });
-      } else {
-        this.prepareBoardOffline();
-      }
+      this.nextRoundClickedInnerFunc();
     }
   }, {
     key: "readyBtnFunction",
@@ -23858,42 +23945,14 @@ var GameManager = /*#__PURE__*/function () {
   }, {
     key: "newGameBtnFunction",
     value: function newGameBtnFunction() {
-      var _this9 = this;
-
       _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
-
-      if (this.isOnline) {
-        this.roomChannel.whisper("newGamePreparing", {});
-        window.axios.post("/online-game-new-game/".concat(this.locale), {
-          room_number: this.room_number
-        }).then(function () {
-          _this9.roomChannel.whisper("newGameReady", {});
-
-          window.location.href = "/online-game/".concat(_this9.locale, "?room_number=").concat(_this9.room_number);
-        });
-      } else {
-        window.location.href = "/offline-game/".concat(this.locale, "?host_color=").concat(this.host_color, "&join_color=").concat(this.join_color);
-      }
+      this.newGameBtnInnerFunc();
     }
   }, {
     key: "finishGameBtnFunction",
     value: function finishGameBtnFunction() {
-      var _this10 = this;
-
       _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
-
-      if (this.isOnline) {
-        this.roomChannel.whisper("finishGamePreparing", {});
-        window.axios.post("/online-game-finish-game/".concat(this.locale), {
-          room_number: this.room_number
-        }).then(function () {
-          _this10.roomChannel.whisper("finishGameReady", {});
-
-          window.location.href = "/welcome/".concat(_this10.locale);
-        });
-      } else {
-        window.location.href = "/welcome/".concat(this.locale);
-      }
+      this.finishGameBtnInnerFunc();
     }
   }, {
     key: "setInRound",
@@ -23959,10 +24018,7 @@ var GameManager = /*#__PURE__*/function () {
       this.boardManager.toggleFreeTiles();
       this.myTurn = !this.myTurn;
       this.colorsManager.toggleColors();
-
-      if (!this.isOnline) {
-        this.switchPlayersOffline();
-      }
+      this.afterCloseInnerFunc();
     }
   }, {
     key: "gameClosedFunc",
@@ -23983,11 +24039,7 @@ var GameManager = /*#__PURE__*/function () {
       this.roundManager.setNextRoundFunction(this.nextRoundClickedFunction.bind(this));
       this.roundManager.setNewGameBtnFunction(this.newGameBtnFunction.bind(this));
       this.roundManager.setFinishGameBtnFunction(this.finishGameBtnFunction.bind(this));
-
-      if (this.isOnline) {
-        this.roundManager.setOverFunction(this.overFunction.bind(this));
-        this.roundManager.setReadyBtnFunction(this.readyBtnFunction.bind(this));
-      }
+      this.setRoundClicksInnerFunc();
     }
   }, {
     key: "connectionCountFunc",

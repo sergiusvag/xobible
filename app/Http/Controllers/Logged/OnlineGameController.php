@@ -6,7 +6,7 @@ use App\Models\Room;
 use App\Models\Question;
 use App\Models\GameStatus;
 use App\Models\QuestionStatus;
-use App\Http\Controllers\GameController;
+use App\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Events\GameTileSelected;
@@ -16,7 +16,7 @@ use App\Events\GameCloseResult;
 use App\Events\GameOver;
 use App\Events\GameNextRoundClicked;
 
-class OnlineGameController extends GameController
+class OnlineGameController extends BaseController
 {
     public function createQuestionStatuses($room_number, $gameStatusId) {
         $questions = Question::All();
@@ -70,14 +70,10 @@ class OnlineGameController extends GameController
 
     public function extractQuestions($questionStatus, $locale) {
         $questions = [];
+        $upLocale = ucfirst($locale);
+
         for($i = 0; $i < 9; $i++) {
-            $questions[$i] = $questionStatus['question_'.$i];
-        }
-        if($locale !== 'en'){
-            $upLocale = ucfirst($locale);
-            for($i = 0; $i < 9; $i++) {
-                $questions[$i] = $questions[$i]['question' . $upLocale];
-            }
+            $questions[$i] = $questionStatus['question_'.$i]['question' . $upLocale];
         }
 
         return $questions;

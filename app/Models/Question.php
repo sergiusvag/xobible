@@ -8,6 +8,7 @@ use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
 use App\models\Mistake;
+use App\models\QuestionEn;
 use App\models\QuestionRu;
 use App\models\QuestionHe;
 // use App\models\QuestionAr; // Example for new question model in a new langauge
@@ -17,14 +18,6 @@ class Question extends Model
     use HasFactory, AsSource, Filterable, Attachable;
     
     protected $fillable = [
-        'question',
-        'option_1',
-        'option_2',
-        'option_3',
-        'option_4',
-        'answer',
-        'location',
-        'confirmed',
         'author_id'
     ];
 
@@ -36,6 +29,11 @@ class Question extends Model
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+    
+    public function questionEn()
+    {
+        return $this->hasOne(QuestionEn::class);
     }
     
     public function questionRu()

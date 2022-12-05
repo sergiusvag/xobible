@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Logged;
 use App\Models\Mistake;
 use App\Models\User;
 use App\Models\Question;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class MistakeController extends Controller
+class MistakeController extends BaseController
 {
     public function index($locale)
     {
@@ -43,9 +43,5 @@ class MistakeController extends Controller
             ->with('rtlClass', $this->getRtlClass($locale))
             ->with('success', __('Your mistake was successfully added!'))
             ->with('locale', $locale);
-    }
-
-    public function getRtlClass ($locale) {
-        return $locale === 'he' ? 'input-rtl' : '';
     }
 }
