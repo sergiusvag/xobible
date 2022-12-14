@@ -1,5 +1,6 @@
 {
     "/js/app.js": "/js/app.js",
+    "/js/app-online-room.js": "/js/app-online-room.js",
     "/js/app-online-color-picker.js": "/js/app-online-color-picker.js",
     "/js/app-offline-color-picker.js": "/js/app-offline-color-picker.js",
     "/js/app-online-game.js": "/js/app-online-game.js",

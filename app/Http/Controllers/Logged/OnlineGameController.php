@@ -47,6 +47,7 @@ class OnlineGameController extends BaseController
 
     public function index(Request $request, $locale)
     {
+        $user = Auth::user();
         $room_number = $request->room_number;
         $gameStatus = GameStatus::where('room_number', $room_number)->first();
 
@@ -62,9 +63,12 @@ class OnlineGameController extends BaseController
             $maxRound = $questionStatuses->count();
         }
 
+        $audioData = $this->getAudioData('online-game');
+
         return view('logged.online-game')
             ->with('data' , ['isOnline' => true, 'room_number' => $room_number, 'max_round' => $maxRound, 'current_round' => $gameStatus->current_round])
             ->with('rtlClass', $this->getRtlClass($locale))
+            ->with('audioData', $audioData)
             ->with('locale', $locale);
     }
 

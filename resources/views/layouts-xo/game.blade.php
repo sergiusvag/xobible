@@ -3,6 +3,7 @@
 
 @include('components.head')
 @include('components.loader')
+@include('components.audio')
 
 <body>
     <section id="main-screen" class="main-screen d-flex align-items-center">

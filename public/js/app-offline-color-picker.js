@@ -20739,6 +20739,103 @@ Loader["Off"] = function () {
 
 /***/ }),
 
+/***/ "./resources/js/managers/audioManager.js":
+/*!***********************************************!*\
+  !*** ./resources/js/managers/audioManager.js ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+var AudioManager = /*#__PURE__*/function () {
+  function AudioManager() {
+    _classCallCheck(this, AudioManager);
+
+    _defineProperty(this, "_allAudio", document.querySelectorAll(".game_audio"));
+
+    _defineProperty(this, "colorSelect", document.querySelector(".audio_color-select"));
+
+    _defineProperty(this, "questionSelect", document.querySelector(".audio_question-select"));
+
+    _defineProperty(this, "colorError", document.querySelector(".audio_color-error"));
+
+    _defineProperty(this, "buttonClick", document.querySelector(".audio_button-click"));
+
+    _defineProperty(this, "resultWrong", document.querySelector(".audio_result-wrong"));
+
+    _defineProperty(this, "transition", document.querySelector(".audio_transition"));
+
+    _defineProperty(this, "transitionOut", document.querySelector(".audio_transition-out"));
+
+    _defineProperty(this, "selectSelected", document.querySelector(".audio_select-selected"));
+
+    _defineProperty(this, "resultCorrect", document.querySelector(".audio_result-correct"));
+
+    _defineProperty(this, "message", document.querySelector(".audio_message"));
+
+    _defineProperty(this, "_buttons", document.querySelectorAll(".btn"));
+
+    _defineProperty(this, "_tileButtons", document.querySelectorAll(".tile-field"));
+
+    this._initButtons();
+  }
+
+  _createClass(AudioManager, [{
+    key: "initTileSelection",
+    value: function initTileSelection() {
+      var _this = this;
+
+      this._tileButtons.forEach(function (tileBtn) {
+        tileBtn.addEventListener("click", function () {
+          _this.play("questionSelect");
+        });
+      });
+    }
+  }, {
+    key: "_initButtons",
+    value: function _initButtons() {
+      var _this2 = this;
+
+      this._buttons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          if (!btn.classList.contains("btn-dis") && !btn.classList.contains("control-btn-dis")) {
+            if (btn.classList.contains("btn-locale")) {
+              _this2.play("transition");
+            } else {
+              _this2.play("buttonClick");
+            }
+          }
+        });
+      });
+    }
+  }, {
+    key: "play",
+    value: function play(sound) {
+      this[sound].currentTime = 0;
+      this[sound].play();
+    }
+  }]);
+
+  return AudioManager;
+}();
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new AudioManager());
+
+/***/ }),
+
 /***/ "./resources/js/managers/colorPickerManager.js":
 /*!*****************************************************!*\
   !*** ./resources/js/managers/colorPickerManager.js ***!
@@ -20750,6 +20847,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ColorPickerManager)
 /* harmony export */ });
+/* harmony import */ var _audioManager__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./audioManager */ "./resources/js/managers/audioManager.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -20757,6 +20855,8 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
 
 var ColorPickerManager = /*#__PURE__*/function () {
   function ColorPickerManager(isOnline) {
@@ -20810,6 +20910,11 @@ var ColorPickerManager = /*#__PURE__*/function () {
     value: function initOfflineSettings() {
       this.setPlayerOnePicker();
       this.setPlayerTwoPicker();
+    }
+  }, {
+    key: "play",
+    value: function play() {
+      _audioManager__WEBPACK_IMPORTED_MODULE_0__["default"].play("buttonClick");
     }
   }, {
     key: "initOnlineSettings",
@@ -20870,6 +20975,8 @@ var ColorPickerManager = /*#__PURE__*/function () {
     value: function switchStartBtn(isReady) {
       this._isReady = isReady;
       var addOrRemove = isReady ? "remove" : "add";
+      var addOrRemoveSound = isReady ? "transition" : "transitionOut";
+      _audioManager__WEBPACK_IMPORTED_MODULE_0__["default"].play(addOrRemoveSound);
 
       this._playerOneBtn.classList[addOrRemove]("control-btn-dis");
     }
@@ -20963,21 +21070,29 @@ var ColorPickerManager = /*#__PURE__*/function () {
       var _loop = function _loop(i) {
         options[i].addEventListener("click", function (e) {
           if (_this2[otherPlayerPick] !== i) {
-            _this2._changePick(options, playerText, i);
+            if (_this2[thisPlayerPick] !== i) {
+              _this2._changePick(options, playerText, i);
 
-            _this2.additionalFunc(i);
+              _audioManager__WEBPACK_IMPORTED_MODULE_0__["default"].play("colorSelect");
 
-            _this2[thisPlayerPick] = i;
+              _this2.additionalFunc(i);
 
-            if (_this2._isOnline) {
-              if (!_this2.isHost) {
-                _this2.enableReadyBtn();
+              _this2[thisPlayerPick] = i;
+
+              if (_this2._isOnline) {
+                if (!_this2.isHost) {
+                  _this2.enableReadyBtn();
+                } else {
+                  _this2._hostPickedFunc();
+                }
               } else {
-                _this2._hostPickedFunc();
+                _this2.enableBtnByPick("_playerOneBtn");
               }
             } else {
-              _this2.enableBtnByPick("_playerOneBtn");
+              _audioManager__WEBPACK_IMPORTED_MODULE_0__["default"].play("selectSelected");
             }
+          } else {
+            _audioManager__WEBPACK_IMPORTED_MODULE_0__["default"].play("colorError");
           }
         });
       };
@@ -21018,14 +21133,28 @@ var locale = document.querySelector(".locale").textContent;
 var colorPickerManager;
 
 var onLoad = function onLoad() {
+  _helper_loader__WEBPACK_IMPORTED_MODULE_2__["default"].On();
   colorPickerManager = new _managers_colorPickerManager__WEBPACK_IMPORTED_MODULE_3__["default"](false);
 };
 
 onLoad();
+Promise.all(Array.from(document.images).filter(function (img) {
+  return !img.complete;
+}).map(function (img) {
+  return new Promise(function (resolve) {
+    img.onload = img.onerror = resolve;
+  });
+})).then(function () {
+  _helper_loader__WEBPACK_IMPORTED_MODULE_2__["default"].Off();
+});
 btnStart.addEventListener("click", function (e) {
-  _helper_loader__WEBPACK_IMPORTED_MODULE_2__["default"].On();
-  var colors = colorPickerManager.getData();
-  window.location.href = "/offline-game/".concat(locale, "?host_color=").concat(colors.host_color, "&join_color=").concat(colors.join_color);
+  colorPickerManager.play();
+  var interval = setInterval(function () {
+    _helper_loader__WEBPACK_IMPORTED_MODULE_2__["default"].On();
+    var colors = colorPickerManager.getData();
+    clearInterval(interval);
+    window.location.href = "/offline-game/".concat(locale, "?host_color=").concat(colors.host_color, "&join_color=").concat(colors.join_color);
+  }, 500);
 });
 
 /***/ }),

@@ -1,3 +1,5 @@
+import AudioManager from "./audioManager";
+
 export default class ColorPickerManager {
     _colorPicked = "color-wrap-clicked";
     _colorsAddon = ["-red", "-green", "-blue", "-pink", "-orange"];
@@ -34,6 +36,9 @@ export default class ColorPickerManager {
         this.setPlayerTwoPicker();
     }
 
+    play() {
+        AudioManager.play("buttonClick");
+    }
     initOnlineSettings(isHost) {
         this.isHost = isHost;
         this._playerTwoBtn = document.querySelector(".btn-ready");
@@ -91,6 +96,8 @@ export default class ColorPickerManager {
     switchStartBtn(isReady) {
         this._isReady = isReady;
         const addOrRemove = isReady ? "remove" : "add";
+        const addOrRemoveSound = isReady ? "transition" : "transitionOut";
+        AudioManager.play(addOrRemoveSound);
         this._playerOneBtn.classList[addOrRemove]("control-btn-dis");
     }
 
@@ -180,18 +187,25 @@ export default class ColorPickerManager {
         for (let i = 0; i < options.length; i++) {
             options[i].addEventListener("click", (e) => {
                 if (this[otherPlayerPick] !== i) {
-                    this._changePick(options, playerText, i);
-                    this.additionalFunc(i);
-                    this[thisPlayerPick] = i;
-                    if (this._isOnline) {
-                        if (!this.isHost) {
-                            this.enableReadyBtn();
+                    if (this[thisPlayerPick] !== i) {
+                        this._changePick(options, playerText, i);
+                        AudioManager.play("colorSelect");
+                        this.additionalFunc(i);
+                        this[thisPlayerPick] = i;
+                        if (this._isOnline) {
+                            if (!this.isHost) {
+                                this.enableReadyBtn();
+                            } else {
+                                this._hostPickedFunc();
+                            }
                         } else {
-                            this._hostPickedFunc();
+                            this.enableBtnByPick("_playerOneBtn");
                         }
                     } else {
-                        this.enableBtnByPick("_playerOneBtn");
+                        AudioManager.play("selectSelected");
                     }
+                } else {
+                    AudioManager.play("colorError");
                 }
             });
         }

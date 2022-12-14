@@ -12,15 +12,17 @@ use App\Events\HostRoomEventKicked;
 use App\Events\MemberRoomEventKicked;
 use App\Events\HostRoomEventExit;
 use App\Events\MemberRoomEventExit;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class OnlineRoomController extends Controller
+class OnlineRoomController extends BaseController
 {
     public function index($locale)
     {
+        $audioData = $this->getAudioData('room');
         return view('logged.online-room')
+            ->with('audioData', $audioData)
             ->with('locale', $locale);
     }
 

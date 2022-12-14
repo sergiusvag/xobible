@@ -5,7 +5,7 @@
 // @import url("https://fonts.bunny.net/css?family=Nunito");
 // Bootstrap
 $input-placeholder-color: white;
-@import "~bootstrap/scss/bootstrap";
+@import "node_modules/bootstrap/scss/bootstrap";
 
 @import "main";
 @import "userRelated.scss";

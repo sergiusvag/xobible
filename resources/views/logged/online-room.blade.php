@@ -80,5 +80,5 @@
 @endsection
 
 @section('control_js')
-    @vite('resources/js/app.js')
+    @vite('resources/js/app-online-room.js')
 @endsection

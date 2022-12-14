@@ -4,10 +4,7 @@
     @php
         $locale = app()->getLocale();
     @endphp
-    @auth
-        @csrf
-        @include('components.color-picker')
-    @endauth
+    @include('components.color-picker')
     
 @endsection
 

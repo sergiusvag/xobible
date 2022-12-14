@@ -48,7 +48,9 @@ export default class RoundManager {
             this._showOver();
         });
 
-        this._overReadyBtn.classList.add("d-hide");
+        if (this._isOnline) {
+            this._overReadyBtn.classList.add("d-hide");
+        }
         this._overNewGameBtn.classList[addOrRemove]("control-btn-dis");
         this._overNewGameBtn.addEventListener("click", (e) => {
             this._newGameBtnFunc();

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class ColorPickerController extends Controller
+class ColorPickerController extends BaseController
 {
     public function getDefaultData($isOnline) {
         $data = [

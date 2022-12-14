@@ -10,7 +10,7 @@
         </form>
     @else
         <div class="text-center mt-4">
-            <a href="{{ '/login/' . $locale }}" class="btn mt-3 mt-sm-0">{{ __('Login') }}</a>
+            <a href="{{ '/login/' . $locale }}" class="btn btn-pos-action mt-3 mt-sm-0">{{ __('Login') }}</a>
             <a href="{{ '/register/' . $locale }}" class="btn mt-3 mt-sm-0">{{ __('Register') }}</a>
         </div>
     @endauth

@@ -38,8 +38,11 @@ class OnlineColorPickerController extends ColorPickerController
         $data['playersBtnClass'] = $playersBtnClass;
         $data['playerTitleText'] = [$room->host_name, $room->join_name];
 
+        $audioData = $this->getAudioData('color-picker');
+        
         return view('logged.online-color-picker')
             ->with('data', $data)
+            ->with('audioData', $audioData)
             ->with('locale', $locale);
     }
 

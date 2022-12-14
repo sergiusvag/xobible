@@ -27,3 +27,7 @@
         </div>						
     </div>
 @endsection
+
+@section('control_js')
+    @vite('resources/js/app.js')
+@endsection

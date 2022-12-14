@@ -32,6 +32,7 @@ import BoardManager from "./boardManager";
 import QuestionManager from "./questionManager";
 import RoundManager from "./roundManager";
 import ConnectionValidator from "./connectionValidator";
+import AudioManager from "./audioManager";
 
 export default class GameManager {
     locale = document.querySelector(".locale").textContent;
@@ -254,6 +255,7 @@ export default class GameManager {
 
         this.setQuestionClicks();
         this.setRoundClicks();
+        AudioManager.initTileSelection();
     }
 
     initOnline(resp) {
@@ -372,12 +374,19 @@ export default class GameManager {
     setChannelListeners() {
         this.roomChannel.listen("GameTileSelected", (e) => {
             this.showQuestion(e.index);
+            AudioManager.play("questionSelect");
         });
         this.roomChannel.listen("GameOptionSelected", (e) => {
             this.questionManager.switchSelected(e.index);
+            AudioManager.play("transition");
         });
         this.roomChannel.listen("GameQuestionAnswered", (e) => {
             this.questionManager.questionAnswered(e.is_correct);
+            if (e.is_correct) {
+                AudioManager.play("resultCorrect");
+            } else {
+                AudioManager.play("resultWrong");
+            }
         });
         this.roomChannel.listen("GameCloseResult", (e) => {
             this.bonus = e.bonus;
@@ -421,12 +430,22 @@ export default class GameManager {
         });
     }
     optionClicked(index) {
-        this.questionManager.enableAnswerButton();
-        this.questionManager.switchSelected(index);
-        this.optionClickedInnerFunc(index);
+        if (this.questionManager.isSelected(index)) {
+            AudioManager.play("selectSelected");
+        } else {
+            AudioManager.play("transition");
+            this.questionManager.enableAnswerButton();
+            this.questionManager.switchSelected(index);
+            this.optionClickedInnerFunc(index);
+        }
     }
     questionAnsweredClicked(getIsCorrect, getIndex) {
         this.isCorrect = getIsCorrect();
+        if (this.isCorrect) {
+            AudioManager.play("resultCorrect");
+        } else {
+            AudioManager.play("resultWrong");
+        }
         this.questionManager.questionAnswered(this.isCorrect);
         this.questionAnsweredClickedInnerFunc(getIndex);
     }
@@ -440,6 +459,9 @@ export default class GameManager {
                 this.currentPlayer,
                 this.selectedIndex
             );
+            if (this.bonus) {
+                console.log("YES A BONUS FINALLY!!!");
+            }
             filledTiles++;
         }
         isAllFull = filledTiles === 9;
@@ -469,11 +491,11 @@ export default class GameManager {
         Loader.On();
         this.finishGameBtnInnerFunc();
     }
-    setInQuestion = (index) => {
+    setInQuestion(index) {
         this.boardManager.setSelectedTile(index);
         this.showQuestion(index);
-    };
-    setInResult = (index, isCorrect) => {
+    }
+    setInResult(index, isCorrect) {
         const player = this.myTurn ? this.currentPlayer : this.otherPlayer;
         this.boardManager.setSelectedTile(index);
         this.questionManager.setData(
@@ -482,7 +504,7 @@ export default class GameManager {
             this.isMyTurn.bind(this)
         );
         this.questionManager.setQuestionAnswered(isCorrect);
-    };
+    }
     setInRound() {
         this.roundManager.showRoundEnd(
             this.current_round,

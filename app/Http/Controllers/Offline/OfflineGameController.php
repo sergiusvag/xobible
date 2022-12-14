@@ -19,7 +19,7 @@ class OfflineGameController extends BaseController
             $offset = (($i * 9) - 9);
             $upLocale = ucfirst($locale);
             for($j = 0; $j < 9; $j++) {
-                $questionsForRounds[$j] = $shuffledQuestions[$offset + $j]['question' . $upLocale];
+                $questionsForRounds[$i][$j] = $shuffledQuestions[$offset + $j]['question' . $upLocale];
             }
         }
 
@@ -27,9 +27,12 @@ class OfflineGameController extends BaseController
     }
 
     public function index(Request $request, $locale) {
+        $audioData = $this->getAudioData('offline-game');
+
         return view('logged.online-game')
             ->with('data' , ['isOnline' => false, 'host_color' => $request['host_color'], 'join_color' => $request['join_color']])
             ->with('rtlClass', $this->getRtlClass($locale))
+            ->with('audioData', $audioData)
             ->with('locale', $locale);
     }
 

@@ -22865,6 +22865,103 @@ var __ = function __(string) {
 
 /***/ }),
 
+/***/ "./resources/js/managers/audioManager.js":
+/*!***********************************************!*\
+  !*** ./resources/js/managers/audioManager.js ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+var AudioManager = /*#__PURE__*/function () {
+  function AudioManager() {
+    _classCallCheck(this, AudioManager);
+
+    _defineProperty(this, "_allAudio", document.querySelectorAll(".game_audio"));
+
+    _defineProperty(this, "colorSelect", document.querySelector(".audio_color-select"));
+
+    _defineProperty(this, "questionSelect", document.querySelector(".audio_question-select"));
+
+    _defineProperty(this, "colorError", document.querySelector(".audio_color-error"));
+
+    _defineProperty(this, "buttonClick", document.querySelector(".audio_button-click"));
+
+    _defineProperty(this, "resultWrong", document.querySelector(".audio_result-wrong"));
+
+    _defineProperty(this, "transition", document.querySelector(".audio_transition"));
+
+    _defineProperty(this, "transitionOut", document.querySelector(".audio_transition-out"));
+
+    _defineProperty(this, "selectSelected", document.querySelector(".audio_select-selected"));
+
+    _defineProperty(this, "resultCorrect", document.querySelector(".audio_result-correct"));
+
+    _defineProperty(this, "message", document.querySelector(".audio_message"));
+
+    _defineProperty(this, "_buttons", document.querySelectorAll(".btn"));
+
+    _defineProperty(this, "_tileButtons", document.querySelectorAll(".tile-field"));
+
+    this._initButtons();
+  }
+
+  _createClass(AudioManager, [{
+    key: "initTileSelection",
+    value: function initTileSelection() {
+      var _this = this;
+
+      this._tileButtons.forEach(function (tileBtn) {
+        tileBtn.addEventListener("click", function () {
+          _this.play("questionSelect");
+        });
+      });
+    }
+  }, {
+    key: "_initButtons",
+    value: function _initButtons() {
+      var _this2 = this;
+
+      this._buttons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          if (!btn.classList.contains("btn-dis") && !btn.classList.contains("control-btn-dis")) {
+            if (btn.classList.contains("btn-locale")) {
+              _this2.play("transition");
+            } else {
+              _this2.play("buttonClick");
+            }
+          }
+        });
+      });
+    }
+  }, {
+    key: "play",
+    value: function play(sound) {
+      this[sound].currentTime = 0;
+      this[sound].play();
+    }
+  }]);
+
+  return AudioManager;
+}();
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (new AudioManager());
+
+/***/ }),
+
 /***/ "./resources/js/managers/boardManager.js":
 /*!***********************************************!*\
   !*** ./resources/js/managers/boardManager.js ***!
@@ -23363,6 +23460,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _questionManager__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./questionManager */ "./resources/js/managers/questionManager.js");
 /* harmony import */ var _roundManager__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./roundManager */ "./resources/js/managers/roundManager.js");
 /* harmony import */ var _connectionValidator__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./connectionValidator */ "./resources/js/managers/connectionValidator.js");
+/* harmony import */ var _audioManager__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./audioManager */ "./resources/js/managers/audioManager.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return generator._invoke = function (innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; }(innerFn, self, context), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; this._invoke = function (method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); }; } function maybeInvokeDelegate(delegate, context) { var method = delegate.iterator[context.method]; if (undefined === method) { if (context.delegate = null, "throw" === context.method) { if (delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method)) return ContinueSentinel; context.method = "throw", context.arg = new TypeError("The iterator does not provide a 'throw' method"); } return ContinueSentinel; } var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) { if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; } return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, define(Gp, "constructor", GeneratorFunctionPrototype), define(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (object) { var keys = []; for (var key in object) { keys.push(key); } return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) { "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); } }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
@@ -23398,6 +23496,7 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_1__["default"]({
   forceTLS: true,
   encryption: true
 });
+
 
 
 
@@ -23488,22 +23587,6 @@ var GameManager = /*#__PURE__*/function () {
     _defineProperty(this, "setRoundClicksInnerFunc", function () {});
 
     _defineProperty(this, "afterCloseInnerFunc", function () {});
-
-    _defineProperty(this, "setInQuestion", function (index) {
-      _this.boardManager.setSelectedTile(index);
-
-      _this.showQuestion(index);
-    });
-
-    _defineProperty(this, "setInResult", function (index, isCorrect) {
-      var player = _this.myTurn ? _this.currentPlayer : _this.otherPlayer;
-
-      _this.boardManager.setSelectedTile(index);
-
-      _this.questionManager.setData(_this.questions[index], player, _this.isMyTurn.bind(_this));
-
-      _this.questionManager.setQuestionAnswered(isCorrect);
-    });
 
     _defineProperty(this, "initConnectionValidator", function () {
       _this.connectionValidator.setCountFunc(_this.connectionCountFunc.bind(_this));
@@ -23740,6 +23823,7 @@ var GameManager = /*#__PURE__*/function () {
       });
       this.setQuestionClicks();
       this.setRoundClicks();
+      _audioManager__WEBPACK_IMPORTED_MODULE_13__["default"].initTileSelection();
     }
   }, {
     key: "initOnline",
@@ -23839,12 +23923,22 @@ var GameManager = /*#__PURE__*/function () {
 
       this.roomChannel.listen("GameTileSelected", function (e) {
         _this8.showQuestion(e.index);
+
+        _audioManager__WEBPACK_IMPORTED_MODULE_13__["default"].play("questionSelect");
       });
       this.roomChannel.listen("GameOptionSelected", function (e) {
         _this8.questionManager.switchSelected(e.index);
+
+        _audioManager__WEBPACK_IMPORTED_MODULE_13__["default"].play("transition");
       });
       this.roomChannel.listen("GameQuestionAnswered", function (e) {
         _this8.questionManager.questionAnswered(e.is_correct);
+
+        if (e.is_correct) {
+          _audioManager__WEBPACK_IMPORTED_MODULE_13__["default"].play("resultCorrect");
+        } else {
+          _audioManager__WEBPACK_IMPORTED_MODULE_13__["default"].play("resultWrong");
+        }
       });
       this.roomChannel.listen("GameCloseResult", function (e) {
         _this8.bonus = e.bonus;
@@ -23893,14 +23987,26 @@ var GameManager = /*#__PURE__*/function () {
   }, {
     key: "optionClicked",
     value: function optionClicked(index) {
-      this.questionManager.enableAnswerButton();
-      this.questionManager.switchSelected(index);
-      this.optionClickedInnerFunc(index);
+      if (this.questionManager.isSelected(index)) {
+        _audioManager__WEBPACK_IMPORTED_MODULE_13__["default"].play("selectSelected");
+      } else {
+        _audioManager__WEBPACK_IMPORTED_MODULE_13__["default"].play("transition");
+        this.questionManager.enableAnswerButton();
+        this.questionManager.switchSelected(index);
+        this.optionClickedInnerFunc(index);
+      }
     }
   }, {
     key: "questionAnsweredClicked",
     value: function questionAnsweredClicked(getIsCorrect, getIndex) {
       this.isCorrect = getIsCorrect();
+
+      if (this.isCorrect) {
+        _audioManager__WEBPACK_IMPORTED_MODULE_13__["default"].play("resultCorrect");
+      } else {
+        _audioManager__WEBPACK_IMPORTED_MODULE_13__["default"].play("resultWrong");
+      }
+
       this.questionManager.questionAnswered(this.isCorrect);
       this.questionAnsweredClickedInnerFunc(getIndex);
     }
@@ -23914,6 +24020,11 @@ var GameManager = /*#__PURE__*/function () {
 
       if (this.isCorrect) {
         this.bonus = this.boardManager.calculateBonus(this.currentPlayer, this.selectedIndex);
+
+        if (this.bonus) {
+          console.log("YES A BONUS FINALLY!!!");
+        }
+
         filledTiles++;
       }
 
@@ -23953,6 +24064,20 @@ var GameManager = /*#__PURE__*/function () {
     value: function finishGameBtnFunction() {
       _helper_loader__WEBPACK_IMPORTED_MODULE_3__["default"].On();
       this.finishGameBtnInnerFunc();
+    }
+  }, {
+    key: "setInQuestion",
+    value: function setInQuestion(index) {
+      this.boardManager.setSelectedTile(index);
+      this.showQuestion(index);
+    }
+  }, {
+    key: "setInResult",
+    value: function setInResult(index, isCorrect) {
+      var player = this.myTurn ? this.currentPlayer : this.otherPlayer;
+      this.boardManager.setSelectedTile(index);
+      this.questionManager.setData(this.questions[index], player, this.isMyTurn.bind(this));
+      this.questionManager.setQuestionAnswered(isCorrect);
     }
   }, {
     key: "setInRound",
@@ -24116,6 +24241,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 var ModalManager = /*#__PURE__*/function () {
   function ModalManager(modalName, animationWrapName, btnName) {
+    var animations = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {
+      "in": "animator-fader-in",
+      out: "animator-fader-out"
+    };
+
     _classCallCheck(this, ModalManager);
 
     _defineProperty(this, "_modal", void 0);
@@ -24127,6 +24257,7 @@ var ModalManager = /*#__PURE__*/function () {
     this._modal = document.querySelector(modalName);
     this._animation = document.querySelector(animationWrapName);
     this.continueBtn = document.querySelector(btnName);
+    this.animations = animations;
   }
 
   _createClass(ModalManager, [{
@@ -24134,32 +24265,32 @@ var ModalManager = /*#__PURE__*/function () {
     value: function on() {
       this._modal.classList.add("active");
 
-      this._animation.classList.add("animation-slide-in");
+      this._animation.classList.add(this.animations["in"]);
 
       this._animation.onanimationiteration = this._slideInEnd.bind(this);
     }
   }, {
     key: "off",
     value: function off() {
-      this._animation.classList.add("animation-slide-out");
+      this._animation.classList.add(this.animations.out);
 
       this._animation.onanimationiteration = this._slideOutEnd.bind(this);
     }
   }, {
     key: "_slideInEnd",
     value: function _slideInEnd() {
-      this._animation.classList.remove("animation-slide-in");
+      this._animation.classList.remove(this.animations["in"]);
 
       this._animation.onanimationiteration = function () {};
     }
   }, {
     key: "_slideOutEnd",
     value: function _slideOutEnd() {
-      this._animation.classList.remove("animation-slide-out");
+      this._modal.classList.remove("active");
+
+      this._animation.classList.remove(this.animations.out);
 
       this._animation.onanimationiteration = function () {};
-
-      this._modal.classList.remove("active");
 
       this._afterCloseFunction();
     }
@@ -24302,8 +24433,13 @@ var QuestionManager = /*#__PURE__*/function () {
   }
 
   _createClass(QuestionManager, [{
-    key: "_selectedIndex",
-    value: function _selectedIndex() {
+    key: "isSelected",
+    value: function isSelected(index) {
+      return this._selected === index;
+    }
+  }, {
+    key: "selectedIndex",
+    value: function selectedIndex() {
       return this._selected;
     }
   }, {
@@ -24333,7 +24469,10 @@ var QuestionManager = /*#__PURE__*/function () {
       this._resultLocation.classList[locationAction]("active");
 
       this._resultLocation.textContent = locationText;
-      this._resultSelectedAnswer.textContent = this._options[this._selected].textContent;
+
+      if (this._selected !== -1) {
+        this._resultSelectedAnswer.textContent = this._options[this._selected].textContent;
+      }
     }
   }, {
     key: "_setQuestionModalManager",
@@ -24382,7 +24521,7 @@ var QuestionManager = /*#__PURE__*/function () {
     value: function setQuestionAnsweredFunction(questionAnsweredFunction) {
       this._questionAnsweredFunction = questionAnsweredFunction;
 
-      this._questionModalManager.continueBtn.addEventListener("click", this._questionAnsweredFunction.bind(this, this._isAnswerCorrect.bind(this), this._selectedIndex.bind(this)));
+      this._questionModalManager.continueBtn.addEventListener("click", this._questionAnsweredFunction.bind(this, this._isAnswerCorrect.bind(this), this.selectedIndex.bind(this)));
     }
   }, {
     key: "setCloseResultFunction",
@@ -24458,6 +24597,7 @@ var QuestionManager = /*#__PURE__*/function () {
   }, {
     key: "start",
     value: function start(questionData, player, isMyTurn) {
+      this._selected = -1;
       this.setData(questionData, player, isMyTurn);
 
       this._questionModalManager.on();
@@ -24465,7 +24605,7 @@ var QuestionManager = /*#__PURE__*/function () {
   }, {
     key: "setData",
     value: function setData(questionData, player, isMyTurn) {
-      this._selected = 1;
+      this._selected = -1;
       this._currentPlayer = player;
 
       this._setQuestion(questionData, isMyTurn);
@@ -24572,7 +24712,9 @@ var RoundManager = /*#__PURE__*/function () {
         _this2._showOver();
       });
 
-      this._overReadyBtn.classList.add("d-hide");
+      if (this._isOnline) {
+        this._overReadyBtn.classList.add("d-hide");
+      }
 
       this._overNewGameBtn.classList[addOrRemove]("control-btn-dis");
 
@@ -24716,6 +24858,11 @@ var RulesModalManager = /*#__PURE__*/function (_ModalManager) {
   function RulesModalManager() {
     var _this;
 
+    var animationContinue = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+      "in": "animation-slide-in",
+      out: "animation-slide-out"
+    };
+
     _classCallCheck(this, RulesModalManager);
 
     _this = _super.call(this, ".wrapper-modal_rules", ".rules-animation-wrap", ".btn-rules-close");
@@ -24728,6 +24875,8 @@ var RulesModalManager = /*#__PURE__*/function (_ModalManager) {
 
     _defineProperty(_assertThisInitialized(_this), "_curRule", 0);
 
+    _this.animationContinue = animationContinue;
+
     _this._rulesTurnOnBtn.addEventListener("click", function (e) {
       _this._resetRules();
 
@@ -24735,7 +24884,7 @@ var RulesModalManager = /*#__PURE__*/function (_ModalManager) {
     });
 
     _this._rulesContinueBtn.addEventListener("click", function (e) {
-      _this._animation.classList.add("animation-slide-out");
+      _this._animation.classList.add(_this.animationContinue.out);
 
       _this._animation.onanimationiteration = _this._rulesSlideOutEnd.bind(_assertThisInitialized(_this));
     });
@@ -24752,16 +24901,16 @@ var RulesModalManager = /*#__PURE__*/function (_ModalManager) {
 
       this._nextRule();
 
-      this._animation.classList.remove("animation-slide-out");
+      this._animation.classList.remove(this.animationContinue.out);
 
-      this._animation.classList.add("animation-slide-in");
+      this._animation.classList.add(this.animationContinue["in"]);
     }
   }, {
     key: "_rulesSlideInEnd",
     value: function _rulesSlideInEnd(e) {
       this._animation.onanimationiteration = function () {};
 
-      this._animation.classList.remove("animation-slide-in");
+      this._animation.classList.remove(this.animationContinue["in"]);
     }
   }, {
     key: "_nextRule",

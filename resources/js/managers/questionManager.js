@@ -44,7 +44,10 @@ export default class QuestionManager {
             location: this._resultLocation.textContent,
         };
     }
-    _selectedIndex() {
+    isSelected(index) {
+        return this._selected === index;
+    }
+    selectedIndex() {
         return this._selected;
     }
     _isAnswerCorrect() {
@@ -66,8 +69,10 @@ export default class QuestionManager {
         this._resultHeader.textContent = headerText;
         this._resultLocation.classList[locationAction]("active");
         this._resultLocation.textContent = locationText;
-        this._resultSelectedAnswer.textContent =
-            this._options[this._selected].textContent;
+        if (this._selected !== -1) {
+            this._resultSelectedAnswer.textContent =
+                this._options[this._selected].textContent;
+        }
     }
     _setQuestionModalManager() {
         this._questionModalManager.continueBtn.classList.add("control-btn-dis");
@@ -103,7 +108,7 @@ export default class QuestionManager {
             this._questionAnsweredFunction.bind(
                 this,
                 this._isAnswerCorrect.bind(this),
-                this._selectedIndex.bind(this)
+                this.selectedIndex.bind(this)
             )
         );
     }
@@ -158,11 +163,12 @@ export default class QuestionManager {
         this[`_setBorder${player}`]();
     }
     start(questionData, player, isMyTurn) {
+        this._selected = -1;
         this.setData(questionData, player, isMyTurn);
         this._questionModalManager.on();
     }
     setData(questionData, player, isMyTurn) {
-        this._selected = 1;
+        this._selected = -1;
         this._currentPlayer = player;
         this._setQuestion(questionData, isMyTurn);
         this._setColor(player);

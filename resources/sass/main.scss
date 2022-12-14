@@ -93,6 +93,7 @@ body {
 }
 .btn-dis:hover {
     background: #474646;
+    border: 3px solid #6a6565;
 }
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
@@ -113,12 +114,14 @@ input[type="number"] {
     height: 100%;
     display: none;
     position: fixed;
+    opacity: 0;
     top: 0;
     left: 0;
     z-index: 4;
 }
 
 .wrapper-modal.active {
+    opacity: 1;
     display: block;
 }
 
@@ -162,6 +165,9 @@ input[type="number"] {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 2;
+}
+.wrapper-modal_rules {
+    z-index: 45;
 }
 .wrapper-modal_loader {
     z-index: 50;
@@ -514,12 +520,14 @@ input[type="number"] {
     animation-name: fader-out;
     animation-duration: 3s;
     animation-iteration-count: infinite;
+    opacity: 1;
 }
 .game-board.faded-out {
     opacity: 0;
 }
 .animator-fader-in {
     animation-name: fader-in;
+    opacity: 0;
 }
 @keyframes fader-out {
     0% {
@@ -671,6 +679,7 @@ input[type="number"] {
 }
 .animation-slide-out,
 .animation-slide-in {
+    will-change: transform;
     animation-name: slide-left-out;
     animation-duration: 1.5s;
     animation-iteration-count: infinite;

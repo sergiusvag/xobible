@@ -6,12 +6,12 @@ use App\Models\User;
 use App\Models\Room;
 use App\Models\GameStatus;
 use App\Models\QuestionStatus;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Logged\OnlineGameController;
 
-class WelcomeController extends Controller
+class WelcomeController extends BaseController
 {
     public function welcome($locale)
     {

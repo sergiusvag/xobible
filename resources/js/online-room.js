@@ -35,8 +35,8 @@ window.Echo = new Echo({
 
 import Loader from "./helper/loader";
 import { initLang, __ } from "./helper/translator";
+import AudioManager from "./managers/audioManager";
 import RoomManager from "./managers/roomManager";
-import roomManager from "./managers/roomManager";
 
 let roomChannel;
 const joinNotified = (data) => {
@@ -61,7 +61,7 @@ const kickNotified = (data) => {
 
 const startNotified = (data) => {
     window.Echo.leave(data.channel);
-    window.location.href = `/online-color-picker/${RoomManager.locale()}?room_number=${roomManager.roomNumber()}`;
+    window.location.href = `/online-color-picker/${RoomManager.locale()}?room_number=${RoomManager.roomNumber()}`;
 };
 
 const memberListenChannels = () => {
@@ -98,6 +98,7 @@ const memberJoinRoomChannel = async (channel) => {
         Loader.Off();
     });
     roomChannel.listenForWhisper("smily", (e) => {
+        AudioManager.play("message");
         RoomManager.displaySuccessMsg(`${e.name} : ${__(e.message)}`);
     });
 };
@@ -124,10 +125,12 @@ const channelListenExit = () => {
 };
 
 const channelListenStart = () => {
+    AudioManager.play("buttonClick");
     roomChannel.listen("RoomEventStart", startNotified);
 };
 
 const channelListenChat = (data) => {
+    AudioManager.play("message");
     roomChannel.whisper("smily", {
         message: data.message,
         name: data.name,
@@ -162,7 +165,7 @@ const checkIfInRoom = () => {
         if (resp.data.status) {
             roomChannel = window.Echo.private(resp.data.channel);
             if (resp.data.status === "in_color") {
-                window.location.href = `/online-color-picker/${RoomManager.locale()}?room_number=${roomManager.roomNumber()}`;
+                window.location.href = `/online-color-picker/${RoomManager.locale()}?room_number=${RoomManager.roomNumber()}`;
             } else if (resp.data.status === "in_room") {
                 if (resp.data.is_host) {
                     hostCreateAndDisplay(resp.data);
