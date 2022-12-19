@@ -118,6 +118,10 @@ class OnlineGameController extends BaseController
     }
 
     public function optionSelected(Request $request, $locale) {
+        $gameStatus = GameStatus::where('room_number', $request['room_number'])->first();
+        $gameStatus['selected_option'] = $request['index'];
+        $gameStatus->save();
+        
         broadcast(new GameOptionSelected($request['room_number'], ['index' => $request['index']]))->toOthers();
 
         return [];

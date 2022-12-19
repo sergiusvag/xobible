@@ -69,10 +69,8 @@ export default class QuestionManager {
         this._resultHeader.textContent = headerText;
         this._resultLocation.classList[locationAction]("active");
         this._resultLocation.textContent = locationText;
-        if (this._selected !== -1) {
-            this._resultSelectedAnswer.textContent =
-                this._options[this._selected].textContent;
-        }
+        this._resultSelectedAnswer.textContent =
+            this._options[this._selected].textContent;
     }
     _setQuestionModalManager() {
         this._questionModalManager.continueBtn.classList.add("control-btn-dis");
@@ -163,12 +161,11 @@ export default class QuestionManager {
         this[`_setBorder${player}`]();
     }
     start(questionData, player, isMyTurn) {
-        this._selected = -1;
-        this.setData(questionData, player, isMyTurn);
+        this.setData(questionData, -1, player, isMyTurn);
         this._questionModalManager.on();
     }
-    setData(questionData, player, isMyTurn) {
-        this._selected = -1;
+    setData(questionData, selectedOption, player, isMyTurn) {
+        this._selected = selectedOption;
         this._currentPlayer = player;
         this._setQuestion(questionData, isMyTurn);
         this._setColor(player);

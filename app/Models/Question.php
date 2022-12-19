@@ -18,6 +18,7 @@ class Question extends Model
     use HasFactory, AsSource, Filterable, Attachable;
     
     protected $fillable = [
+        'question_type',
         'author_id'
     ];
 

@@ -38,6 +38,7 @@ class GameStatus extends Model
         'join_total_score',
         'room_number',
         'current_round',
+        'selected_option',
         'current_player',
         'status',
     ];

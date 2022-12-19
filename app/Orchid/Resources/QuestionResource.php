@@ -4,6 +4,7 @@ namespace App\Orchid\Resources;
 
 use App\Orchid\Resources\AuthorableResource;
 use App\Models\Question;
+use App\Models\QuestionType;
 use App\Models\QuestionEn;
 use App\Models\QuestionRu;
 use App\Models\QuestionHe;
@@ -18,6 +19,7 @@ use Orchid\Screen\Sight;
 use Orchid\Screen\Actions\Menu;
 use Orchid\Screen\Actions\Link;
 use Orchid\Screen\Fields\Input;
+use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Fields\Group;
 use Orchid\Screen\Fields\CheckBox;
 
@@ -45,8 +47,13 @@ class QuestionResource extends AuthorableResource
         if(isset($question) && !$question->mistakes->isEmpty()) {
             $fields = $this::createAndMergeMistakesFields($fields, $question->mistakes);
         };
-
-        $fields = array_merge($fields,[Input::make('author_id')->type('hidden')]);;
+        $questionFields = [
+            Input::make('author_id')->type('hidden'),
+            Select::make('question_type')
+                    ->title(__('Question type'))
+                    ->fromModel(QuestionType::class, 'type')
+        ];
+        $fields = array_merge($fields,$questionFields);
 
         foreach($localeArr as $langName => $locale) {
             $fields = isset($question) ? $this::createAndMergeLocaleQuestionsFields($fields, $question['question' . $locale], $locale)
@@ -246,19 +253,20 @@ class QuestionResource extends AuthorableResource
         }
         
         $localeArr = parent::localeArr();
-        $allFields = ['author_id' => $fields["author_id"]];
+        $allFields = [];
+        $noneModelFields = ['author_id' => $fields["author_id"], 'question_type' => $fields["question_type"]];
         foreach($localeArr as $langName => $locale) {
             $allFields[$locale] = $this::extractFields($fields, $locale);
         }
         return [
             'fields' => $allFields,
-            'none_model_fields' => [],
+            'none_model_fields' => $noneModelFields,
         ];
     }
 
     public function CustomSave(ResourceRequest $request, Model $model, Array $fields, Array $noneModelFields) {
         $localeArr = parent::localeArr();
-        $questionNew = $model->forceFill(['author_id' => $fields["author_id"]])->save();
+        $questionNew = $model->forceFill($noneModelFields)->save();
         foreach($localeArr as $langName => $locale) {
             $fields[$locale]['question_id'] = $model->id;
             

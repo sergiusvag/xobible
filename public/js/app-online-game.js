@@ -23862,7 +23862,7 @@ var GameManager = /*#__PURE__*/function () {
           break;
 
         case "in_result":
-          this.setInResult(index, this.isCorrect, this.currentPlayer, this.otherPlayer);
+          this.setInResult(index, this.isCorrect);
           break;
 
         case "in_over":
@@ -24076,7 +24076,7 @@ var GameManager = /*#__PURE__*/function () {
     value: function setInResult(index, isCorrect) {
       var player = this.myTurn ? this.currentPlayer : this.otherPlayer;
       this.boardManager.setSelectedTile(index);
-      this.questionManager.setData(this.questions[index], player, this.isMyTurn.bind(this));
+      this.questionManager.setData(this.questions[index], this.gameStatus.selected_option, player, this.isMyTurn.bind(this));
       this.questionManager.setQuestionAnswered(isCorrect);
     }
   }, {
@@ -24469,10 +24469,7 @@ var QuestionManager = /*#__PURE__*/function () {
       this._resultLocation.classList[locationAction]("active");
 
       this._resultLocation.textContent = locationText;
-
-      if (this._selected !== -1) {
-        this._resultSelectedAnswer.textContent = this._options[this._selected].textContent;
-      }
+      this._resultSelectedAnswer.textContent = this._options[this._selected].textContent;
     }
   }, {
     key: "_setQuestionModalManager",
@@ -24597,15 +24594,14 @@ var QuestionManager = /*#__PURE__*/function () {
   }, {
     key: "start",
     value: function start(questionData, player, isMyTurn) {
-      this._selected = -1;
-      this.setData(questionData, player, isMyTurn);
+      this.setData(questionData, -1, player, isMyTurn);
 
       this._questionModalManager.on();
     }
   }, {
     key: "setData",
-    value: function setData(questionData, player, isMyTurn) {
-      this._selected = -1;
+    value: function setData(questionData, selectedOption, player, isMyTurn) {
+      this._selected = selectedOption;
       this._currentPlayer = player;
 
       this._setQuestion(questionData, isMyTurn);

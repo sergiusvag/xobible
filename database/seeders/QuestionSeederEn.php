@@ -19,7 +19,10 @@ class QuestionSeederEn extends Seeder
 
         foreach($questions as $key => $question) {
             DB::table('questions')->insert([
+                'question_type'=>1,
                 'author_id'=>1,
+                'created_at' => date("Y-m-d H:i:s"),
+                'updated_at' => date("Y-m-d H:i:s")
             ]);
             DB::table('questions_en')->insert([
                 'question'=>$question['question'],
@@ -32,6 +35,8 @@ class QuestionSeederEn extends Seeder
                 'author_id'=>1,
                 'confirmed'=>true,
                 'question_id'=>$key + 1,
+                'created_at' => date("Y-m-d H:i:s"),
+                'updated_at' => date("Y-m-d H:i:s")
             ]);
         }
     }

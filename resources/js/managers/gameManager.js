@@ -294,12 +294,7 @@ export default class GameManager {
                 this.setInQuestion(index);
                 break;
             case "in_result":
-                this.setInResult(
-                    index,
-                    this.isCorrect,
-                    this.currentPlayer,
-                    this.otherPlayer
-                );
+                this.setInResult(index, this.isCorrect);
                 break;
             case "in_over":
                 this.setInOver();
@@ -500,6 +495,7 @@ export default class GameManager {
         this.boardManager.setSelectedTile(index);
         this.questionManager.setData(
             this.questions[index],
+            this.gameStatus.selected_option,
             player,
             this.isMyTurn.bind(this)
         );

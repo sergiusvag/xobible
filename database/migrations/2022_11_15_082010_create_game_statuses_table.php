@@ -39,6 +39,7 @@ return new class extends Migration
             $table->bigInteger('join_total_score')->default(0);
             $table->bigInteger('room_number');
             $table->bigInteger('current_round')->default(1);
+            $table->bigInteger('selected_option')->default(-1);
             $table->enum('current_player', ['host', 'join'])->default('host');
             $table->enum('status', ['in_round', 'in_board', 'in_question', 'in_result', 'in_over'])->default('in_question');
             $table->enum('result', ['none', 'is_correct', 'is_wrong'])->default('none');
