@@ -35,6 +35,7 @@ window.Echo = new Echo({
 
 import Loader from "./helper/loader";
 import ColorPickerManager from "./managers/colorPickerManager";
+import QuestionCategoryManager from "./managers/questionCategoryManager";
 import ConnectionValidator from "./managers/connectionValidator";
 
 const room_number = document.querySelector(".room_number").textContent;
@@ -110,6 +111,7 @@ btnStart.addEventListener("click", (e) => {
     Loader.On();
     window.axios.post(`/online-game-start/${locale}`, {
         room_number: room_number,
+        question_category_id: QuestionCategoryManager.selectedId(),
         ...colorPickerManager.getData(),
     });
 });

@@ -8,12 +8,13 @@ use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
 
-class QuestionType extends Model
+class CategoryHe extends Model
 {
     use HasFactory, AsSource, Filterable, Attachable;
-    
+
     protected $fillable = [
-        'type',
+        'name',
         'available',
+        'category_id',
     ];
 }

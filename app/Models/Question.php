@@ -7,10 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Orchid\Attachment\Attachable;
 use Orchid\Filters\Filterable;
 use Orchid\Screen\AsSource;
-use App\models\Mistake;
-use App\models\QuestionEn;
-use App\models\QuestionRu;
-use App\models\QuestionHe;
 // use App\models\QuestionAr; // Example for new question model in a new langauge
 
 class Question extends Model
@@ -18,7 +14,6 @@ class Question extends Model
     use HasFactory, AsSource, Filterable, Attachable;
     
     protected $fillable = [
-        'question_type',
         'author_id'
     ];
 
@@ -47,6 +42,9 @@ class Question extends Model
         return $this->hasOne(QuestionHe::class);
     }
     
+    public function categories() {
+        return $this->belongsToMany(Category::class)->using(QuestionCategory::class);
+    }
     // Example for a new relationship with the new question model
     // public function questionAr()
     // {

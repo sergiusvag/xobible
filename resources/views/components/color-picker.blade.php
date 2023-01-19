@@ -28,6 +28,21 @@
         @php
             }
         @endphp
+        <span class="user-profile-text">{{ __('Category') }}</span>
+        <div class="mt-3 mb-4">
+            @php
+                $i = 0;
+                $active = 'selected';
+                do {
+                    @endphp
+                        <span class="btn question-category btn-pos-action {{ $active }}" data-category-id="{{ $data['categories_id'][$i] }}" data-category-name="{{ $data['categories'][$i] }}">{{ $data['categories'][$i] }}</span>
+                    @php
+                    $active = '';
+                    $i++;
+                } while ($i < count($data['categories']));
+
+            @endphp
+        </div>
         <button type="button" class="btn btn-pos-action btn-start control-btn-dis">{{ __('Start') }}</button>
         @if($data['isOnline'])
         <button type="button" class="btn btn-pos-action btn-ready control-btn-dis">{{ __('Ready') }}</button>

@@ -37,6 +37,7 @@ class GameStatus extends Model
         'join_bonus_score',
         'join_total_score',
         'room_number',
+        'question_category_id',
         'current_round',
         'selected_option',
         'current_player',

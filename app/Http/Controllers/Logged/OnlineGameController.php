@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Logged;
 
 use App\Models\Room;
 use App\Models\Question;
+use App\Models\Category;
 use App\Models\GameStatus;
 use App\Models\QuestionStatus;
 use App\Http\Controllers\BaseController;
@@ -18,8 +19,8 @@ use App\Events\GameNextRoundClicked;
 
 class OnlineGameController extends BaseController
 {
-    public function createQuestionStatuses($room_number, $gameStatusId) {
-        $questions = Question::All();
+    public function createQuestionStatuses($room_number, $gameStatusId, $questionCategoryId) {
+        $questions = Category::where('id', $questionCategoryId)->first()->questions;
         $maxRound = floor($questions->count() / 9);
         $shuffledQuestions = $questions->shuffle();
         
@@ -58,15 +59,21 @@ class OnlineGameController extends BaseController
         $questionStatuses = QuestionStatus::where('game_status_id', $gameStatus->id)->get();
 
         if($questionStatuses->isEmpty()){
-            $maxRound = $this->createQuestionStatuses($room_number, $gameStatus->id);
+            $maxRound = $this->createQuestionStatuses($room_number, $gameStatus->id, $gameStatus->question_category_id);
         } else {
             $maxRound = $questionStatuses->count();
         }
 
         $audioData = $this->getAudioData('online-game');
 
-        return view('logged.online-game')
-            ->with('data' , ['isOnline' => true, 'room_number' => $room_number, 'max_round' => $maxRound, 'current_round' => $gameStatus->current_round])
+        return view('game')
+            ->with('data' , [
+                'isOnline' => true,
+                'room_number' => $room_number,
+                'max_round' => $maxRound,
+                'current_round' => $gameStatus->current_round,
+                'question_category_id' => $gameStatus->question_category_id
+                ])
             ->with('rtlClass', $this->getRtlClass($locale))
             ->with('audioData', $audioData)
             ->with('locale', $locale);

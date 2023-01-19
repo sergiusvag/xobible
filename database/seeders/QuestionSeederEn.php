@@ -18,8 +18,22 @@ class QuestionSeederEn extends Seeder
         $questions = json_decode(file_get_contents(asset('json/questionsEn.json')), true);
 
         foreach($questions as $key => $question) {
+            $allFieldsSet = true;
+            foreach ($question as $keyQ => $valueQ) {
+                if(empty($valueQ)) {
+                    $allFieldsSet = false;
+                }
+            }
+            $confirmed = $allFieldsSet;
+
+            $id = $key + 1;
+            DB::table('category_question')->insert([
+                'question_id'=>$id,
+                'category_id'=>1,
+                'created_at' => date("Y-m-d H:i:s"),
+                'updated_at' => date("Y-m-d H:i:s")
+            ]);
             DB::table('questions')->insert([
-                'question_type'=>1,
                 'author_id'=>1,
                 'created_at' => date("Y-m-d H:i:s"),
                 'updated_at' => date("Y-m-d H:i:s")
@@ -33,8 +47,8 @@ class QuestionSeederEn extends Seeder
                 'answer'=>$question['answer'],
                 'location'=>$question['location'],
                 'author_id'=>1,
-                'confirmed'=>true,
-                'question_id'=>$key + 1,
+                'confirmed'=>false,
+                'question_id'=>$id,
                 'created_at' => date("Y-m-d H:i:s"),
                 'updated_at' => date("Y-m-d H:i:s")
             ]);

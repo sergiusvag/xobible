@@ -23516,6 +23516,8 @@ var GameManager = /*#__PURE__*/function () {
 
     _defineProperty(this, "locale", document.querySelector(".locale").textContent);
 
+    _defineProperty(this, "question_category_id", document.querySelector(".question_category_id").textContent);
+
     _defineProperty(this, "room_number", void 0);
 
     _defineProperty(this, "max_round", void 0);
@@ -23794,7 +23796,7 @@ var GameManager = /*#__PURE__*/function () {
   }, {
     key: "offlineOnLoad",
     value: function offlineOnLoad() {
-      this.onLoad(function () {}, "/offline-game-load/".concat(this.locale), this.initOffline.bind(this));
+      this.onLoad(function () {}, "/offline-game-load/".concat(this.locale, "/?question_category_id=").concat(this.question_category_id), this.initOffline.bind(this));
     }
   }, {
     key: "onlineOnLoad",

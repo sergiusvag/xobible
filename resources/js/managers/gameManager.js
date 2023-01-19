@@ -36,6 +36,8 @@ import AudioManager from "./audioManager";
 
 export default class GameManager {
     locale = document.querySelector(".locale").textContent;
+    question_category_id = document.querySelector(".question_category_id")
+        .textContent;
     room_number;
     max_round;
     current_round;
@@ -219,7 +221,7 @@ export default class GameManager {
     offlineOnLoad() {
         this.onLoad(
             () => {},
-            `/offline-game-load/${this.locale}`,
+            `/offline-game-load/${this.locale}/?question_category_id=${this.question_category_id}`,
             this.initOffline.bind(this)
         );
     }

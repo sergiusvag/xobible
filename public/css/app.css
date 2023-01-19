@@ -11593,6 +11593,14 @@ input[type=number] {
   display: none;
 }
 
+.question-category {
+  display: none;
+}
+
+.selected {
+  display: inline-block;
+}
+
 .input-field {
   color: #fff;
   background: rgba(118, 4, 82, 0.4);

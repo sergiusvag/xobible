@@ -18,6 +18,14 @@ class QuestionSeederRu extends Seeder
         $questions = json_decode(file_get_contents(asset('json/questionsRu.json')), true);
 
         foreach($questions as $key => $question) {
+            $allFieldsSet = true;
+            foreach ($question as $keyQ => $valueQ) {
+                if(empty($valueQ)) {
+                    $allFieldsSet = false;
+                }
+            }
+            $confirmed = $allFieldsSet;
+
             DB::table('questions_ru')->insert([
                 'question'=>$question['question'],
                 'option_1'=>$question['options'][0],
@@ -27,7 +35,7 @@ class QuestionSeederRu extends Seeder
                 'answer'=>$question['answer'],
                 'location'=>$question['location'],
                 'author_id'=>1,
-                'confirmed'=>true,
+                'confirmed'=>$confirmed,
                 'question_id'=>$key + 1,
                 'created_at' => date("Y-m-d H:i:s"),
                 'updated_at' => date("Y-m-d H:i:s")

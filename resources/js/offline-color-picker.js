@@ -4,6 +4,7 @@ window._ = _;
 import "bootstrap";
 
 import Loader from "./helper/loader";
+import QuestionCategoryManager from "./managers/questionCategoryManager";
 import ColorPickerManager from "./managers/colorPickerManager";
 
 const btnStart = document.querySelector(".btn-start");
@@ -32,7 +33,8 @@ btnStart.addEventListener("click", (e) => {
     const interval = setInterval(() => {
         Loader.On();
         const colors = colorPickerManager.getData();
+        const categoryId = QuestionCategoryManager.selectedId();
         clearInterval(interval);
-        window.location.href = `/offline-game/${locale}?host_color=${colors.host_color}&join_color=${colors.join_color}`;
+        window.location.href = `/offline-game/${locale}?host_color=${colors.host_color}&join_color=${colors.join_color}&question_category_id=${categoryId}`;
     }, 500);
 });

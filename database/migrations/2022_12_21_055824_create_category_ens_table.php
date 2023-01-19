@@ -13,9 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('questions', function (Blueprint $table) {
+        Schema::create('category_ens', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('author_id');
+            $table->string('name')->nullable();
+            $table->boolean('available')->default(false);
+            $table->bigInteger('category_id');
             $table->timestamps();
         });
     }
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('questions');
+        Schema::dropIfExists('category_ens');
     }
 };

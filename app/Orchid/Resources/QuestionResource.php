@@ -3,13 +3,15 @@
 namespace App\Orchid\Resources;
 
 use App\Orchid\Resources\AuthorableResource;
+use App\Models\Category;
 use App\Models\Question;
-use App\Models\QuestionType;
+use App\Models\QuestionCategory;
 use App\Models\QuestionEn;
 use App\Models\QuestionRu;
 use App\Models\QuestionHe;
 use App\Models\User;
 use App\Models\Mistake;
+use Illuminate\Support\Facades\App;
 use Illuminate\Database\Eloquent\Model;
 use Orchid\Crud\ResourceRequest;
 use Orchid\Crud\Resource;
@@ -47,17 +49,27 @@ class QuestionResource extends AuthorableResource
         if(isset($question) && !$question->mistakes->isEmpty()) {
             $fields = $this::createAndMergeMistakesFields($fields, $question->mistakes);
         };
+        $locale = App::currentLocale();
+        $categoryClass = 'App\Models\Category'.$locale;
+        $questionCategory = QuestionCategory::where('question_id',$id)->get();
+        $categories = [];
+        for($i = 0; $i < count($questionCategory); $i ++){
+            $categories[$i] = $questionCategory[$i]->category_id;
+        }
         $questionFields = [
             Input::make('author_id')->type('hidden'),
-            Select::make('question_type')
-                    ->title(__('Question type'))
-                    ->fromModel(QuestionType::class, 'type')
+            Select::make('categories_all')
+                    ->title(__('Categories'))
+                    ->multiple()
+                    ->fromModel($categoryClass, 'name')
+                    ->value($categories)
+                    ->required()
         ];
         $fields = array_merge($fields,$questionFields);
 
         foreach($localeArr as $langName => $locale) {
-            $fields = isset($question) ? $this::createAndMergeLocaleQuestionsFields($fields, $question['question' . $locale], $locale)
-                                    : $this::createAndMergeLocaleQuestionsFields($fields, null, $locale);
+            $fields = isset($question) ? $this::createAndMergeLocaleFields($fields, $question['question' . $locale], $locale)
+                                    : $this::createAndMergeLocaleFields($fields, null, $locale);
         }
 
         return $fields;
@@ -82,7 +94,7 @@ class QuestionResource extends AuthorableResource
         return array_merge($initFields,$mistakeDeleteOptions);
     }
 
-    public function createAndMergeLocaleQuestionsFields($initFields, $question, $locale) {
+    public function createAndMergeLocaleFields($initFields, $question, $locale) {
         $fields = [];
         $localeUp = strtoupper($locale);
         if(isset($question)) {
@@ -141,11 +153,12 @@ class QuestionResource extends AuthorableResource
      */
     public function columns(): array
     {
+        $localeArr = parent::localeArr();
+
         return [
             TD::make('id'),
             TD::make('question', __('Question'))
-                ->render(function ($question) {
-                    $localeArr = parent::localeArr();
+                ->render(function ($question) use ($localeArr) {
                     $questionString = '';
 
                     foreach($localeArr as $langName => $locale) {
@@ -157,8 +170,7 @@ class QuestionResource extends AuthorableResource
                 })
                 ->width('500px'),
             TD::make('translated', __('Translation Status'))
-                ->render(function ($question) {
-                    $localeArr = parent::localeArr();
+                ->render(function ($question) use ($localeArr) {
                     $confirmedString = '';
 
                     foreach($localeArr as $langName => $locale) {
@@ -184,13 +196,22 @@ class QuestionResource extends AuthorableResource
     public function legend(): array
     {
         $localeArr = parent::localeArr();
-
         $id = request()->route('id');
         $question = $this::$model::find($id);
         $mistakes = $question->mistakes;
         $sightFields = [
             Sight::make('id', 'id : '),
             Sight::make('author_id', __('Author') . ' : ')->render(function($question) { return $question->author->name;}),
+            Sight::make('categories', __('Categories') . ' : ')->render(function($question) { 
+                $locale = ucfirst(App::currentLocale());
+                
+                $categories = $question->categories;
+                $categoryString = $categories[0]['category' . $locale]->name;
+                for($i = 1; $i < count($categories); $i++) {
+                    $categoryString = $categoryString . ', ' . $categories[$i]['category' . $locale]->name;
+                }
+                return $categoryString;
+            }),
         ];
 
         foreach($localeArr as $langName => $locale) {
@@ -254,7 +275,7 @@ class QuestionResource extends AuthorableResource
         
         $localeArr = parent::localeArr();
         $allFields = [];
-        $noneModelFields = ['author_id' => $fields["author_id"], 'question_type' => $fields["question_type"]];
+        $noneModelFields = ['author_id' => $fields["author_id"], 'categories' => $fields["categories_all"]];
         foreach($localeArr as $langName => $locale) {
             $allFields[$locale] = $this::extractFields($fields, $locale);
         }
@@ -264,9 +285,21 @@ class QuestionResource extends AuthorableResource
         ];
     }
 
+    public function saveCategories($questionId, $categories) {
+        QuestionCategory::where('question_id',$questionId)->delete();
+
+        foreach($categories as $category) {
+            $QuestionCategory = new QuestionCategory([
+                'category_id' => $category,
+                'question_id' => $questionId,
+            ]);
+    
+            $QuestionCategory->save();
+        }
+    }
     public function CustomSave(ResourceRequest $request, Model $model, Array $fields, Array $noneModelFields) {
         $localeArr = parent::localeArr();
-        $questionNew = $model->forceFill($noneModelFields)->save();
+        $questionNew = $model->forceFill(["author_id" => $noneModelFields['author_id']])->save();
         foreach($localeArr as $langName => $locale) {
             $fields[$locale]['question_id'] = $model->id;
             
@@ -278,10 +311,12 @@ class QuestionResource extends AuthorableResource
                 $question->save();
             }
         }
+        $this->saveCategories($model->id, $noneModelFields["categories"]);
     }
 
     public function onDelete(Model $model) {
         $localeArr = parent::localeArr();
+        QuestionCategory::where('question_id',$model->id)->delete();
 
         foreach($localeArr as $locale) {
             $model['question'.$locale]->delete();
