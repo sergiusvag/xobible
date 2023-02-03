@@ -19,10 +19,17 @@ use App\Events\GameNextRoundClicked;
 
 class OnlineGameController extends BaseController
 {
-    public function createQuestionStatuses($room_number, $gameStatusId, $questionCategoryId) {
+    public function createQuestionStatuses($room_number, $gameStatusId, $questionCategoryId, $locale) {
         $questions = Category::where('id', $questionCategoryId)->first()->questions;
-        $maxRound = floor($questions->count() / 9);
-        $shuffledQuestions = $questions->shuffle();
+
+        $upLocale = ucfirst($locale);
+
+        $filteredQuestions = $questions->filter(function ($question, $key) use($upLocale) {
+            return $question['question'.$upLocale]->confirmed === 1;
+        });
+
+        $maxRound = floor($filteredQuestions->count() / 9);
+        $shuffledQuestions = $filteredQuestions->shuffle();
         
         for($i = 1; $i <= $maxRound; $i++) {
             $offset = (($i * 9) - 9);
@@ -59,7 +66,7 @@ class OnlineGameController extends BaseController
         $questionStatuses = QuestionStatus::where('game_status_id', $gameStatus->id)->get();
 
         if($questionStatuses->isEmpty()){
-            $maxRound = $this->createQuestionStatuses($room_number, $gameStatus->id, $gameStatus->question_category_id);
+            $maxRound = $this->createQuestionStatuses($room_number, $gameStatus->id, $gameStatus->question_category_id, $locale);
         } else {
             $maxRound = $questionStatuses->count();
         }
@@ -98,7 +105,7 @@ class OnlineGameController extends BaseController
                                             ->first();
         $data = ['game_status' => $gameStatus];                       
         if($questionStatus !== null) {
-            $data['questions'] =  $this->extractQuestions($questionStatus, $locale);
+            $data['questions'] =  $this->extractQuestions($questionStatus, $gameStatus->room_locale);
             $data['question_status'] = $questionStatus;
         } 
         

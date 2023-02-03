@@ -38,6 +38,7 @@ return new class extends Migration
             $table->bigInteger('join_bonus_score')->default(0);
             $table->bigInteger('join_total_score')->default(0);
             $table->bigInteger('room_number');
+            $table->string('room_locale');
             $table->string('question_category_id');
             $table->bigInteger('current_round')->default(1);
             $table->bigInteger('selected_option')->default(-1);

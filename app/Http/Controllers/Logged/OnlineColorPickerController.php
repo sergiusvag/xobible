@@ -46,7 +46,7 @@ class OnlineColorPickerController extends ColorPickerController
             ->with('locale', $locale);
     }
 
-    public function start(Request $request) {
+    public function start(Request $request, $locale) {
         $room = Room::where('room_number', $request['room_number'])->first();
         $room->status = 'in_game';
         $room->save();
@@ -59,6 +59,7 @@ class OnlineColorPickerController extends ColorPickerController
             'join_name' => $room->join_name,
             'join_color' => $request['join_color'],
             'room_number' => $room->room_number,
+            'room_locale' => $locale,
             'question_category_id' => $request['question_category_id'],
             'status' => 'in_board'
         ]);

@@ -76,7 +76,7 @@ class OnlineRoomController extends BaseController
         return $room_number;
     }
 
-    public function create(Request $request) {
+    public function create(Request $request, $locale) {
         $roomKey = $request['roomKey'];
         $room_number = $this->findEmptyRoom(Room::all()->toArray());
 
@@ -85,6 +85,7 @@ class OnlineRoomController extends BaseController
             'host_name' => Auth::user()->name,
             'host_id' => Auth::user()->id,
             'room_key' => $roomKey,
+            'locale' => $locale,
         ]);
 
         $room->save();
@@ -110,7 +111,7 @@ class OnlineRoomController extends BaseController
         return [];
     }
 
-    public function join(Request $request) {
+    public function join(Request $request, $locale) {
         $room_number = $request['room_number'];
         $roomKey = $request['roomKey'];
         $data = [
@@ -121,6 +122,7 @@ class OnlineRoomController extends BaseController
         $room = Room::where('room_number', $room_number)
                     ->where('join_name', null)
                     ->where('room_key', $roomKey)
+                    ->where('locale', $locale)
                     ->first();
 
         if($room !== null) {

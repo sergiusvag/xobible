@@ -14,8 +14,14 @@ class OfflineGameController extends BaseController
     public function createQuestionsForRounds($locale, $questionCategoryId) {
         $questionsForRounds = [];
         $questions = Category::where('id', $questionCategoryId)->first()->questions;
-        $maxRound = floor($questions->count() / 9);
-        $shuffledQuestions = $questions->shuffle();
+        $upLocale = ucfirst($locale);
+
+        $filteredQuestions = $questions->filter(function ($question, $key) use($upLocale) {
+            return $question['question'.$upLocale]->confirmed === 1;
+        });
+
+        $maxRound = floor($filteredQuestions->count() / 9);
+        $shuffledQuestions = $filteredQuestions->shuffle();
 
         for($i = 1; $i <= $maxRound; $i++) {
             $offset = (($i * 9) - 9);
